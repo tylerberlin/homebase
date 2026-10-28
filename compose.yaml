@@ -1,0 +1,47 @@
+# Paste into TrueNAS: Apps → Discover Apps → ⋮ → Install via YAML
+# Fill in the three CHANGE_ME values first.
+services:
+  homebase:
+    image: node:22-alpine
+    container_name: homebase
+    restart: unless-stopped
+    network_mode: host            # lets it read host stats, reach the TrueNAS API on localhost, and reach the Pi over Tailscale
+    user: "950:950"               # truenas_admin, so the files it writes stay updatable over SSH
+    working_dir: /app
+    command: node server.js       # the Next.js standalone server from homebase.tgz
+    volumes:
+      - /mnt/tank/apps/homebase:/app
+      - /mnt/tank/apps/minecraft/mods:/mc-mods:ro   # lists the Minecraft server's mods (read-only)
+    environment:
+      NODE_ENV: "production"
+      HOSTNAME: "0.0.0.0"         # Next binds to $HOSTNAME; Docker would otherwise set it to the machine name
+      PORT: "8090"
+      REFRESH: "10"
+
+      # TrueNAS API (Settings → API Keys on your user, or the top-right user menu → My API Keys)
+      TRUENAS_HOST: "127.0.0.1"
+      TRUENAS_API_KEY: "CHANGE_ME_truenas_api_key"
+
+      # Optional: link the NAS card to the TrueNAS web UI (your Tailscale address)
+      NAS_WEB_URL: ""
+
+      # Weather and local time on the NAS card
+      NAS_LOCATION: "New York, NY"
+      NAS_LAT: "40.71"
+      NAS_LON: "-74.01"
+
+      # Modded Minecraft server on this box (the port the server listens on, not a tunnel port)
+      NAS_MC_HOST: "127.0.0.1"
+      NAS_MC_PORT: "25565"
+      NAS_MC_ADDRESS: "mc.example.com"
+      NAS_MC_MODS: "/mc-mods"     # the mods folder mounted above; leave out to hide the mods list
+      NAS_MC_LABEL: "Modded · Create"
+
+      # Pi stats reporter, reached over Tailscale (MagicDNS name or the Pi's 100.x address)
+      PI_AGENT_URL: "http://CHANGE_ME_pi_tailscale_ip:9100/stats"
+      PI_AGENT_TOKEN: "CHANGE_ME_same_token_as_on_the_pi"
+      PI_MC_LABEL: "Survival World"
+      PI_MC_ADDRESS: ""
+
+      # Public endpoints to check: "Name|URL,Name|URL"
+      LINKS: "Cloud|https://cloud.example.com"

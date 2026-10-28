@@ -1,0 +1,11 @@
+node_modules/
+.next/
+deploy/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+homebase.tgz
+.vercel
+.env*
+__pycache__/
+.DS_Store

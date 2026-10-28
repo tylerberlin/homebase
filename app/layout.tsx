@@ -1,0 +1,47 @@
+import type { Metadata, Viewport } from "next";
+import { Alegreya_Sans, Anton, Chakra_Petch, Cinzel, IBM_Plex_Mono, IBM_Plex_Sans, Press_Start_2P, Rajdhani, Tiny5, VT323 } from "next/font/google";
+import { lookScript } from "@/lib/settings";
+import "./globals.css";
+
+const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans" });
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
+// The game themes' fonts (Settings → Look → Theme). Not preloaded: a font only downloads once a theme uses it.
+const pixel = Tiny5({ subsets: ["latin"], weight: "400", variable: "--font-pixel", preload: false });
+const arcade = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-arcade", preload: false });
+const terminal = VT323({ subsets: ["latin"], weight: "400", variable: "--font-terminal", preload: false });
+const neon = Rajdhani({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-neon", preload: false });
+const hud = Chakra_Petch({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-hud", preload: false });
+const ancient = Cinzel({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-ancient", preload: false });
+const ancientBody = Alegreya_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-ancient-body", preload: false });
+const drop = Anton({ subsets: ["latin"], weight: "400", variable: "--font-drop", preload: false });
+
+export const metadata: Metadata = {
+  title: "Homebase",
+  description: "Live status for NAS and pi",
+  icons: { icon: "/brand/icon.svg", apple: "/brand/icon-180.png" },
+  appleWebApp: { capable: true, title: "Homebase", statusBarStyle: "black-translucent" },
+};
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover", // let the glow run under the phone's status bar; .wrap pads for the safe area
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#dfe9fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#050a18" },
+  ],
+};
+
+// Applies the remembered theme and look before first paint so there's no light/dark or color flash.
+const themeScript = `try{var t=localStorage.getItem("bd-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={[sans, mono, pixel, arcade, terminal, neon, hud, ancient, ancientBody, drop].map((f) => f.variable).join(" ")} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript + lookScript }} />
+      </head>
+      {/* browser extensions (e.g. Grammarly) add attributes to <body> before hydration */}
+      <body suppressHydrationWarning>{children}</body>
+    </html>
+  );
+}

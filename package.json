@@ -1,0 +1,31 @@
+{
+  "name": "homebase",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 8090",
+    "build": "next build",
+    "start": "next start -p 8090",
+    "bundle": "next build && sh scripts/bundle.sh",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^13.3.0",
+    "@simplewebauthn/server": "^13.3.3",
+    "fast-xml-parser": "^5.11.2",
+    "fflate": "^0.8.3",
+    "ical.js": "^2.2.1",
+    "jose": "^6.2.13",
+    "next": "16.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/ws": "^8.18.2",
+    "typescript": "^5"
+  }
+}

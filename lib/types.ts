@@ -1,0 +1,98 @@
+export type HostStats = {
+  hostname?: string;
+  cores?: number;
+  cpu_percent?: number;
+  temp_c?: number;
+  mem_total?: number;
+  mem_used?: number;
+  disk_total?: number;
+  disk_used?: number;
+  uptime_seconds?: number;
+  load?: number[];
+};
+
+export type Pool = {
+  name: string;
+  status?: string;
+  healthy?: boolean;
+  size?: number;
+  allocated?: number;
+};
+
+export type App = { name: string; state?: string };
+
+/** Raw hardware facts; lib/specs.ts turns them into display rows. */
+export type Drive = { name: string; model?: string; size?: number; type?: string; role?: string; pool_layout?: string };
+export type NasHardware = { cpu?: string; cores?: number; physical_cores?: number; physmem?: number; ecc?: boolean; gpus?: string[]; drives?: Drive[] };
+export type HostHardware = { board_vendor?: string; board_name?: string; kernel?: string };
+export type PiHardware = { model?: string; cpu?: string; cores?: number; cpu_max_mhz?: number; mem_total?: number; disk_size?: number; disk_type?: string; os?: string; kernel?: string };
+export type Spec = { label: string; value: string; detail?: string; title?: string };
+export type Alert = { level?: string; text?: string };
+
+export type TrueNASInfo = {
+  error?: string;
+  version?: string;
+  hostname?: string;
+  pools?: Pool[];
+  apps?: App[];
+  apps_error?: string;
+  alerts?: Alert[];
+  hardware?: NasHardware;
+};
+
+export type MinecraftStatus = {
+  online: boolean;
+  players_online?: number;
+  players_max?: number;
+  players?: string[];
+  version?: string;
+  motd?: string;
+  ping_ms?: number;
+  favicon?: string | null; // collector: data: URL from the ping; /api/status: a /api/mc-icon/... URL
+  error?: string;
+};
+
+export type Mod = {
+  file: string;
+  name: string;
+  version: string;
+  description?: string;
+  icon?: string; // Modrinth's icon URL
+  url?: string; // the mod's Modrinth page
+  client?: "required" | "optional" | "unsupported"; // do players need it installed to join?
+  update?: { version: string; url: string };
+  disabled?: boolean; // file renamed to .jar.disabled
+};
+export type ModList = { loader?: string; mods: Mod[]; error?: string };
+
+export type Minecraft = MinecraftStatus & { label: string; address: string; mods?: ModList | null };
+
+export type Weather = { temp: number; code: number; is_day: boolean; high?: number; low?: number; unit: "F" | "C" };
+
+export type Server = {
+  id: string;
+  name: string;
+  location: string;
+  kind: "truenas" | "pi";
+  reachable: boolean;
+  error?: string;
+  stats: HostStats;
+  cpu_history: number[];
+  truenas?: TrueNASInfo;
+  web_url?: string; // optional link to the machine's own web UI
+  specs?: Spec[];
+  tz?: string; // IANA time zone, for the local clock
+  weather?: Weather;
+  minecraft: Minecraft | null;
+};
+
+export type Link = { name: string; url: string; up: boolean; code?: number; ms?: number; error?: string };
+
+export type Status = {
+  updated: number | null;
+  /** Set on the backup site: when each server last reported in (unix seconds). */
+  backup?: { nas?: number; pi?: number };
+  refresh?: number;
+  servers: Server[];
+  links: Link[];
+};
