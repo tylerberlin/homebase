@@ -123,10 +123,10 @@ function useTab() {
   return tab;
 }
 
-function Tabs({ tab }: { tab: Tab }) {
+function Tabs({ tab, minecraft }: { tab: Tab; minecraft: boolean }) {
   return (
     <nav className="tabs" aria-label="Sections">
-      {TABS.map((t) => (
+      {TABS.filter((t) => minecraft || t.id !== "minecraft").map((t) => (
         <a key={t.id} href={t.id === "home" ? "#home" : `#${t.id}`} className={`tab ${tab === t.id ? "on" : ""}`} aria-current={tab === t.id ? "page" : undefined}>
           {t.label}
         </a>
@@ -163,7 +163,10 @@ export default function Dashboard({
   const [backendError, setBackendError] = useState<string | null>(null);
   const [staleFor, setStaleFor] = useState<number | null>(null);
   const calendar = useCalendar(!!demo);
-  const tab = useTab();
+  const hashTab = useTab();
+  // The Minecraft tab only shows when a server has one configured.
+  const hasMinecraft = !!data?.servers.some((s) => s.minecraft);
+  const tab = hashTab === "minecraft" && data && !hasMinecraft ? "home" : hashTab;
   useIdleLogout(!demo, display);
   const { settings } = usePrefs();
   // Your teams' games: for game-day colors everywhere and the room display's scoreboard.
@@ -323,7 +326,7 @@ export default function Dashboard({
         </div>
       </header>
 
-      <Tabs tab={tab} />
+      <Tabs tab={tab} minecraft={hasMinecraft} />
 
       {tab === "home" && settings.quickLinks && <QuickLinks links={quickLinks} />}
 

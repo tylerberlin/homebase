@@ -9,7 +9,8 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
 
 - **Servers**: CPU, memory, temperature (ring gauges and sparklines), storage pools, apps
   and alerts from TrueNAS, hardware specs, and a Raspberry Pi through a small stats agent.
-- **Minecraft**: players online, version and the installed mods (with update checks).
+- **Minecraft (optional)**: players online, version and the installed mods (with update checks).
+  No Minecraft server? Leave `NAS_MC_PORT` / `PI_MC_PORT` unset and the Minecraft tab never shows.
 - **Home tab**: clock, weather (home or where you are), calendar (.ics links), countdowns,
   sports with live scores (ESPN), stocks, and news from any RSS feed.
 - **Customizable**: drag cards around right on the page, show or hide them, and pick teams,
@@ -30,7 +31,7 @@ pnpm dev
 ```
 
 Open <http://localhost:8090/?demo> for sample data. Add `&display` for the room display,
-or `&game` for a sample live game.
+or `&game` for a sample live game. `?demo=nomc` shows it without any Minecraft server.
 
 ## Run it for real
 

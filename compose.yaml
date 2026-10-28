@@ -30,7 +30,8 @@ services:
       NAS_LAT: "40.71"
       NAS_LON: "-74.01"
 
-      # Modded Minecraft server on this box (the port the server listens on, not a tunnel port)
+      # Optional: a Minecraft server on this box (the port it listens on). Leave NAS_MC_PORT out if you don't have one.
+      # Without any Minecraft server, the Minecraft tab and status simply don't show.
       NAS_MC_HOST: "127.0.0.1"
       NAS_MC_PORT: "25565"
       NAS_MC_ADDRESS: "mc.example.com"
@@ -40,6 +41,8 @@ services:
       # Pi stats reporter, reached over Tailscale (MagicDNS name or the Pi's 100.x address)
       PI_AGENT_URL: "http://CHANGE_ME_pi_tailscale_ip:9100/stats"
       PI_AGENT_TOKEN: "CHANGE_ME_same_token_as_on_the_pi"
+      # Optional: a Minecraft server on the Pi. Set MC_PORT in pi-agent too.
+      PI_MC_PORT: "25565"
       PI_MC_LABEL: "Survival World"
       PI_MC_ADDRESS: ""
 

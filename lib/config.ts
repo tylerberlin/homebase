@@ -37,7 +37,8 @@ export const config = {
     location: E("PI_LOCATION", "Remote"),
     agentUrl: E("PI_AGENT_URL"),
     agentToken: E("PI_AGENT_TOKEN"),
-    mcLabel: E("PI_MC_LABEL", "Survival World"),
+    mcLabel: E("PI_MC_LABEL", "Minecraft"),
+    mcPort: Number(E("PI_MC_PORT", "0") || 0), // set when the Pi runs a Minecraft server (same as MC_PORT in pi-agent)
     mcAddress: E("PI_MC_ADDRESS"),
     lat: Number(E("PI_LAT", "47.61")),
     lon: Number(E("PI_LON", "-122.33")),

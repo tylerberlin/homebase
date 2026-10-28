@@ -2,10 +2,11 @@ import { healthOf } from "@/lib/health";
 import type { Status } from "@/lib/types";
 import { ChevronIcon } from "../icons";
 
-// One glass strip on Home: each server at a glance, and who's on Minecraft. Opens the Servers tab.
+// One glass strip on Home: each server at a glance, and who's on Minecraft (if a server has it). Opens the Servers tab.
 
 export default function ServerSummary({ data }: { data: Status | null }) {
   if (!data?.updated) return null;
+  const mc = data.servers.some((s) => s.minecraft);
   const players = data.servers.reduce((n, s) => n + (s.minecraft?.online ? (s.minecraft.players_online ?? 0) : 0), 0);
   return (
     <a className="srv-summary" href="#servers" aria-label="Servers: open the Servers tab">
@@ -21,11 +22,13 @@ export default function ServerSummary({ data }: { data: Status | null }) {
           </span>
         );
       })}
-      <span className="srv-item">
-        <span className={`dot ${players ? "ok" : ""}`} />
-        <strong>Minecraft</strong>
-        <span className="srv-stats">{players === 1 ? "1 player online" : `${players} players online`}</span>
-      </span>
+      {mc && (
+        <span className="srv-item">
+          <span className={`dot ${players ? "ok" : ""}`} />
+          <strong>Minecraft</strong>
+          <span className="srv-stats">{players === 1 ? "1 player online" : `${players} players online`}</span>
+        </span>
+      )}
       <span className="srv-open" aria-hidden="true">
         Servers <ChevronIcon />
       </span>

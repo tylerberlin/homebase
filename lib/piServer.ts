@@ -22,7 +22,7 @@ export function buildPiServer(
       stats: {},
       cpu_history: [...opts.history],
       specs: opts.specs,
-      minecraft: { ...mcMeta, online: false, error: "Pi unreachable" },
+      minecraft: piCfg.mcPort ? { ...mcMeta, online: false, error: "Pi unreachable" } : null,
     };
   }
   const { minecraft, hardware, reachable: _, ...stats } = pi;

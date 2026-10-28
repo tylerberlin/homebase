@@ -10,7 +10,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const params = await searchParams;
   const raw = params.demo;
   const v = Array.isArray(raw) ? raw[0] : raw;
-  const demo = v == null ? null : v === "issues" || v === "stale" ? v : "normal";
+  const demo = v == null ? null : v === "issues" || v === "stale" || v === "nomc" ? v : "normal";
   const settings = demo ? defaultSettings() : await getSettings();
   return (
     <PrefsProvider initial={settings} saved={hasStore()} demo={!!demo}>

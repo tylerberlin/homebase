@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Pi stats reporter for the Homebase.
+Pi stats reporter for Homebase.
 
 Runs on pi. It does NOT host the dashboard; it only answers GET /stats with a small JSON
-blob (CPU, temperature, RAM, disk, uptime, hardware, and the local Minecraft server's status).
+blob (CPU, temperature, RAM, disk, uptime, hardware, and the local Minecraft server's status, if MC_PORT is set).
 NAS fetches it over Tailscale every few seconds.
 
 Standard library only. Requires the token from PI_AGENT_TOKEN on every request.
@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 TOKEN = os.environ.get("PI_AGENT_TOKEN", "")
 PORT = int(os.environ.get("PI_AGENT_PORT", "9100"))
 MC_HOST = os.environ.get("MC_HOST", "127.0.0.1")
-MC_PORT = int(os.environ.get("MC_PORT", "25565"))
+MC_PORT = int(os.environ.get("MC_PORT", "0") or 0)  # 0 = no Minecraft server on this Pi
 PUSH_URL = os.environ.get("BACKUP_PUSH_URL", "").rstrip("/")
 PUSH_TOKEN = os.environ.get("BACKUP_PUSH_TOKEN", "")
 PUSH_EVERY = 30
@@ -228,7 +228,8 @@ def minecraft_status(host, port, timeout=4):
 def report():
     body = host_stats()
     body["hardware"] = HARDWARE
-    body["minecraft"] = minecraft_status(MC_HOST, MC_PORT)
+    if MC_PORT:
+        body["minecraft"] = minecraft_status(MC_HOST, MC_PORT)
     return body
 
 
@@ -238,7 +239,8 @@ def push_loop():
     while True:
         try:
             body = report()
-            body["minecraft"].pop("favicon", None)  # the backup gets icons from NAS
+            if "minecraft" in body:
+                body["minecraft"].pop("favicon", None)  # the backup gets icons from NAS
             data = json.dumps({"source": "pi", "pi": dict(reachable=True, **body)}).encode()
             req = urllib.request.Request(
                 PUSH_URL + "/api/push",
