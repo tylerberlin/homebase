@@ -11,7 +11,9 @@ import Gauge from "./Gauge";
 import { CloseIcon, FullscreenIcon } from "./icons";
 import IssueStrip from "./IssueStrip";
 import { GrassBlock } from "./Minecraft";
-import { LocalConditions, useLocalTime } from "./Weather";
+import { LocalConditions, useLocalTime, WeatherIcon } from "./Weather";
+import { describeWeather } from "@/lib/weatherCodes";
+import type { Forecast } from "@/lib/home/forecast";
 import { usePrefs } from "@/lib/prefs";
 import type { LiveGame } from "@/lib/home/live";
 import Scoreboard, { NextGame } from "./Scoreboard";
@@ -186,6 +188,31 @@ function DisplayServer({ s }: { s: Server }) {
   );
 }
 
+/** The weather right now, big enough to read across the room. */
+function DisplayWeather({ w }: { w?: Forecast }) {
+  if (!w) return null;
+  const now = describeWeather(w.now.code);
+  const today = w.daily[0];
+  return (
+    <div className="d-wx" aria-label={`${w.now.temp} degrees, ${now.label}`}>
+      <WeatherIcon kind={now.kind} day={w.now.isDay} size={72} />
+      <div>
+        <div className="d-wx-temp">
+          {w.now.temp}°<small>{w.unit}</small>
+        </div>
+        <div className="d-wx-label">
+          {now.label}
+          {today && (
+            <span className="mono">
+              {" "}· H {today.high}° L {today.low}°
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DisplayView({
   data, issues, overall, overallText, backendError, exitHref, calendar = null, settingsButton, demo = false, games: allGames = [], monitoring = true,
 }: {
@@ -206,7 +233,7 @@ export default function DisplayView({
   const games = p.scoreboard ? allGames : [];
   const playing = games.some((g) => g.state !== "pre");
   const rotating = p.rotate && p.slides.length > 0;
-  const home = useHome(rotating, null, JSON.stringify([settings.teams, settings.tickers, settings.news, settings.look.unit]));
+  const home = useHome(true, null, JSON.stringify([settings.teams, settings.tickers, settings.news, settings.look.unit]));
   const now = useNow();
   useWakeLock();
   const idle = useIdle();
@@ -228,6 +255,7 @@ export default function DisplayView({
           {p.nextEvent && <NextEvent data={calendar} />}
           <NextGame games={games} />
         </div>
+        {p.clock && <DisplayWeather w={home?.weather} />}
         <div className="d-right">
           {monitoring && (
             <span className={`pill d-pill ${overall ? "state-" + overall : ""}`}>
