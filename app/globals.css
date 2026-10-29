@@ -1645,14 +1645,14 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   opacity: 1; animation: none;
   background: radial-gradient(60vmax 40vmax at 50% 0%, rgba(80, 120, 255, .1), transparent 70%), radial-gradient(50vmax 30vmax at 50% 105%, rgba(255, 110, 20, .14), transparent 70%), linear-gradient(#0b0d12, #050506);
 }
-/* the easter egg: fire trails on the road, flickering */
+/* the easter egg: two fire trails burning away down the road into the distance, flickering */
 :root[data-skin="circuits"] body::after {
-  inset: auto -10vw -6vh; height: 26vh; opacity: .9;
+  inset: auto 0 0; height: 55vh; opacity: .85;
   background:
-    linear-gradient(90deg, transparent 0, rgba(255, 106, 0, .0) 8%, #ff6a00 38%, #ffd36b 72%, #fff3c4) 0 38% / 100% 3px no-repeat,
-    linear-gradient(90deg, transparent 0, rgba(255, 106, 0, .0) 8%, #ff6a00 38%, #ffd36b 72%, #fff3c4) 0 74% / 100% 4px no-repeat;
-  filter: drop-shadow(0 0 6px #ff6a00) drop-shadow(0 0 14px rgba(255, 106, 0, .6));
-  transform: perspective(500px) rotateX(64deg);
+    linear-gradient(to top, #fff3c4, #ffd36b 18%, #ff6a00 50%, rgba(255, 106, 0, 0) 92%) calc(50% - 7vw) 0 / 5px 100% no-repeat,
+    linear-gradient(to top, #fff3c4, #ffd36b 18%, #ff6a00 50%, rgba(255, 106, 0, 0) 92%) calc(50% + 7vw) 0 / 5px 100% no-repeat;
+  filter: drop-shadow(0 0 4px #ff6a00) drop-shadow(0 0 12px rgba(255, 106, 0, .7));
+  transform: perspective(260px) rotateX(58deg); transform-origin: 50% 100%;
   animation: tc-flicker 2.4s steps(6) infinite;
 }
 @keyframes tc-flicker { 0%, 100% { opacity: .9; } 30% { opacity: .7; } 55% { opacity: 1; } 80% { opacity: .78; } }
