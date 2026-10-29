@@ -116,7 +116,7 @@ const DOCKER_STATE: Record<string, string> = { running: "RUNNING", restarting: "
 /** Docker containers on this machine, when /var/run/docker.sock is mounted (read-only is enough). */
 export function dockerContainers(): Promise<App[] | undefined> {
   const socketPath = process.env.DOCKER_SOCKET || "/var/run/docker.sock";
-  if (!existsSync(socketPath)) return Promise.resolve(undefined);
+  if (!existsSync(/*turbopackIgnore: true*/ socketPath)) return Promise.resolve(undefined);
   return new Promise((resolve) => {
     const req = http.get({ socketPath, path: "/containers/json?all=1", timeout: 4000 }, (res) => {
       let body = "";

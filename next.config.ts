@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["ws"],
   // No next/image in use; keep the platform-specific sharp binaries out of the bundle.
   images: { unoptimized: true },
-  outputFileTracingExcludes: { "*": ["**/@img/**", "**/sharp/**"] },
+  outputFileTracingExcludes: { "*": ["**/@img/**", "**/sharp/**", "**/*.tgz", "deploy/**", "data/**"] },
   poweredByHeader: false,
   // Standard browser protections: no framing (clickjacking), no MIME sniffing, no full URLs leaked
   // to other sites, and https-only for the public address once a browser has seen it.
