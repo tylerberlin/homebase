@@ -5,6 +5,8 @@ else you check every day: weather, calendar, countdowns, live sports scores, sto
 
 Built with Next.js 16, React 19 and plain CSS. No database is needed for the main site.
 
+![Homebase home screen](docs/screenshots/home-dark.jpg)
+
 ## Features
 
 - **Servers**: CPU, memory, temperature (ring gauges and sparklines), storage pools, apps
@@ -22,6 +24,26 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
 - **Own login**: a password plus Face ID / Touch ID passkeys, signed session cookies, and
   sign-out after 15 minutes idle.
 - Works on phones and can be added to the home screen.
+
+## Screenshots
+
+| Light mode | Servers |
+| --- | --- |
+| ![Light mode](docs/screenshots/home-light.jpg) | ![Servers tab](docs/screenshots/servers.jpg) |
+
+**Room display**: a big clock, rotating cards, and a live scoreboard when your team plays.
+
+| Room display | Live scoreboard |
+| --- | --- |
+| ![Room display](docs/screenshots/room-display.jpg) | ![Live scoreboard](docs/screenshots/scoreboard.jpg) |
+
+**Themes**
+
+![All themes](docs/screenshots/themes.jpg)
+
+**On your phone**
+
+<img src="docs/screenshots/phone.jpg" alt="Homebase on a phone" width="320">
 
 ## Try it
 
