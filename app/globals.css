@@ -739,6 +739,18 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 .settings-tab:hover { color: var(--ink); background: var(--faint); }
 .settings-tab.on { color: var(--ink); background: color-mix(in srgb, var(--accent) 20%, transparent); box-shadow: inset 0 1px 0 var(--edge); }
+.settings-version { margin-top: auto; padding: 12px 12px 2px; font-size: 11px; color: var(--muted); }
+.update-bar { padding: 12px 22px; border-bottom: 1px solid var(--faint); background: color-mix(in srgb, var(--accent) 12%, transparent); display: grid; gap: 6px; font-size: 13px; }
+.update-line { margin: 0; }
+.update-line a { color: var(--accent-text, var(--accent)); }
+.update-more summary { cursor: pointer; color: var(--muted); width: fit-content; }
+.update-more summary:hover { color: var(--ink); }
+.update-notes { margin: 6px 0 2px; white-space: pre-line; color: var(--muted); max-height: 160px; overflow-y: auto; }
+.update-how { margin: 6px 0 4px; padding-left: 18px; display: grid; gap: 4px; }
+.update-how code { font-size: 12px; padding: 1px 5px; border-radius: 5px; background: var(--faint); }
+.update-keep { margin: 0; color: var(--muted); }
+.theme-btn.has-update { position: relative; }
+.theme-btn.has-update::after { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--bg); }
 .settings-section { overflow-y: auto; overscroll-behavior: contain; padding: 18px 22px 24px; display: grid; gap: 16px; align-content: start; }
 .set-intro { margin: 0; font-size: 13px; color: var(--muted); }
 .set-intro a { color: var(--accent); }
@@ -786,6 +798,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   .settings-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
   .settings-nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--faint); padding: 8px 12px; scrollbar-width: none; }
   .settings-tab { white-space: nowrap; }
+  .settings-version { display: none; }
+  .update-bar { padding: 10px 16px; }
   .settings-section { padding: 16px; }
   .set-item { flex-wrap: wrap; }
   .settings-status { font-size: 11px; }

@@ -18,6 +18,7 @@ import { useIdleLogout } from "@/lib/useIdleLogout";
 import { EDIT_LAYOUT_EVENT } from "@/lib/useCardDrag";
 import { usePrefs } from "@/lib/prefs";
 import SettingsPanel from "./SettingsPanel";
+import { useUpdate } from "./UpdateNotice";
 import { GameDayChip, useGameDay } from "./GameDay";
 import { useLive } from "./Scoreboard";
 import ServerCard from "./ServerCard";
@@ -194,12 +195,20 @@ export default function Dashboard({
     if (tab !== "home") setEditing(false);
   }, [tab]);
   const stopEditing = useCallback(() => setEditing(false), []);
+  const update = useUpdate(!demo && !display);
   const settingsButton = (
-    <button type="button" className="theme-btn" title="Settings" aria-label="Settings" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}>
+    <button
+      type="button"
+      className={`theme-btn ${update?.latest ? "has-update" : ""}`}
+      title={update?.latest ? `Settings (Homebase ${update.latest} is available)` : "Settings"}
+      aria-label={update?.latest ? "Settings, update available" : "Settings"}
+      aria-haspopup="dialog"
+      onClick={() => setSettingsOpen(true)}
+    >
       <SettingsIcon />
     </button>
   );
-  const settingsPanel = <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />;
+  const settingsPanel = <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} release={update} />;
 
   // Poll the backend (or regenerate sample data in demo mode).
   useEffect(() => {

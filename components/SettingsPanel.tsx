@@ -26,6 +26,8 @@ import CardBoard from "./CardBoard";
 import Switch from "./Switch";
 import { EDIT_LAYOUT_EVENT } from "@/lib/useCardDrag";
 import { ArrowDownIcon, ArrowUpIcon, CloseIcon, PlusIcon } from "./icons";
+import UpdateNotice from "./UpdateNotice";
+import type { UpdateInfo } from "@/lib/updates";
 
 // Settings: what the Home tab shows, your teams, stocks and news, the look, and the room display.
 // Every change applies at once and saves itself (see lib/prefs.tsx).
@@ -523,7 +525,7 @@ function DisplaySection({ s, set }: { s: Settings; set: (c: (s: Settings) => Set
   );
 }
 
-export default function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function SettingsPanel({ open, onClose, release }: { open: boolean; onClose: () => void; release?: UpdateInfo | null }) {
   const { settings, update, saveState, saveError, canSave, demo } = usePrefs();
   const [section, setSection] = useState<Section>("home");
   const ref = useRef<HTMLDialogElement>(null);
@@ -563,6 +565,7 @@ export default function SettingsPanel({ open, onClose }: { open: boolean; onClos
             <CloseIcon />
           </button>
         </header>
+        {release?.latest && <UpdateNotice info={release} />}
         <div className="settings-body">
           <nav className="settings-nav" aria-label="Settings sections">
             {SECTIONS.map(([id, label]) => (
@@ -570,6 +573,7 @@ export default function SettingsPanel({ open, onClose }: { open: boolean; onClos
                 {label}
               </button>
             ))}
+            {release && <span className="settings-version">Homebase {release.current}</span>}
           </nav>
           <section className="settings-section" aria-label={SECTIONS.find(([id]) => id === section)?.[1]}>
             {section === "home" && <HomeCards s={settings} set={update} />}

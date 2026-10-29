@@ -127,6 +127,17 @@ isn't checked unless you set `PROXMOX_VERIFY_SSL=true`.
 Weather and local time on a card: `NAS_LAT`/`NAS_LON`/`NAS_TZ` for this machine, the extra
 `AGENTS` fields for agents, and `PROXMOX_LAT`/`PROXMOX_LON`/`PROXMOX_TZ` for Proxmox.
 
+## Updating
+
+When a new version comes out, a dot appears on the Settings button and Settings says what's new.
+
+- **Forked on GitHub:** click **Sync fork** on your fork. If Vercel builds it, it redeploys by itself.
+- **Downloaded it:** `git pull`, `pnpm install`, `pnpm bundle`, then restart.
+
+Your settings, countdowns and login aren't touched. The check only asks GitHub for the latest
+release, at most every 6 hours. Set `UPDATE_REPO=you/your-fork` to follow your own fork instead,
+or `UPDATE_CHECK=off` to turn it off.
+
 ## License
 
 MIT
