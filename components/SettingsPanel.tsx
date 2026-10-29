@@ -11,6 +11,7 @@ import {
   ROTATE_EVERY,
   SKINS,
   SKIN_MODE,
+  SKIN_GROUPS,
   SKIN_NAMES,
   SLIDE_IDS,
   SLIDE_NAMES,
@@ -386,17 +387,34 @@ function LookSection({ s, set }: { s: Settings; set: (c: (s: Settings) => Settin
     <>
       <div className="set-group">
         <div className="set-label">Theme</div>
-        <div className="skins" role="radiogroup" aria-label="Theme">
-          {SKINS.map((k) => (
-            <button key={k} type="button" role="radio" aria-checked={s.look.skin === k} className={`skin-tile ${s.look.skin === k ? "on" : ""}`} onClick={() => look({ skin: k })}>
-              <i className={`skin-prev prev-${k}`} aria-hidden="true" />
-              <span>{SKIN_NAMES[k]}</span>
-            </button>
+        <div className="skin-groups" role="radiogroup" aria-label="Theme">
+          {SKIN_GROUPS.map((g) => (
+            <div key={g.name} className="skin-group" role="group" aria-label={g.name}>
+              <div className="skin-group-name">{g.name}</div>
+              <div className="skins">
+                {g.skins.map((k) => (
+                  <button key={k} type="button" role="radio" aria-checked={s.look.skin === k} className={`skin-tile ${s.look.skin === k ? "on" : ""}`} onClick={() => look({ skin: k })}>
+                    <i className={`skin-prev prev-${k}`} aria-hidden="true" />
+                    <span>{SKIN_NAMES[k]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
+        <button
+          type="button"
+          className="chip surprise"
+          onClick={() => {
+            const others = SKINS.filter((k) => k !== s.look.skin);
+            look({ skin: others[Math.floor(Math.random() * others.length)] });
+          }}
+        >
+          Surprise me
+        </button>
         {!glass && (
           <p className="set-hint">
-            Game themes bring their own colors
+            Themes bring their own colors
             {{ both: ": day in light mode, night in dark mode", light: " and are always light", dark: " and are always dark" }[SKIN_MODE[s.look.skin]]}. Game-day
             colors only change the Glass theme.
           </p>

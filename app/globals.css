@@ -121,7 +121,7 @@ body::after {
 .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; }
 
 header.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-.brand h1 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+:is(.brand, .login-card) h1 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
 .brand .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
 .overall { display: flex; align-items: center; gap: 10px; font-size: 14px; }
 .overall .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); }
@@ -140,7 +140,7 @@ header.top { display: flex; align-items: flex-end; justify-content: space-betwee
 
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
 .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 20px 14px; border-bottom: 1px solid var(--faint); }
-.card-head h2 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+:is(.card-head h2, #settings-title) { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
 .card-head .meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
 .tag { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
 
@@ -245,7 +245,7 @@ header.top { display: flex; align-items: flex-end; justify-content: space-betwee
 /* ---------- header */
 .brand { display: flex; align-items: center; gap: 14px; }
 .logo { width: 44px; height: 44px; border-radius: 12px; flex: none; box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--orb-1) 70%, transparent); }
-.brand h1 { font-size: 24px; }
+:is(.brand, .login-card) h1 { font-size: 24px; }
 .overall .pill { padding: 8px 14px; font-weight: 500; transition: box-shadow .4s, border-color .4s; }
 .overall .pill.state-ok { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); box-shadow: inset 0 1px 0 var(--edge), 0 0 26px -4px color-mix(in srgb, var(--ok) 55%, transparent); }
 .overall .pill.state-warn { border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); box-shadow: inset 0 1px 0 var(--edge), 0 0 26px -4px color-mix(in srgb, var(--warn) 60%, transparent); }
@@ -684,6 +684,7 @@ a.issue:hover { background: var(--chip); }
 .login-wrap { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; }
 .login-card { width: min(380px, 100%); padding: 32px 28px 28px; text-align: center; display: grid; gap: 14px; }
 .login-logo { justify-self: center; width: 56px; height: 56px; }
+.login-logo .logo { width: 56px; height: 56px; }
 .login-card h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -.01em; }
 .login-sub { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
 .login-sub.err, .login-error { color: var(--bad); }
@@ -1090,13 +1091,16 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
    ========================================================================================== */
 
 /* Theme picker tiles in Settings: a tiny painting of each theme. */
-.skins { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 8px; }
+.skins { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.skin-groups { display: grid; gap: 14px; margin-top: 8px; }
+.skin-group-name { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.surprise { margin-top: 12px; }
 .skin-tile {
   font: inherit; font-size: 12px; color: var(--muted); display: grid; gap: 6px; padding: 6px 6px 8px; text-align: center;
   border-radius: 12px; background: var(--chip); border: 1px solid var(--line); cursor: pointer;
 }
 .skin-tile.on { color: var(--ink); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.skin-prev { display: block; height: 46px; border-radius: 8px; overflow: hidden; position: relative; }
+.skin-prev { display: block; height: 62px; border-radius: 8px; overflow: hidden; position: relative; }
 .prev-glass { background: radial-gradient(60% 80% at 20% 20%, #4ea8ff, transparent 70%), radial-gradient(50% 70% at 85% 80%, #1f5ae0, transparent 70%), #0b1430; }
 .prev-glass::after { content: ""; position: absolute; inset: 12px 14px; border-radius: 6px; background: rgba(255, 255, 255, .22); border: 1px solid rgba(255, 255, 255, .5); }
 .prev-blocks { background: linear-gradient(#5fa034 0 0) bottom / 100% 9px no-repeat, linear-gradient(#79553a 0 0) bottom / 100% 14px no-repeat, linear-gradient(#7fb4ff, #b9d8ff); image-rendering: pixelated; }
@@ -1140,7 +1144,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root:is([data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="deepwater"], [data-skin="expedition"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"])[data-mode="dark"] { color-scheme: dark; }
 :root:is([data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="deepwater"], [data-skin="expedition"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"])[data-mode="light"] { color-scheme: light; }
 :root[data-skin] .settings-panel { background: var(--panel); }
-@media (prefers-reduced-motion: reduce) { :root[data-skin] body::before, :root[data-skin] body::after, :root[data-skin] .brand h1 { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { :root[data-skin] body::before, :root[data-skin] body::after, :root[data-skin] :is(.brand, .login-card) h1 { animation: none !important; } }
 
 /* ==========================================================================================
    Blocks: chunky bevelled panels, a pixel font, and a blocky sky over a strip of grass.
@@ -1227,7 +1231,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root:is([data-skin="blocks"], [data-skin="inferno"]) .theme-btn svg { filter: drop-shadow(2px 2px 0 #2b2b2b); }
 :root:is([data-skin="blocks"], [data-skin="inferno"]) body { font-size: 15.5px; letter-spacing: .02em; }
 :root:is([data-skin="blocks"], [data-skin="inferno"]) * { font-weight: 400 !important; font-synthesis: none; }
-:root:is([data-skin="blocks"], [data-skin="inferno"]) .brand h1 { color: #fff; text-shadow: 4px 4px 0 #3f3f3f; font-size: 32px; line-height: 1.1; }
+:root:is([data-skin="blocks"], [data-skin="inferno"]) :is(.brand, .login-card) h1 { color: #fff; text-shadow: 4px 4px 0 #3f3f3f; font-size: 32px; line-height: 1.1; }
 :root:is([data-skin="blocks"], [data-skin="inferno"]) .brand .sub, :root:is([data-skin="blocks"], [data-skin="inferno"]) .updated { color: #fff; text-shadow: 2px 2px 0 rgba(0, 0, 0, .55); }
 :root:is([data-skin="blocks"], [data-skin="inferno"]) .logo-block { display: block; width: 44px; height: 44px; border: 2px solid #000; }
 :root:is([data-skin="blocks"], [data-skin="inferno"]) .logo-block svg { width: 100%; height: 100%; display: block; }
@@ -1284,12 +1288,12 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="arcade"] .card-head, :root[data-skin="arcade"] .section { border-color: var(--faint); border-bottom-style: dashed; }
 :root[data-skin="arcade"] :is(.spark-wrap, .tag, .app, .player, .field, .wx-hour, .mc-icon, .swatch, .skin-tile, .set-item, .quick-link) { background: var(--chip); border: 2px solid #1f3a5c; box-shadow: none; }
 /* Titles in the chunky 8-bit face, coin-op yellow. */
-:root[data-skin="arcade"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3, .tab, .btn, .set-label) {
+:root[data-skin="arcade"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3, .tab, .btn, .set-label) {
   font-family: var(--font-arcade), monospace; font-size-adjust: none; font-weight: 400; letter-spacing: .04em; line-height: 1.5;
 }
-:root[data-skin="arcade"] .brand h1 { font-size: 20px; color: var(--title); text-shadow: 3px 3px 0 #1d4ed8; animation: arcade-blink 1.2s steps(2) 3; }
+:root[data-skin="arcade"] :is(.brand, .login-card) h1 { font-size: 20px; color: var(--title); text-shadow: 3px 3px 0 #1d4ed8; animation: arcade-blink 1.2s steps(2) 3; }
 @keyframes arcade-blink { 50% { opacity: .2; } }
-:root[data-skin="arcade"] .card-head h2 { font-size: 13px; color: var(--title); }
+:root[data-skin="arcade"] :is(.card-head h2, #settings-title) { font-size: 13px; color: var(--title); }
 :root[data-skin="arcade"] :is(.home-card h3, .card-title-row h3, .section h3, .set-label) { font-size: 9px; color: var(--accent); letter-spacing: .1em; }
 :root[data-skin="arcade"] :is(.tab, .btn) { font-size: 10px; text-transform: uppercase; }
 :root[data-skin="arcade"] :is(.chip, .theme-btn, .tab) { background: #0a0d16; color: var(--muted); border: 2px solid #1f3a5c; box-shadow: none; }
@@ -1335,8 +1339,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="neon"] :is(.card, .issues, .banner) { border-radius: 0; clip-path: var(--cut); }
 :root[data-skin="neon"] .card::before { display: block; left: 0; right: auto; top: 0; width: 64px; height: 3px; background: var(--accent); }
 :root[data-skin="neon"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app, .field, .swatch, .skin-tile, .set-item, .spark-wrap, .wx-hour) { border-radius: 2px; }
-:root[data-skin="neon"] :is(.brand h1, .card-head h2, .tab, .btn) { text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
-:root[data-skin="neon"] .brand h1 { font-size: 28px; color: var(--accent); animation: neon-glitch 1.4s steps(1) 1; }
+:root[data-skin="neon"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .tab, .btn) { text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+:root[data-skin="neon"] :is(.brand, .login-card) h1 { font-size: 28px; color: var(--accent); animation: neon-glitch 1.4s steps(1) 1; }
 @keyframes neon-glitch {
   0%, 100% { text-shadow: none; transform: none; }
   10% { text-shadow: -3px 0 #00eaff, 3px 0 #ff2d5a; transform: translateX(2px); }
@@ -1393,8 +1397,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 :root[data-skin="space"] .card::after { display: block; background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), rgba(90, 216, 255, .1), transparent 60%); }
 :root[data-skin="space"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 4px; }
-:root[data-skin="space"] :is(.brand h1, .card-head h2) { text-transform: uppercase; letter-spacing: .14em; font-weight: 600; }
-:root[data-skin="space"] .brand h1 { font-size: 22px; text-shadow: 0 0 18px rgba(90, 216, 255, .55); }
+:root[data-skin="space"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title)) { text-transform: uppercase; letter-spacing: .14em; font-weight: 600; }
+:root[data-skin="space"] :is(.brand, .login-card) h1 { font-size: 22px; text-shadow: 0 0 18px rgba(90, 216, 255, .55); }
 :root[data-skin="space"] :is(.home-card h3, .card-title-row h3, .section h3) { color: var(--accent); letter-spacing: .18em; }
 :root[data-skin="space"] .tab.on, :root[data-skin="space"] .chip.on { background: rgba(90, 216, 255, .16); box-shadow: inset 0 -2px 0 var(--accent); }
 :root[data-skin="space"] .btn { background: var(--accent); color: #02050d; border-radius: 4px; }
@@ -1445,7 +1449,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   animation: inferno-lava 12s linear infinite;
 }
 @keyframes inferno-lava { to { background-position: 128px 0; } }
-:root[data-skin="inferno"] .brand h1 { color: #ffcf4a; text-shadow: 4px 4px 0 #6e2210; }
+:root[data-skin="inferno"] :is(.brand, .login-card) h1 { color: #ffcf4a; text-shadow: 4px 4px 0 #6e2210; }
 :root[data-skin="inferno"] .bar > i { background: linear-gradient(#ffd04a 0 40%, #ff9a2e 40% 70%, #c2410c 70%); }
 
 /* ==========================================================================================
@@ -1476,10 +1480,10 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="handheld"] :is(.overall .pill, .tabs, .settings-panel) { background: #222; color: #fff; border: 2px solid #111; box-shadow: var(--shadow); }
 :root[data-skin="handheld"] .overall .pill .pill-text, :root[data-skin="handheld"] .gd-detail { color: #e6e6e6; }
 :root[data-skin="handheld"] .settings-panel { --ink: #f2f2f2; --muted: #c4c4c4; --chip: #333; --line: #4a4a4a; --faint: #3a3a3a; --accent: #5aa9e6; background: #222; }
-:root[data-skin="handheld"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3, .tab, .btn) { font-family: var(--font-arcade), monospace; letter-spacing: .02em; line-height: 1.5; }
-:root[data-skin="handheld"] .brand h1 { font-size: 18px; color: #fff; text-shadow: 3px 3px 0 #6e0715; }
+:root[data-skin="handheld"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3, .tab, .btn) { font-family: var(--font-arcade), monospace; letter-spacing: .02em; line-height: 1.5; }
+:root[data-skin="handheld"] :is(.brand, .login-card) h1 { font-size: 18px; color: #fff; text-shadow: 3px 3px 0 #6e0715; }
 :root[data-skin="handheld"] .brand .sub, :root[data-skin="handheld"] .updated { color: #ffe4e8; }
-:root[data-skin="handheld"] .card-head h2 { font-size: 12px; }
+:root[data-skin="handheld"] :is(.card-head h2, #settings-title) { font-size: 12px; }
 :root[data-skin="handheld"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 8px; color: var(--muted); }
 :root[data-skin="handheld"] :is(.chip, .theme-btn, .tab) { background: #2b2b2b; color: #f2f2f2; border: 2px solid #111; border-radius: 6px; box-shadow: inset 0 -3px 0 #111; }
 :root[data-skin="handheld"] :is(.chip, .theme-btn, .tab):hover { background: #3a3a3a; color: #fff; }
@@ -1530,9 +1534,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   background: var(--accent); transform: rotate(45deg); box-shadow: 0 0 10px var(--accent);
 }
 :root[data-skin="ancient"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 6px; }
-:root[data-skin="ancient"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-ancient), serif; }
-:root[data-skin="ancient"] .brand h1 { font-size: 28px; font-weight: 700; letter-spacing: .1em; color: #dff7ff; text-shadow: 0 0 18px rgba(56, 214, 255, .6); }
-:root[data-skin="ancient"] .card-head h2 { font-weight: 700; letter-spacing: .06em; }
+:root[data-skin="ancient"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-ancient), serif; }
+:root[data-skin="ancient"] :is(.brand, .login-card) h1 { font-size: 28px; font-weight: 700; letter-spacing: .1em; color: #dff7ff; text-shadow: 0 0 18px rgba(56, 214, 255, .6); }
+:root[data-skin="ancient"] :is(.card-head h2, #settings-title) { font-weight: 700; letter-spacing: .06em; }
 :root[data-skin="ancient"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 12px; font-weight: 700; letter-spacing: .16em; color: var(--accent); }
 :root[data-skin="ancient"] .tab.on, :root[data-skin="ancient"] .chip.on { background: rgba(56, 214, 255, .14); color: #dff7ff; box-shadow: inset 0 0 0 1px var(--edge), 0 0 16px -4px var(--accent); }
 :root[data-skin="ancient"] .btn { background: linear-gradient(#f7b84a, #e08f12); color: #1a1105; border-radius: 6px; }
@@ -1565,9 +1569,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 @keyframes drop-rays { to { transform: rotate(360deg); } }
 :root[data-skin="dropzone"] :is(.card, .issues) { border-radius: 6px; border: 2px solid var(--line); }
 :root[data-skin="dropzone"] .card::before { display: block; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #ffb02e); }
-:root[data-skin="dropzone"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3, .tab, .btn, .clock-hm, .gauge-val, .d-clock, .sb-score) { font-family: var(--font-drop), sans-serif; font-weight: 400; }
-:root[data-skin="dropzone"] .brand h1 { font-size: 34px; text-transform: uppercase; letter-spacing: .02em; transform: skewX(-8deg); text-shadow: 0 4px 0 #0a2f80; }
-:root[data-skin="dropzone"] .card-head h2 { font-size: 22px; text-transform: uppercase; letter-spacing: .02em; }
+:root[data-skin="dropzone"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3, .tab, .btn, .clock-hm, .gauge-val, .d-clock, .sb-score) { font-family: var(--font-drop), sans-serif; font-weight: 400; }
+:root[data-skin="dropzone"] :is(.brand, .login-card) h1 { font-size: 34px; text-transform: uppercase; letter-spacing: .02em; transform: skewX(-8deg); text-shadow: 0 4px 0 #0a2f80; }
+:root[data-skin="dropzone"] :is(.card-head h2, #settings-title) { font-size: 22px; text-transform: uppercase; letter-spacing: .02em; }
 :root[data-skin="dropzone"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 16px; letter-spacing: .04em; color: var(--accent); }
 :root[data-skin="dropzone"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .tag, .app) { border-radius: 4px; }
 :root[data-skin="dropzone"] :is(.tab, .chip, .btn) { border-radius: 2px; transform: skewX(-10deg); }
@@ -1633,9 +1637,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 @keyframes dw-cruise { 0% { transform: translateX(-40vw) translateY(0); } 50% { transform: translateX(50vw) translateY(-3vh); } 100% { transform: translateX(130vw) translateY(0); } }
 :root[data-skin="deepwater"] :is(.card, .issues) { border-radius: 16px; }
 :root[data-skin="deepwater"] .card::before { display: block; left: 28px; right: 28px; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
-:root[data-skin="deepwater"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-drop), sans-serif; font-weight: 400; }
-:root[data-skin="deepwater"] .brand h1 { font-size: 32px; text-transform: uppercase; letter-spacing: .05em; color: #ff4337; text-shadow: 0 0 24px rgba(255, 60, 50, .35); }
-:root[data-skin="deepwater"] .card-head h2 { font-size: 22px; letter-spacing: .03em; }
+:root[data-skin="deepwater"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-drop), sans-serif; font-weight: 400; }
+:root[data-skin="deepwater"] :is(.brand, .login-card) h1 { font-size: 32px; text-transform: uppercase; letter-spacing: .05em; color: #ff4337; text-shadow: 0 0 24px rgba(255, 60, 50, .35); }
+:root[data-skin="deepwater"] :is(.card-head h2, #settings-title) { font-size: 22px; letter-spacing: .03em; }
 :root[data-skin="deepwater"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 15px; letter-spacing: .1em; color: var(--accent); }
 :root[data-skin="deepwater"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 999px; }
 :root[data-skin="deepwater"] .tab.on, :root[data-skin="deepwater"] .chip.on { background: rgba(92, 210, 255, .2); box-shadow: inset 0 0 0 1px var(--edge); }
@@ -1680,8 +1684,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="circuits"] :is(.card, .issues) { border-radius: 4px; border: 1px solid var(--line); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), var(--shadow); }
 :root[data-skin="circuits"] .card::before { display: block; left: 18px; right: auto; top: -1px; width: 72px; height: 3px; background: var(--led); box-shadow: 0 0 10px var(--led); }
 :root[data-skin="circuits"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app, .wx-hour, .spark-wrap) { border-radius: 3px; }
-:root[data-skin="circuits"] :is(.brand h1, .card-head h2, .tab, .btn) { text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
-:root[data-skin="circuits"] .brand h1 { font-size: 24px; color: #ffd36b; text-shadow: 0 0 14px rgba(255, 140, 30, .6); }
+:root[data-skin="circuits"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .tab, .btn) { text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+:root[data-skin="circuits"] :is(.brand, .login-card) h1 { font-size: 24px; color: #ffd36b; text-shadow: 0 0 14px rgba(255, 140, 30, .6); }
 :root[data-skin="circuits"] :is(.home-card h3, .card-title-row h3, .section h3) { color: var(--led); text-shadow: 0 0 8px var(--led); letter-spacing: .2em; }
 :root[data-skin="circuits"] :is(.clock-hm, .d-clock, .gauge-val, .sb-score) { font-family: var(--font-led), monospace; font-weight: 400; color: var(--led); text-shadow: 0 0 14px var(--led); letter-spacing: 0; }
 :root[data-skin="circuits"] .tab.on, :root[data-skin="circuits"] .chip.on { color: #111; background: var(--accent); box-shadow: 0 0 14px -2px var(--accent); }
@@ -1723,9 +1727,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="hyperspace"] :is(.card, .issues) { border-radius: 6px; border: 1px solid var(--line); }
 :root[data-skin="hyperspace"] .card::before { display: block; left: 22px; right: 22px; top: -1px; height: 2px; background: #fff; border-radius: 2px; box-shadow: 0 0 4px 1px var(--blade), 0 0 14px 3px var(--blade); }
 :root[data-skin="hyperspace"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 6px; }
-:root[data-skin="hyperspace"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3, .tab) { font-family: var(--font-hyper), sans-serif; text-transform: uppercase; }
-:root[data-skin="hyperspace"] .brand h1 { font-size: 24px; font-weight: 900; letter-spacing: .2em; color: var(--accent); transform: perspective(240px) rotateX(16deg); transform-origin: 50% 100%; text-shadow: 0 0 20px rgba(255, 232, 31, .35); }
-:root[data-skin="hyperspace"] .card-head h2 { font-weight: 700; letter-spacing: .1em; font-size: 17px; }
+:root[data-skin="hyperspace"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3, .tab) { font-family: var(--font-hyper), sans-serif; text-transform: uppercase; }
+:root[data-skin="hyperspace"] :is(.brand, .login-card) h1 { font-size: 24px; font-weight: 900; letter-spacing: .2em; color: var(--accent); transform: perspective(240px) rotateX(16deg); transform-origin: 50% 100%; text-shadow: 0 0 20px rgba(255, 232, 31, .35); }
+:root[data-skin="hyperspace"] :is(.card-head h2, #settings-title) { font-weight: 700; letter-spacing: .1em; font-size: 17px; }
 :root[data-skin="hyperspace"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 11px; font-weight: 700; letter-spacing: .22em; color: var(--accent); }
 :root[data-skin="hyperspace"] .tab { font-size: 12px; font-weight: 700; letter-spacing: .14em; }
 :root[data-skin="hyperspace"] .tab.on, :root[data-skin="hyperspace"] .chip.on { background: rgba(255, 232, 31, .14); color: var(--accent); box-shadow: inset 0 0 0 1px var(--edge); }
@@ -1767,14 +1771,14 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 @keyframes ex-rain { to { background-position: 88% 86%, -40px 120px; } }
 @keyframes ex-ripple { 0%, 80% { background-size: 0 0, 100% 100%; } 100% { background-size: 340px 340px, 100% 100%; } }
-:root[data-skin="expedition"] .brand h1 { animation: ex-tremor 12s linear infinite; }
+:root[data-skin="expedition"] :is(.brand, .login-card) h1 { animation: ex-tremor 12s linear infinite; }
 @keyframes ex-tremor { 0%, 80%, 84%, 100% { translate: 0 0; } 81% { translate: 0 2px; } 82% { translate: 0 -1px; } 83% { translate: 0 1px; } }
 :root[data-skin="expedition"] :is(.card, .issues) { border-radius: 6px; border: 1px solid var(--line); }
 :root[data-skin="expedition"] .card::before { display: block; left: 0; right: 0; top: 0; height: 7px; border-radius: 6px 6px 0 0; background: linear-gradient(#e8382d 0 0) 0 0 / 100% 3px no-repeat, linear-gradient(#ffb400 0 0) 0 4px / 100% 3px no-repeat; }
 :root[data-skin="expedition"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 4px; }
-:root[data-skin="expedition"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-slab), serif; font-weight: 400; }
-:root[data-skin="expedition"] .brand h1 { font-size: 30px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); text-shadow: 0 3px 0 #7a1a12, 0 0 22px rgba(255, 180, 0, .25); }
-:root[data-skin="expedition"] .card-head h2 { font-size: 20px; letter-spacing: .02em; }
+:root[data-skin="expedition"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-slab), serif; font-weight: 400; }
+:root[data-skin="expedition"] :is(.brand, .login-card) h1 { font-size: 30px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); text-shadow: 0 3px 0 #7a1a12, 0 0 22px rgba(255, 180, 0, .25); }
+:root[data-skin="expedition"] :is(.card-head h2, #settings-title) { font-size: 20px; letter-spacing: .02em; }
 :root[data-skin="expedition"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 13px; letter-spacing: .1em; color: var(--accent); }
 :root[data-skin="expedition"] .tab.on, :root[data-skin="expedition"] .chip.on { background: var(--accent); color: #1a1205; box-shadow: none; }
 :root[data-skin="expedition"] .btn { background: #e8382d; color: #fff; border-radius: 4px; }
@@ -1829,9 +1833,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 @keyframes sp-drop { from { height: 30px; } to { height: 78px; } }
 :root[data-skin="spooky"] :is(.card, .issues) { border-radius: 10px; }
-:root[data-skin="spooky"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-spooky), cursive; font-weight: 400; }
-:root[data-skin="spooky"] .brand h1 { font-size: 36px; letter-spacing: .04em; color: var(--accent); text-shadow: 0 0 18px rgba(255, 120, 20, .55), 0 2px 0 #3a1a04; }
-:root[data-skin="spooky"] .card-head h2 { font-size: 24px; letter-spacing: .03em; }
+:root[data-skin="spooky"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-spooky), cursive; font-weight: 400; }
+:root[data-skin="spooky"] :is(.brand, .login-card) h1 { font-size: 36px; letter-spacing: .04em; color: var(--accent); text-shadow: 0 0 18px rgba(255, 120, 20, .55), 0 2px 0 #3a1a04; }
+:root[data-skin="spooky"] :is(.card-head h2, #settings-title) { font-size: 24px; letter-spacing: .03em; }
 :root[data-skin="spooky"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 17px; letter-spacing: .08em; color: var(--accent); }
 :root[data-skin="spooky"] .tab.on, :root[data-skin="spooky"] .chip.on { background: var(--accent); color: #140a02; box-shadow: 0 0 16px -4px var(--accent); }
 :root[data-skin="spooky"] .btn { background: var(--accent); color: #140a02; }
@@ -1861,9 +1865,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 @keyframes hv-fall { to { background-position: 120px 600px, 40px 1000px; } }
 :root[data-skin="harvest"] :is(.card, .issues) { border-radius: 14px; }
 :root[data-skin="harvest"] .card::before { display: block; left: 24px; right: 24px; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
-:root[data-skin="harvest"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-harvest), serif; }
-:root[data-skin="harvest"] .brand h1 { font-size: 30px; font-weight: 700; color: var(--accent); text-shadow: 0 2px 0 #4a2208; }
-:root[data-skin="harvest"] .card-head h2 { font-weight: 700; }
+:root[data-skin="harvest"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-harvest), serif; }
+:root[data-skin="harvest"] :is(.brand, .login-card) h1 { font-size: 30px; font-weight: 700; color: var(--accent); text-shadow: 0 2px 0 #4a2208; }
+:root[data-skin="harvest"] :is(.card-head h2, #settings-title) { font-weight: 700; }
 :root[data-skin="harvest"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 14px; font-weight: 600; letter-spacing: .06em; color: var(--accent); }
 :root[data-skin="harvest"] .tab.on, :root[data-skin="harvest"] .chip.on { background: var(--accent); color: #2a1404; box-shadow: none; }
 :root[data-skin="harvest"] .btn { background: var(--accent); color: #2a1404; }
@@ -1906,9 +1910,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   background: radial-gradient(circle at 11px 14px, #fff 10px, transparent 10.5px) 0 0 / 22px 14px repeat-x;
   filter: drop-shadow(0 2px 2px rgba(0, 20, 40, .4));
 }
-:root[data-skin="snowfall"] :is(.brand h1, .card-head h2) { font-family: var(--font-snow), cursive; font-weight: 700; }
-:root[data-skin="snowfall"] .brand h1 { font-size: 34px; color: #fff; text-shadow: 0 0 16px rgba(255, 255, 255, .5); }
-:root[data-skin="snowfall"] .card-head h2 { font-size: 24px; }
+:root[data-skin="snowfall"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title)) { font-family: var(--font-snow), cursive; font-weight: 700; }
+:root[data-skin="snowfall"] :is(.brand, .login-card) h1 { font-size: 34px; color: #fff; text-shadow: 0 0 16px rgba(255, 255, 255, .5); }
+:root[data-skin="snowfall"] :is(.card-head h2, #settings-title) { font-size: 24px; }
 :root[data-skin="snowfall"] :is(.home-card h3, .card-title-row h3, .section h3) { letter-spacing: .14em; color: #ffd6da; }
 :root[data-skin="snowfall"] .tab.on, :root[data-skin="snowfall"] .chip.on { background: var(--accent); color: #fff; box-shadow: none; }
 :root[data-skin="snowfall"] .btn { background: var(--accent); color: #fff; }
@@ -1932,9 +1936,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 @keyframes ny-pop { 0% { opacity: 0; transform: scale(.4); } 12% { opacity: 1; } 55% { opacity: .5; transform: scale(1.06); } 70%, 100% { opacity: 0; transform: scale(1.1) translateY(2vh); } }
 :root[data-skin="newyear"] :is(.card, .issues) { border-radius: 8px; border: 1px solid var(--line); }
 :root[data-skin="newyear"] .card::before { display: block; left: 0; right: 0; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
-:root[data-skin="newyear"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-ancient), serif; }
-:root[data-skin="newyear"] .brand h1 { font-size: 28px; font-weight: 700; letter-spacing: .12em; color: var(--accent); text-shadow: 0 0 20px rgba(255, 211, 110, .45); }
-:root[data-skin="newyear"] .card-head h2 { font-weight: 700; letter-spacing: .04em; }
+:root[data-skin="newyear"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-ancient), serif; }
+:root[data-skin="newyear"] :is(.brand, .login-card) h1 { font-size: 28px; font-weight: 700; letter-spacing: .12em; color: var(--accent); text-shadow: 0 0 20px rgba(255, 211, 110, .45); }
+:root[data-skin="newyear"] :is(.card-head h2, #settings-title) { font-weight: 700; letter-spacing: .04em; }
 :root[data-skin="newyear"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: var(--accent); }
 :root[data-skin="newyear"] .tab.on, :root[data-skin="newyear"] .chip.on { background: linear-gradient(#ffe39a, #e6b040); color: #1a1205; box-shadow: none; }
 :root[data-skin="newyear"] .btn { background: linear-gradient(#ffe39a, #e6b040); color: #1a1205; }
@@ -1964,8 +1968,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 @keyframes sw-rise { to { background-position: 30px -640px, 160px -950px; } }
 :root[data-skin="sweetheart"] :is(.card, .issues) { border-radius: 20px; }
 :root[data-skin="sweetheart"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 999px; }
-:root[data-skin="sweetheart"] .brand h1 { font-family: var(--font-script), cursive; font-weight: 400; font-size: 32px; color: var(--accent); text-shadow: 0 0 18px rgba(255, 92, 138, .45); }
-:root[data-skin="sweetheart"] .card-head h2 { font-family: var(--font-script), cursive; font-weight: 400; font-size: 22px; }
+:root[data-skin="sweetheart"] :is(.brand, .login-card) h1 { font-family: var(--font-script), cursive; font-weight: 400; font-size: 32px; color: var(--accent); text-shadow: 0 0 18px rgba(255, 92, 138, .45); }
+:root[data-skin="sweetheart"] :is(.card-head h2, #settings-title) { font-family: var(--font-script), cursive; font-weight: 400; font-size: 22px; }
 :root[data-skin="sweetheart"] :is(.home-card h3, .card-title-row h3, .section h3) { letter-spacing: .14em; color: var(--spark); }
 :root[data-skin="sweetheart"] .tab.on, :root[data-skin="sweetheart"] .chip.on { background: var(--accent); color: #fff; box-shadow: 0 0 16px -4px var(--accent); }
 :root[data-skin="sweetheart"] .btn { background: var(--accent); color: #fff; border-radius: 999px; }
@@ -1993,9 +1997,9 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="stripes"] body::after { inset: 0; opacity: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cpath d='M10.0 0.0 L40.0 0.0' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='45.0' cy='0.0' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M9.4 3.4 L37.6 13.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='42.3' cy='15.4' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M7.7 6.4 L30.6 25.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='34.5' cy='28.9' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M5.0 8.7 L20.0 34.6' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='39.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M1.7 9.8 L6.9 39.4' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='7.8' cy='44.3' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-1.7 9.8 L-6.9 39.4' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-7.8' cy='44.3' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-5.0 8.7 L-20.0 34.6' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-22.5' cy='39.0' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-7.7 6.4 L-30.6 25.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-34.5' cy='28.9' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-9.4 3.4 L-37.6 13.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-42.3' cy='15.4' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-10.0 0.0 L-40.0 0.0' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-45.0' cy='0.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-9.4 -3.4 L-37.6 -13.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-42.3' cy='-15.4' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-7.7 -6.4 L-30.6 -25.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-34.5' cy='-28.9' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-5.0 -8.7 L-20.0 -34.6' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-22.5' cy='-39.0' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-1.7 -9.8 L-6.9 -39.4' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-7.8' cy='-44.3' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M1.7 -9.8 L6.9 -39.4' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='7.8' cy='-44.3' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M5.0 -8.7 L20.0 -34.6' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='-39.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M7.7 -6.4 L30.6 -25.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='34.5' cy='-28.9' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M9.4 -3.4 L37.6 -13.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='42.3' cy='-15.4' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E") 82% 16% / 28vmin 28vmin no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cpath d='M10.0 0.0 L40.0 0.0' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='45.0' cy='0.0' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M9.4 3.4 L37.6 13.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='42.3' cy='15.4' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M7.7 6.4 L30.6 25.7' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='34.5' cy='28.9' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M5.0 8.7 L20.0 34.6' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='39.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M1.7 9.8 L6.9 39.4' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='7.8' cy='44.3' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M-1.7 9.8 L-6.9 39.4' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-7.8' cy='44.3' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-5.0 8.7 L-20.0 34.6' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-22.5' cy='39.0' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M-7.7 6.4 L-30.6 25.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-34.5' cy='28.9' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-9.4 3.4 L-37.6 13.7' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-42.3' cy='15.4' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M-10.0 0.0 L-40.0 0.0' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-45.0' cy='0.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-9.4 -3.4 L-37.6 -13.7' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-42.3' cy='-15.4' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M-7.7 -6.4 L-30.6 -25.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-34.5' cy='-28.9' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-5.0 -8.7 L-20.0 -34.6' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-22.5' cy='-39.0' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M-1.7 -9.8 L-6.9 -39.4' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-7.8' cy='-44.3' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M1.7 -9.8 L6.9 -39.4' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='7.8' cy='-44.3' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M5.0 -8.7 L20.0 -34.6' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='-39.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M7.7 -6.4 L30.6 -25.7' stroke='%237fb2ff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='34.5' cy='-28.9' r='1.6' fill='%237fb2ff'/%3E%3Cpath d='M9.4 -3.4 L37.6 -13.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='42.3' cy='-15.4' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E") 66% 30% / 18vmin 18vmin no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cpath d='M10.0 0.0 L40.0 0.0' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='45.0' cy='0.0' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M9.4 3.4 L37.6 13.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='42.3' cy='15.4' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M7.7 6.4 L30.6 25.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='34.5' cy='28.9' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M5.0 8.7 L20.0 34.6' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='39.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M1.7 9.8 L6.9 39.4' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='7.8' cy='44.3' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-1.7 9.8 L-6.9 39.4' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-7.8' cy='44.3' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-5.0 8.7 L-20.0 34.6' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-22.5' cy='39.0' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-7.7 6.4 L-30.6 25.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-34.5' cy='28.9' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-9.4 3.4 L-37.6 13.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-42.3' cy='15.4' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-10.0 0.0 L-40.0 0.0' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-45.0' cy='0.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-9.4 -3.4 L-37.6 -13.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-42.3' cy='-15.4' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-7.7 -6.4 L-30.6 -25.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-34.5' cy='-28.9' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M-5.0 -8.7 L-20.0 -34.6' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-22.5' cy='-39.0' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M-1.7 -9.8 L-6.9 -39.4' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='-7.8' cy='-44.3' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M1.7 -9.8 L6.9 -39.4' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='7.8' cy='-44.3' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M5.0 -8.7 L20.0 -34.6' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='-39.0' r='1.6' fill='%23ffffff'/%3E%3Cpath d='M7.7 -6.4 L30.6 -25.7' stroke='%23ff3b4e' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='34.5' cy='-28.9' r='1.6' fill='%23ff3b4e'/%3E%3Cpath d='M9.4 -3.4 L37.6 -13.7' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='42.3' cy='-15.4' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E") 18% 82% / 22vmin 22vmin no-repeat; animation: ny-pop 4.5s ease-out infinite; }
 :root[data-skin="stripes"] :is(.card, .issues) { border-radius: 8px; }
 :root[data-skin="stripes"] .card::before { display: block; left: 0; right: 0; top: 0; height: 6px; border-radius: 8px 8px 0 0; background: repeating-linear-gradient(90deg, #ff3b4e 0 18px, #fff 18px 36px); opacity: .85; }
-:root[data-skin="stripes"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3, .tab) { font-family: var(--font-drop), sans-serif; font-weight: 400; text-transform: uppercase; }
-:root[data-skin="stripes"] .brand h1 { font-size: 32px; letter-spacing: .04em; color: #fff; text-shadow: 0 3px 0 #ff3b4e, 0 6px 0 #1f4fd6; }
-:root[data-skin="stripes"] .card-head h2 { font-size: 21px; letter-spacing: .03em; }
+:root[data-skin="stripes"] :is(:is(.brand, .login-card) h1, :is(.card-head h2, #settings-title), .home-card h3, .card-title-row h3, .section h3, .tab) { font-family: var(--font-drop), sans-serif; font-weight: 400; text-transform: uppercase; }
+:root[data-skin="stripes"] :is(.brand, .login-card) h1 { font-size: 32px; letter-spacing: .04em; color: #fff; text-shadow: 0 3px 0 #ff3b4e, 0 6px 0 #1f4fd6; }
+:root[data-skin="stripes"] :is(.card-head h2, #settings-title) { font-size: 21px; letter-spacing: .03em; }
 :root[data-skin="stripes"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 15px; letter-spacing: .08em; color: #ff8a96; }
 :root[data-skin="stripes"] .tab { font-size: 16px; letter-spacing: .04em; }
 :root[data-skin="stripes"] .tab.on, :root[data-skin="stripes"] .chip.on { background: var(--accent); color: #fff; box-shadow: none; }
@@ -2051,7 +2055,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
     linear-gradient(#f2ede1, #ddd5c2);
 }
 :root[data-skin="ancient"][data-mode="light"] .card { box-shadow: inset 0 0 30px rgba(10, 134, 173, .05), var(--shadow); }
-:root[data-skin="ancient"][data-mode="light"] .brand h1 { color: #0a4f66; text-shadow: 0 1px 0 #fff, 0 0 18px rgba(10, 134, 173, .2); }
+:root[data-skin="ancient"][data-mode="light"] :is(.brand, .login-card) h1 { color: #0a4f66; text-shadow: 0 1px 0 #fff, 0 0 18px rgba(10, 134, 173, .2); }
 :root[data-skin="ancient"][data-mode="light"] .tab.on, :root[data-skin="ancient"][data-mode="light"] .chip.on { color: #0a4f66; background: rgba(10, 134, 173, .12); }
 
 /* Drop Zone by day: bright sky in the lobby */
@@ -2065,7 +2069,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 :root[data-skin="dropzone"][data-mode="light"] body::before { background: radial-gradient(ellipse 90% 70% at 50% 0%, #ffffff, #c4e8ff 40%, #84cbff 75%, #57b0f2); }
 :root[data-skin="dropzone"][data-mode="light"] body::after { background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 255, 255, .3) 0 7deg, transparent 7deg 14deg); }
-:root[data-skin="dropzone"][data-mode="light"] .brand h1 { color: #0a2a6e; text-shadow: 0 4px 0 #ffd400; }
+:root[data-skin="dropzone"][data-mode="light"] :is(.brand, .login-card) h1 { color: #0a2a6e; text-shadow: 0 4px 0 #ffd400; }
 :root[data-skin="dropzone"][data-mode="light"] :is(.home-card h3, .card-title-row h3, .section h3) { color: #1a63d6; }
 
 /* Deep Water by day: tropical shallows with sunlight dancing on the sand */
@@ -2103,7 +2107,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
     linear-gradient(#f3f6e9, #cfe0b8);
 }
 :root[data-skin="expedition"][data-mode="light"] body::after { background: radial-gradient(circle closest-side, transparent 58%, rgba(60, 90, 30, .14) 61%, transparent 64%, transparent 74%, rgba(60, 90, 30, .1) 77%, transparent 80%) 88% 86% / 0 0 no-repeat; animation: ex-ripple 12s ease-out infinite; }
-:root[data-skin="expedition"][data-mode="light"] .brand h1 { text-shadow: 0 3px 0 #7a1a12; }
+:root[data-skin="expedition"][data-mode="light"] :is(.brand, .login-card) h1 { text-shadow: 0 3px 0 #7a1a12; }
 
 /* Harvest by day: a crisp autumn afternoon */
 :root[data-skin="harvest"][data-mode="light"] {
@@ -2115,7 +2119,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   --gauge: #b5793a; --gauge-from: #ecd2ac; --shadow: 0 20px 40px -30px rgba(90, 40, 0, .4);
 }
 :root[data-skin="harvest"][data-mode="light"] body::before { background: radial-gradient(56vmax 36vmax at 82% -4%, rgba(255, 190, 90, .45), transparent 70%), radial-gradient(50vmax 34vmax at 6% 104%, rgba(220, 110, 40, .2), transparent 70%), linear-gradient(#fff6e8, #f2d9bb); }
-:root[data-skin="harvest"][data-mode="light"] .brand h1 { text-shadow: 0 2px 0 #f2cf9c; }
+:root[data-skin="harvest"][data-mode="light"] :is(.brand, .login-card) h1 { text-shadow: 0 2px 0 #f2cf9c; }
 
 /* Snowfall by day: a bright snowy morning */
 :root[data-skin="snowfall"][data-mode="light"] {
@@ -2138,7 +2142,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 :root[data-skin="snowfall"][data-mode="light"] body::after { filter: drop-shadow(0 0 1px rgba(40, 80, 130, .55)); }
 :root[data-skin="snowfall"][data-mode="light"] .card::before { filter: drop-shadow(0 1px 1px rgba(20, 50, 90, .35)); }
-:root[data-skin="snowfall"][data-mode="light"] .brand h1 { color: #10263b; text-shadow: none; }
+:root[data-skin="snowfall"][data-mode="light"] :is(.brand, .login-card) h1 { color: #10263b; text-shadow: none; }
 :root[data-skin="snowfall"][data-mode="light"] :is(.home-card h3, .card-title-row h3, .section h3) { color: #c42a3b; }
 
 /* New Year by day: champagne and cream */
@@ -2151,7 +2155,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   --gauge: #b8892a; --gauge-from: #eedcb0; --shadow: 0 20px 40px -30px rgba(80, 60, 10, .4);
 }
 :root[data-skin="newyear"][data-mode="light"] body { background: radial-gradient(70vmax 50vmax at 50% 0%, #fffdf6, #f4ead2); }
-:root[data-skin="newyear"][data-mode="light"] .brand h1 { text-shadow: 0 1px 0 #fff, 0 0 16px rgba(190, 150, 60, .3); }
+:root[data-skin="newyear"][data-mode="light"] :is(.brand, .login-card) h1 { text-shadow: 0 1px 0 #fff, 0 0 16px rgba(190, 150, 60, .3); }
 
 /* Sweetheart by day: soft blush pink (still no purple) */
 :root[data-skin="sweetheart"][data-mode="light"] {
@@ -2163,7 +2167,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   --gauge: #e86a96; --gauge-from: #f8c6d6; --shadow: 0 20px 40px -30px rgba(120, 20, 60, .35);
 }
 :root[data-skin="sweetheart"][data-mode="light"] body::before { background: radial-gradient(56vmax 40vmax at 50% 108%, rgba(255, 120, 160, .3), transparent 70%), radial-gradient(40vmax 30vmax at 90% 0%, rgba(255, 180, 200, .5), transparent 70%), linear-gradient(#fff7f9, #ffdfe8); }
-:root[data-skin="sweetheart"][data-mode="light"] .brand h1 { text-shadow: 0 2px 0 #ffd0dd; }
+:root[data-skin="sweetheart"][data-mode="light"] :is(.brand, .login-card) h1 { text-shadow: 0 2px 0 #ffd0dd; }
 
 /* Stars & Stripes by day: white with navy stars */
 :root[data-skin="stripes"][data-mode="light"] {
@@ -2180,7 +2184,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
     repeating-linear-gradient(180deg, rgba(208, 31, 56, .07) 0 7vh, rgba(255, 255, 255, .5) 7vh 14vh),
     linear-gradient(#ffffff, #e6ecfa);
 }
-:root[data-skin="stripes"][data-mode="light"] .brand h1 { color: #0a1a48; }
+:root[data-skin="stripes"][data-mode="light"] :is(.brand, .login-card) h1 { color: #0a1a48; }
 :root[data-skin="stripes"][data-mode="light"] :is(.home-card h3, .card-title-row h3, .section h3) { color: #d01f38; }
 
 
@@ -2447,3 +2451,231 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) { :root[data-skin] .clock-time::after, :root[data-skin] .d-clock { animation: none !important; } }
+
+
+/* ==========================================================================================
+   Each theme reskins one more card, and problems look like they belong to the theme.
+   ========================================================================================== */
+
+/* Blocks: News is a page from a book and quill */
+:root[data-skin="blocks"] #news { --ink: #3b2a14; --muted: #6e5634; --chip: rgba(59, 42, 20, .1); --line: #8a6d3b; --accent: #6e4a1c; background: #efe2bf; color: var(--ink); box-shadow: inset 0 0 0 3px #b39566, inset 0 0 0 6px #efe2bf, inset 0 0 0 7px #b39566, var(--shadow); }
+:root[data-skin="blocks"] #news .news-item:hover { background: rgba(110, 74, 28, .1); }
+:root[data-skin="blocks"] #news .chip.on { background: #6e4a1c; color: #fff; }
+
+/* Inferno: Countdowns burn in furnace slots */
+:root[data-skin="inferno"] #countdowns .cd-n { background: #1c1416; color: #ffcf4a; padding: 8px 0 22px; box-shadow: inset 2px 2px 0 #0c0809, inset -2px -2px 0 #4a3b3f; position: relative; }
+:root[data-skin="inferno"] #countdowns .cd-n::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 14px; height: 14px; margin-left: -7px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23ff9a1f' d='M3 0h1v1h1v2h1v1h1v3H6v1H2V7H1V4h1V2h1z'/%3E%3Cpath fill='%23ffe14d' d='M3 4h1v1h1v2H3z'/%3E%3C/svg%3E") center / contain no-repeat; image-rendering: pixelated; animation: inf-glow 1.6s steps(2) infinite alternate; }
+
+/* Handheld: Sports reads like entries on the device's screen */
+:root[data-skin="handheld"] #sports .team:nth-child(odd) { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+:root[data-skin="handheld"] #sports .team-logo { border-radius: 4px; background: var(--edge); box-shadow: 0 0 0 2px var(--line); }
+
+/* Ancient: Upcoming is the quest log */
+:root[data-skin="ancient"] #calendar > h3 { font-size: 0; }
+:root[data-skin="ancient"] #calendar > h3::before { content: "Quest Log"; font-size: 13px; }
+:root[data-skin="ancient"] #calendar .cal-dot { border-radius: 0; transform: rotate(45deg); box-shadow: 0 0 8px currentColor; }
+:root[data-skin="ancient"] #calendar .cal-day-label { font-family: var(--font-ancient), serif; color: var(--accent); letter-spacing: .08em; }
+
+/* Drop Zone: Countdowns are match timers on slanted plates */
+:root[data-skin="dropzone"] #countdowns .cd-n { font-family: var(--font-drop), sans-serif; font-weight: 400; font-size: 30px; color: #0a2a6e; background: var(--accent); padding: 6px 0; transform: skewX(-10deg); box-shadow: 0 4px 0 #c9a800; }
+:root[data-skin="dropzone"] #countdowns .cd-title { font-family: var(--font-drop), sans-serif; text-transform: uppercase; letter-spacing: .03em; font-size: 16px; }
+
+/* Arcade: Sports is the versus screen */
+:root[data-skin="arcade"] #sports .team-logo { border-radius: 0; background: #0a0d16; box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px #0a0d16, 0 0 0 5px var(--accent); }
+:root[data-skin="arcade"] #sports .team-name { font-family: var(--font-arcade), monospace; font-size: 10px; line-height: 1.6; }
+:root[data-skin="arcade"] #sports .team.is-live { box-shadow: inset 0 0 0 2px var(--bad); animation: arc-blink 1s steps(1) infinite; }
+
+/* Neon: News is a terminal feed */
+:root[data-skin="neon"] #news .news-title::before { content: "> "; color: var(--spark); }
+:root[data-skin="neon"] #news .news-meta { font-family: var(--font-mono), monospace; }
+:root[data-skin="neon"] #news .news-meta::before { content: "// "; color: var(--spark); }
+:root[data-skin="neon"] #news .news-item:hover { background: rgba(252, 238, 10, .08); }
+
+/* Space: the hourly forecast is an instrument strip */
+:root[data-skin="space"] #weather .wx-hours { background: repeating-linear-gradient(90deg, rgba(90, 216, 255, .14) 0 1px, transparent 1px 52px) 0 100% / 100% 8px no-repeat; }
+:root[data-skin="space"] #weather .wx-hour:first-child { background: transparent; box-shadow: inset 0 0 0 1px var(--edge); }
+
+/* Deep Water: the dots in Upcoming are bubbles */
+:root[data-skin="deepwater"] #calendar .cal-dot { width: 10px; height: 10px; background: transparent !important; border: 1.5px solid currentColor; box-shadow: inset 2px -2px 0 -1px rgba(255, 255, 255, .6); color: var(--accent); }
+
+/* Time Circuits: Countdowns charge a flux capacitor */
+:root[data-skin="circuits"] #countdowns { background:
+    linear-gradient(90deg, transparent calc(100% - 92px), rgba(255, 255, 255, .03) calc(100% - 92px)),
+    var(--panel); position: relative; }
+:root[data-skin="circuits"] #countdowns::after {
+  display: block; content: ""; inset: 16px 18px auto auto; width: 64px; height: 64px; opacity: 1; border-radius: 4px; background:
+    linear-gradient(#fff6d0, #fff6d0) 50% 50% / 6px 6px no-repeat,
+    linear-gradient(90deg, transparent 44%, #ffe9a8 46% 54%, transparent 56%) 50% 100% / 100% 50% no-repeat,
+    linear-gradient(60deg, transparent 46%, #ffe9a8 48% 52%, transparent 54%) 0 0 / 50% 50% no-repeat,
+    linear-gradient(-60deg, transparent 46%, #ffe9a8 48% 52%, transparent 54%) 100% 0 / 50% 50% no-repeat,
+    #17181b;
+  box-shadow: inset 0 0 0 2px #2b2d33, 0 0 18px rgba(255, 220, 120, .35);
+  animation: tc-flux 1.2s steps(3) infinite;
+}
+@keyframes tc-flux { 33% { filter: brightness(1.4) drop-shadow(0 0 4px #ffe9a8); } 66% { filter: brightness(.9); } }
+:root[data-skin="circuits"] #countdowns .cd-n { font-family: var(--font-led), monospace; font-weight: 400; color: var(--warn); text-shadow: 0 0 10px var(--warn); }
+
+/* Hyperspace: Upcoming is the mission briefing */
+:root[data-skin="hyperspace"] #calendar > h3 { font-size: 0; }
+:root[data-skin="hyperspace"] #calendar > h3::before { content: "Mission Briefing"; font-size: 11px; }
+:root[data-skin="hyperspace"] #calendar .cal-time::before { content: "[ "; color: var(--accent); }
+:root[data-skin="hyperspace"] #calendar .cal-time::after { content: " ]"; color: var(--accent); }
+
+/* Expedition: Weather hangs from a park sign */
+:root[data-skin="expedition"] #weather .wx-head { background: var(--accent); color: #1a1205; margin: -20px -20px 14px; padding: 10px 20px; border-bottom: 3px solid #7a1a12; }
+:root[data-skin="expedition"] #weather .wx-place { color: #1a1205; font-family: var(--font-slab), serif; font-size: 16px; text-transform: uppercase; letter-spacing: .04em; }
+:root[data-skin="expedition"] #weather .wx-place svg { color: #7a1a12; }
+
+/* Spooky: every countdown is carved on a gravestone */
+:root[data-skin="spooky"] #countdowns .cd-n { background: linear-gradient(#55555e, #3a3a42); color: #e8e0d0; padding: 12px 0 8px; border-radius: 50% 50% 6px 6px / 38% 38% 6px 6px; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .35), 0 6px 10px -6px #000; font-family: var(--font-spooky), cursive; }
+
+/* Harvest: Upcoming is written on a recipe card */
+:root[data-skin="harvest"] #calendar {
+  --ink: #3a210e; --muted: #7a5a3e; background:
+    linear-gradient(90deg, transparent 30px, rgba(210, 60, 50, .45) 30px 31px, transparent 31px),
+    repeating-linear-gradient(transparent 0 29px, rgba(70, 110, 190, .18) 29px 30px),
+    #fbf4e4;
+  color: var(--ink);
+}
+
+/* Snowfall: countdowns are wrapped presents */
+:root[data-skin="snowfall"] #countdowns .cd-n { color: #fff; padding: 12px 0; border-radius: 4px; background:
+    linear-gradient(90deg, transparent 44%, #ffd36b 44% 56%, transparent 56%),
+    linear-gradient(transparent 44%, #ffd36b 44% 56%, transparent 56%),
+    #d22f42; text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+
+/* New Year: countdowns are gold tickets */
+:root[data-skin="newyear"] #countdowns .cd { padding: 8px 12px; border-radius: 6px; color: #2a2112; --muted: #5e4c22;
+  background: radial-gradient(circle at 0 50%, var(--panel) 7px, transparent 7.5px), radial-gradient(circle at 100% 50%, var(--panel) 7px, transparent 7.5px), linear-gradient(120deg, #f7dc8a, #d8a93d 60%, #f3d27a); }
+:root[data-skin="newyear"] #countdowns .cd-n { font-family: var(--font-ancient), serif; font-weight: 700; }
+:root[data-skin="newyear"] #countdowns .cd-del { color: #2a2112; }
+
+/* Sweetheart: every countdown sits in a heart */
+:root[data-skin="sweetheart"] #countdowns .cd-n { color: #fff; font-size: 20px; padding: 16px 0 20px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23c92a5c' d='M10 18 C10 18 1 12 1 6.5 C1 3.3 3.5 1 6.5 1 C8.2 1 9.4 1.9 10 3 C10.6 1.9 11.8 1 13.5 1 C16.5 1 19 3.3 19 6.5 C19 12 10 18 10 18Z'/%3E%3C/svg%3E") center / 60px 56px no-repeat; text-shadow: 0 1px 2px rgba(120, 0, 40, .5); }
+
+/* Stars & Stripes: Sports is the stadium scoreboard */
+:root[data-skin="stripes"] #sports { --ink: #f7f3e0; --muted: #c9c29a; --chip: rgba(255, 255, 255, .08); background: linear-gradient(#0f3d24, #0b2e1b); color: var(--ink); box-shadow: inset 0 0 0 4px #f7f3e0, inset 0 0 0 6px #0b2e1b, var(--shadow); }
+:root[data-skin="stripes"] #sports .team-name { font-family: var(--font-drop), sans-serif; text-transform: uppercase; letter-spacing: .03em; font-size: 15px; }
+:root[data-skin="stripes"] #sports .team-sub .mono, :root[data-skin="stripes"] #sports .team-when { color: #ffc24d; }
+
+/* ---------- problems, in each theme's own terms */
+.issues { position: relative; }
+:root[data-skin="blocks"] .issues { padding-top: 40px; }
+/* ten hearts; each problem takes two away */
+:root[data-skin="blocks"] .issues::before { content: ""; position: absolute; top: 14px; left: 18px; width: 180px; height: 16px; image-rendering: pixelated; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 8' shape-rendering='crispEdges'%3E%3Cpath fill='%233a1414' d='M1 0h2v1h1v1h1V1h1V0h2v1h1v3H8v1H7v1H6v1H5v1H4V7H3V6H2V5H1V4H0V1h1z'/%3E%3C/svg%3E") 0 0 / 18px 16px repeat-x; }
+:root[data-skin="blocks"] .issues::after { content: ""; position: absolute; top: 14px; left: 18px; height: 16px; image-rendering: pixelated; pointer-events: none; width: calc(max(0, 10 - var(--n, 0) * 2) * 18px); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23e8262b' d='M1 0h2v1h1v1h1V1h1V0h2v1h1v3H8v1H7v1H6v1H5v1H4V7H3V6H2V5H1V4H0V1h1z'/%3E%3C/svg%3E") 0 0 / 18px 16px repeat-x; }
+:root[data-skin="arcade"] .issues::before { content: "WARNING"; display: block; margin-bottom: 8px; font-family: var(--font-arcade), monospace; font-size: 14px; color: var(--warn); text-shadow: 0 0 10px var(--warn); animation: arc-blink 1s steps(1) infinite; }
+:root[data-skin="arcade"] .issues.bad::before { content: "GAME OVER"; color: var(--bad); text-shadow: 0 0 12px var(--bad); }
+:root[data-skin="neon"] .issues::before { content: "!! SYSTEM ALERT"; display: block; margin-bottom: 8px; font-weight: 700; letter-spacing: .16em; color: var(--bad); animation: neon-glitch 2s steps(1) infinite; }
+:root[data-skin="hyperspace"] .issues::before { content: "ALERT"; display: block; margin-bottom: 8px; font-family: var(--font-hyper), sans-serif; font-weight: 900; letter-spacing: .3em; color: var(--bad); text-shadow: 0 0 12px var(--bad); }
+:root[data-skin="dropzone"] .issues::before { content: "STORM WARNING"; display: block; margin-bottom: 8px; font-family: var(--font-drop), sans-serif; font-size: 20px; color: var(--accent); transform: skewX(-8deg); }
+:root:is([data-skin="circuits"], [data-skin="space"], [data-skin="handheld"]) .issues { padding-left: 52px; }
+:root:is([data-skin="circuits"], [data-skin="space"], [data-skin="handheld"]) .issues::before {
+  content: ""; position: absolute; left: 18px; top: 18px; width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff 0 12%, var(--warn) 30%, color-mix(in srgb, var(--warn) 50%, #000) 75%);
+  box-shadow: 0 0 0 2px #111, 0 0 14px var(--warn); animation: alert-lamp 1s steps(1) infinite;
+}
+:root:is([data-skin="circuits"], [data-skin="space"], [data-skin="handheld"]) .issues.bad::before { background: radial-gradient(circle at 35% 35%, #fff 0 12%, var(--bad) 30%, color-mix(in srgb, var(--bad) 50%, #000) 75%); box-shadow: 0 0 0 2px #111, 0 0 16px var(--bad); }
+@keyframes alert-lamp { 50% { filter: brightness(.45); box-shadow: 0 0 0 2px #111; } }
+:root[data-skin="spooky"] .issues { animation: spooky-flicker 5s steps(1) infinite; }
+@keyframes spooky-flicker { 0%, 100% { opacity: 1; } 91% { opacity: .35; } 92% { opacity: 1; } 95% { opacity: .55; } 96% { opacity: 1; } }
+:root[data-skin="inferno"] .issues { box-shadow: 0 0 0 2px #ff5a1f, 0 0 24px rgba(255, 90, 31, .45), var(--shadow); }
+
+@media (prefers-reduced-motion: reduce) { .issues, .issues::before, :root[data-skin] #countdowns::after, :root[data-skin] #countdowns .cd-n::after, :root[data-skin] #sports .team { animation: none !important; } }
+
+/* ---------- switching themes: each one makes its own entrance */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .55s; }
+/* most reveal in a circle opening from the Settings button, over the old theme */
+:root[data-skin]::view-transition-old(root), :root:not([data-skin])::view-transition-old(root) { animation: none; }
+:root:not([data-skin])::view-transition-new(root), :root[data-skin]::view-transition-new(root) { animation: vt-circle .6s cubic-bezier(.3, 0, .2, 1) both; }
+@keyframes vt-circle { from { clip-path: circle(0 at 92% 6%); } to { clip-path: circle(150% at 92% 6%); } }
+/* the pixel themes scan in line by line */
+:root:is([data-skin="blocks"], [data-skin="inferno"], [data-skin="arcade"], [data-skin="handheld"])::view-transition-new(root) { animation: vt-scan .6s steps(8) both; }
+@keyframes vt-scan { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+/* the neon and lamp themes flicker on */
+:root:is([data-skin="neon"], [data-skin="circuits"], [data-skin="spooky"])::view-transition-new(root) { animation: vt-flicker .6s steps(1) both; }
+@keyframes vt-flicker { 0% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: .1; } 40% { opacity: 1; } 50% { opacity: .4; } 62%, 100% { opacity: 1; } }
+/* the space themes jump in from lightspeed */
+:root:is([data-skin="space"], [data-skin="hyperspace"])::view-transition-new(root) { animation: vt-jump .55s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes vt-jump { from { opacity: 0; transform: scale(1.35); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+/* Deep Water rises from below */
+:root[data-skin="deepwater"]::view-transition-new(root) { animation: vt-rise .7s cubic-bezier(.3, 0, .2, 1) both; }
+@keyframes vt-rise { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
+/* New Year bursts open from the middle */
+:root[data-skin="newyear"]::view-transition-new(root) { animation: vt-burst .6s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes vt-burst { from { clip-path: circle(0 at 50% 50%); } to { clip-path: circle(110% at 50% 50%); } }
+
+/* ---------- easter eggs (components/EasterEggs.tsx) */
+.egg-banner {
+  position: fixed; left: 50%; top: 38%; z-index: 80; translate: -50% -50%; pointer-events: none; white-space: nowrap;
+  font-size: clamp(28px, 6vw, 64px); font-weight: 700; letter-spacing: .02em; color: var(--accent);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 60%, transparent), 0 4px 0 rgba(0, 0, 0, .35);
+  animation: egg-pop 2.6s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes egg-pop { 0% { opacity: 0; scale: .4; } 12% { opacity: 1; scale: 1.08; } 20% { scale: 1; } 80% { opacity: 1; } 100% { opacity: 0; scale: 1.02; } }
+:root[data-skin="circuits"] .egg-banner { font-family: var(--font-led), monospace; color: #ff3b30; text-shadow: 0 0 20px #ff3b30; }
+:root[data-skin="hyperspace"] .egg-banner { font-family: var(--font-hyper), sans-serif; text-transform: uppercase; letter-spacing: .2em; }
+:root[data-skin="spooky"] .egg-banner { font-family: var(--font-spooky), cursive; font-size: clamp(48px, 10vw, 120px); }
+:root[data-skin="newyear"] .egg-banner { font-family: var(--font-ancient), serif; }
+:root:is([data-skin="arcade"], [data-skin="blocks"]) .egg-banner { font-family: var(--font-arcade), monospace; font-size: clamp(18px, 3.6vw, 36px); }
+:root[data-skin="deepwater"] .egg-banner { font-family: var(--font-drop), sans-serif; font-weight: 400; color: #ff4337; font-size: clamp(22px, 4vw, 48px); }
+/* Time Circuits: a flash, a jolt and the fire trails flaring as it hits 88 */
+:root[data-skin="circuits"][data-egg] body { animation: egg-jolt .5s steps(4) 2; }
+:root[data-skin="circuits"][data-egg] body::after { opacity: 1; filter: drop-shadow(0 0 10px #ff6a00) drop-shadow(0 0 30px #ff6a00) brightness(1.6); }
+:root[data-skin="circuits"][data-egg]::after { content: ""; position: fixed; inset: 0; z-index: 79; background: #fff; pointer-events: none; animation: egg-flash 2.6s ease-out both; }
+@keyframes egg-flash { 0%, 100% { opacity: 0; } 18% { opacity: .9; } 40% { opacity: 0; } }
+@keyframes egg-jolt { 25% { translate: 3px -2px; } 50% { translate: -3px 2px; } 75% { translate: 2px 1px; } }
+/* Hyperspace: the stars streak past at full speed */
+:root[data-skin="hyperspace"][data-egg] body::before { animation: hs-boost .5s linear infinite; }
+@keyframes hs-boost { from { transform: scale(1); } to { transform: scale(1.6); } }
+/* Snowfall: a blizzard */
+:root[data-skin="snowfall"][data-egg] body::after { animation-duration: 2s; opacity: 1; filter: brightness(1.4); }
+/* Spooky: lightning */
+:root[data-skin="spooky"][data-egg]::after { content: ""; position: fixed; inset: 0; z-index: 79; background: #eaf2ff; pointer-events: none; animation: egg-lightning 2.6s steps(1) both; }
+@keyframes egg-lightning { 0%, 100% { opacity: 0; } 6% { opacity: .85; } 9% { opacity: 0; } 14% { opacity: .6; } 17% { opacity: 0; } }
+/* New Year: the finale, every firework at once */
+:root[data-skin="newyear"][data-egg] body::before, :root[data-skin="newyear"][data-egg] body::after { animation-duration: .9s; }
+/* Deep Water: the shadow comes in close */
+:root[data-skin="deepwater"][data-egg] body::after { opacity: .9; animation: dw-close 2.6s ease-in-out both; }
+@keyframes dw-close { from { transform: translateX(-30vw) scale(1); } to { transform: translateX(60vw) scale(3.2); } }
+/* Blocks: the grass block pops */
+:root[data-skin="blocks"][data-egg] .logo-block { animation: egg-jolt .3s steps(3) 3; }
+@media (prefers-reduced-motion: reduce) { .egg-banner, :root[data-egg] body, :root[data-egg]::after { animation: none !important; } :root[data-egg]::after { display: none; } }
+
+/* ==========================================================================================
+   Readability fixes from the contrast check (every theme, light and dark): text at least
+   4.5:1 against what's behind it, 3:1 for large text.
+   ========================================================================================== */
+/* wins, losses and price moves: the status color pulled toward the text color so it reads on any panel */
+:root :is(.team-sub, .sl-team-sub, .mkt) :is(.won, .mkt-chg.up) { color: color-mix(in oklab, var(--ok) 72%, var(--ink)); }
+:root :is(.team-sub, .sl-team-sub, .mkt) :is(.lost, .mkt-chg.down) { color: color-mix(in oklab, var(--bad) 72%, var(--ink)); }
+/* on the light versions, a deeper mix */
+:root:is([data-theme="light"], [data-mode="light"]:is([data-skin])) :is(.team-sub, .sl-team-sub, .mkt) :is(.won, .mkt-chg.up) { color: color-mix(in oklab, var(--ok) 55%, var(--ink)); }
+:root:is([data-theme="light"], [data-mode="light"]:is([data-skin])) :is(.team-sub, .sl-team-sub, .mkt) :is(.lost, .mkt-chg.down) { color: color-mix(in oklab, var(--bad) 60%, var(--ink)); }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) :is(.team-sub, .sl-team-sub, .mkt) :is(.won, .mkt-chg.up) { color: color-mix(in oklab, var(--ok) 55%, var(--ink)); } }
+/* accent-colored text in the light versions: a deeper accent */
+:root[data-skin][data-mode="light"] { --accent-text: color-mix(in oklab, var(--accent) 55%, var(--ink)); }
+:root[data-skin="dropzone"][data-mode="light"] { --accent-text: #1a5fc4; --muted: #2f4a80; }
+:root[data-skin="stripes"][data-mode="light"] { --accent-text: #b3122b; }
+:root[data-skin][data-mode="light"]:not([data-skin="blocks"], [data-skin="handheld"]) :is(.home-card h3, .card-title-row h3, .section h3, #calendar > h3, .cal-soon, .cal-day-label, .clock-ny) { color: var(--accent-text); }
+/* headers on the light skies */
+:root[data-skin="blocks"][data-mode="light"] :is(.brand h1) { color: #1d2b4f; }
+:root[data-skin="blocks"][data-mode="light"] :is(.brand .sub, .updated) { color: #2c3d66; }
+:root[data-skin="deepwater"][data-mode="light"] .brand h1 { color: #c8231a; }
+:root[data-skin="expedition"][data-mode="light"] .brand h1 { color: #8a5a00; }
+/* the picked tab and chip: white text on a deep enough color */
+:root[data-skin="snowfall"] :is(.tab.on, .chip.on) { background: #d22f42; }
+:root[data-skin="sweetheart"] :is(.tab.on, .chip.on) { background: #c92a5c; }
+:root[data-skin="stripes"] :is(.tab.on, .chip.on) { background: #d01f38; }
+:root[data-skin="newyear"] :is(.tab.on, .chip.on) { background-color: #e6b040; }
+/* the park sign over Expedition's weather: its buttons in sign colors */
+:root[data-skin="expedition"] #weather .wx-head .chip { color: #1a1205; background: rgba(26, 18, 5, .1); border-color: rgba(26, 18, 5, .35); }
+:root[data-skin="expedition"] #weather .wx-head .chip.on { color: var(--accent); background: #1a1205; }
+/* Harvest's recipe card is cream: its accent text in a deep rust */
+:root[data-skin="harvest"] #calendar { --accent: #a8430f; --accent-text: #a8430f; }
+:root[data-skin="harvest"] #calendar .cal-soon { color: #a8430f; }
+/* solid colors under the gradient cards, so their text is measured (and shown) on the right color */
+:root[data-skin="newyear"] #countdowns .cd { background-color: #e6c069; }
+:root[data-skin="stripes"] #sports { background-color: #0b2e1b; }
+:root[data-skin="stripes"] #sports h3 { color: #ffc24d !important; }
+.edit-open .chip { color: var(--ink); }

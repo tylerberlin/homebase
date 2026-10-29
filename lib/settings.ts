@@ -34,6 +34,13 @@ export const SKIN_NAMES: Record<Skin, string> = {
   deepwater: "Deep Water", circuits: "Time Circuits", hyperspace: "Hyperspace", expedition: "Expedition",
   spooky: "Spooky", harvest: "Harvest", snowfall: "Snowfall", newyear: "New Year", sweetheart: "Sweetheart", stripes: "Stars & Stripes",
 };
+/** How the picker in Settings groups the themes. */
+export const SKIN_GROUPS: { name: string; skins: Skin[] }[] = [
+  { name: "Glass", skins: ["glass"] },
+  { name: "Games", skins: ["blocks", "inferno", "handheld", "ancient", "dropzone", "arcade"] },
+  { name: "Sci-fi & movie nights", skins: ["neon", "space", "deepwater", "circuits", "hyperspace", "expedition"] },
+  { name: "Holidays", skins: ["spooky", "harvest", "snowfall", "newyear", "sweetheart", "stripes"] },
+];
 export const SKIN_MODE: Record<Skin, "both" | "light" | "dark"> = {
   glass: "both", blocks: "both", inferno: "dark", handheld: "both", ancient: "both", dropzone: "both", arcade: "dark", neon: "dark", space: "dark",
   deepwater: "both", circuits: "dark", hyperspace: "dark", expedition: "both",

@@ -27,6 +27,16 @@ export function applyLook(look: Look, tint: Tint | null = null) {
   const root = document.documentElement;
   // A game theme brings its own colors, so the accent, glass and game-day tint only apply to Glass.
   const skin = look.skin === "glass" ? null : look.skin;
+  // Switching themes plays the new theme's own entrance (globals.css, ::view-transition-new).
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+  if ((root.dataset.skin ?? null) !== skin && doc.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    doc.startViewTransition(() => setLook(root, look, tint, skin));
+    return;
+  }
+  setLook(root, look, tint, skin);
+}
+
+function setLook(root: HTMLElement, look: Look, tint: Tint | null, skin: string | null) {
   if (skin) root.dataset.skin = skin;
   else delete root.dataset.skin;
   if (tint && !skin) {

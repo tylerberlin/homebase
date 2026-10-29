@@ -21,7 +21,8 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
   Arcade, Neon and Space, plus four movie-night themes: Deep Water, Time Circuits,
   Hyperspace and Expedition (each hides a small easter egg), and six holiday themes: Spooky,
   Harvest, Snowfall, New Year, Sweetheart and Stars & Stripes. Ten of them have light and dark
-  versions, and weather icons follow the theme (pixel art in the pixel themes). Optional game-day colors tint the page in your team's color
+  versions, and weather icons follow the theme (pixel art in the pixel themes). Problems show up in each
+  theme's own style, and a few themes hide easter eggs. Optional game-day colors tint the page in your team's color
   while they're playing.
 - **Room display**: a full-screen mode with a big clock, a live scoreboard and rotating cards.
 - **Own login**: a password plus Face ID / Touch ID passkeys, signed session cookies, and

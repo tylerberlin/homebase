@@ -2,6 +2,7 @@
 
 import { browserSupportsWebAuthn, startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { useEffect, useState } from "react";
+import BrandMark from "./BrandMark";
 import { KeyIcon } from "./icons";
 
 // The sign-in page: Face ID / Touch ID (passkey) first, password as the fallback. On first run it
@@ -89,8 +90,7 @@ export default function LoginCard({ next }: { next: string }) {
   return (
     <main className="login-wrap">
       <section className="card login-card" aria-labelledby="login-title">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="logo login-logo" src="/brand/icon.svg" alt="" width={56} height={56} />
+        <span className="login-logo"><BrandMark size={56} /></span>
         <h1 id="login-title">Homebase</h1>
 
         {step === "loading" && <p className="login-sub">Checking…</p>}

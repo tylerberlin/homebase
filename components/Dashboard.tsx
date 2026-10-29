@@ -10,6 +10,7 @@ import IssueStrip from "./IssueStrip";
 import QuickLinks from "./QuickLinks";
 import HomeTab from "./HomeTab";
 import BrandMark from "./BrandMark";
+import EasterEggs from "./EasterEggs";
 import { GrassBlock } from "./Minecraft";
 import MinecraftTab from "./MinecraftTab";
 import { useCalendar } from "@/lib/useCalendar";
@@ -336,6 +337,7 @@ export default function Dashboard({
         </div>
       </header>
 
+      <EasterEggs />
       <Tabs tab={tab} minecraft={hasMinecraft} servers={monitoring} />
 
       {tab === "home" && settings.quickLinks && <QuickLinks links={quickLinks} />}
