@@ -2726,10 +2726,14 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 .home-grid.free > [data-w="3"] { grid-column: span 3; }
 .home-grid.free > [data-w="4"] { grid-column: span 4; }
 .home-grid.free > .home-slot { min-width: 0; min-height: 0; height: 100%; display: flex; flex-direction: column; padding-bottom: 16px; box-sizing: border-box; }
-/* a fitted card is its own natural height (measured to set the span) */
-.home-grid.free > .home-slot[data-fit] > .card, .home-grid.free.editing > .home-slot[data-fit] > .edit-body { flex: none; }
+/* a card with nothing to show takes no space */
+.home-grid.free > .home-slot:empty { display: none; }
+/* every card is measured at its natural height (that sets the span); a card with a set height
+   that's shorter than its content fills its slot and scrolls inside */
+.home-grid.free > .home-slot > .card, .home-grid.free.editing > .home-slot > .edit-body { flex: none; }
 .home-grid.free > .home-slot[data-fit] > .card { overflow: visible; }
-.home-grid.free > .home-slot > .card { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent; }
+.home-grid.free > .home-slot[data-clip] > .card, .home-grid.free.editing > .home-slot[data-clip] > .edit-body { flex: 1; }
+.home-grid.free > .home-slot > .card { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent; }
 /* a narrow card: its rows tighten up */
 .home-grid.free > [data-w="1"] .mkt { grid-template-columns: minmax(0, 1fr) auto auto; }
 .home-grid.free > [data-w="1"] .mkt-spark { display: none; }

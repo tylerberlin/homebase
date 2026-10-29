@@ -20,8 +20,9 @@ import Switch from "./Switch";
 import Upcoming from "./Upcoming";
 
 // The Home tab is a widget grid: 4 columns on a computer, 2 on a tablet, 1 on a phone. Each card
-// has a width in columns and fits its content's height, unless you've set a height by dragging its
-// corner (in 72px steps; double-click the corner to fit again). The grid packs cards in order in
+// has a width in columns and fits its content's height. A height set by dragging the corner (in
+// 72px steps; double-click to fit again) is a limit: the card scrolls inside past it, but never
+// stands taller than its content. The grid packs cards in order in
 // fine 8px rows, so they sit close with few gaps. A card set smaller than its content scrolls
 // inside. On a phone cards stack at their natural height.
 
@@ -118,8 +119,16 @@ export default function HomeTab({
   const latest = useRef({ drag, resize, shownBase, shown });
   latest.current = { drag, resize, shownBase, shown };
 
-  const span = (c: CardPref) => (c.h ? c.h * STEP + (editing ? (EDIT_GAP - GAP) / FINE : 0) : fit[c.id] ?? CARD_SIZE[c.id].h * STEP);
+  const span = (c: CardPref) => {
+    const natural = fit[c.id] ?? CARD_SIZE[c.id].h * STEP;
+    if (!c.h) return natural;
+    const set = c.h * STEP + (editing ? (EDIT_GAP - GAP) / FINE : 0);
+    // While resizing, show the exact size being picked; otherwise never taller than the content.
+    return resize?.id === c.id ? set : Math.min(set, natural);
+  };
   const slotStyle = (c: CardPref) => ({ gridRow: `span ${span(c)}` });
+  /** A set height shorter than the content: the card fills its slot and scrolls. */
+  const clipped = (c: CardPref) => !!c.h && resize?.id !== c.id && c.h * STEP < (fit[c.id] ?? Infinity);
 
   // Measure fitted cards whenever their content changes size.
   const observer = useRef<ResizeObserver | null>(null);
@@ -131,7 +140,9 @@ export default function HomeTab({
         for (const e of entries) {
           const id = (e.target.closest(".home-slot") as HTMLElement | null)?.dataset.id as CardId | undefined;
           if (!id) continue;
-          const rows = Math.ceil(((e.target as HTMLElement).offsetHeight + gapRef.current) / FINE);
+          const el = e.target as HTMLElement;
+          // scrollHeight: the content's full height, even when a set height cuts the card short
+          const rows = Math.ceil((Math.max(el.offsetHeight, el.scrollHeight) + gapRef.current) / FINE);
           if (rows > 2 && next[id] !== rows) next = { ...next, [id]: rows };
         }
         return next;
@@ -355,6 +366,7 @@ export default function HomeTab({
                 data-id={c.id}
                 data-w={c.w}
                 data-fit={c.h ? undefined : ""}
+                data-clip={clipped(c) ? "" : undefined}
                 style={slotStyle(c)}
                 onPointerDown={held ? undefined : (e) => press(e, c)}
               >
@@ -446,7 +458,7 @@ export default function HomeTab({
       {shown.length > 0 ? (
         <div ref={gridRef} className="grid home-grid free">
           {shown.map((c) => (
-            <div key={c.id} ref={slotRef(c.id)} className="home-slot" data-id={c.id} data-w={c.w} data-fit={c.h ? undefined : ""} style={slotStyle(c)}>
+            <div key={c.id} ref={slotRef(c.id)} className="home-slot" data-id={c.id} data-w={c.w} data-fit={c.h ? undefined : ""} data-clip={clipped(c) ? "" : undefined} style={slotStyle(c)}>
               {card(c.id)}
             </div>
           ))}
