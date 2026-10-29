@@ -9,6 +9,7 @@ import { AutoIcon, DisplayIcon, LogoutIcon, MoonIcon, SettingsIcon, SunIcon } fr
 import IssueStrip from "./IssueStrip";
 import QuickLinks from "./QuickLinks";
 import HomeTab from "./HomeTab";
+import BrandMark from "./BrandMark";
 import { GrassBlock } from "./Minecraft";
 import MinecraftTab from "./MinecraftTab";
 import { useCalendar } from "@/lib/useCalendar";
@@ -294,8 +295,7 @@ export default function Dashboard({
           ) : settings.look.skin === "handheld" ? (
             <span className="logo logo-lens" aria-hidden="true" />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="logo" src="/brand/icon.svg" alt="" width={44} height={44} />
+            <BrandMark />
           )}
           <div>
             <h1>Homebase</h1>

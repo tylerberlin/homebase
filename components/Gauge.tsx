@@ -31,8 +31,8 @@ export default function Gauge({
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <defs>
             <linearGradient id={gradId} x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stopColor="var(--orb-2)" />
-              <stop offset="1" stopColor="var(--accent)" />
+              <stop offset="0" stopColor="var(--gauge-from, var(--orb-2))" />
+              <stop offset="1" stopColor="var(--gauge, var(--accent))" />
             </linearGradient>
           </defs>
           <circle {...ring} className="gauge-track" strokeDasharray={`${ARC} ${C}`} />

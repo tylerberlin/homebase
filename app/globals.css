@@ -483,11 +483,11 @@ a.issue:hover { background: var(--chip); }
 }
 .quick-link:hover { background: var(--sheen), var(--chip); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .quick-link:active { transform: scale(.97); }
-.quick-icon { position: relative; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; flex: none; background: linear-gradient(135deg, var(--orb-2), var(--accent)); }
+.quick-icon { position: relative; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; flex: none; background: linear-gradient(135deg, var(--logo-a, var(--orb-2)), var(--logo-b, var(--accent))); }
 .quick-icon.has-img { background: rgba(255, 255, 255, .92); }
 .quick-icon img { width: 14px; height: 14px; display: block; position: absolute; opacity: 0; }
 .quick-icon.has-img img { position: static; opacity: 1; }
-.quick-letter { color: #fff; font-size: 12px; font-weight: 600; line-height: 1; }
+.quick-letter { color: var(--on-accent, #fff); font-size: 12px; font-weight: 600; line-height: 1; }
 @media (max-width: 560px) { .card-head .local-time::before { display: none; } }
 @media (pointer: coarse) { .quick-link { padding-block: 10px; } }
 
@@ -1115,6 +1115,26 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 /* ---------- shared by every game theme */
 :root[data-skin] .card::before, :root[data-skin] .card::after { display: none; }
 :root[data-skin] .logo { box-shadow: none; }
+/* Every theme recolors the gauges, the logo and the shortcut tiles from its own accent, instead of
+   the glass theme's blue. --on-accent is the text color that reads on the accent. */
+:root[data-skin] {
+  --gauge-from: color-mix(in srgb, var(--accent) 40%, var(--bg));
+  --logo-a: color-mix(in srgb, var(--accent) 55%, #000); --logo-b: var(--accent); --logo-ink: color-mix(in srgb, var(--accent) 60%, #000);
+}
+:root:is([data-skin="neon"], [data-skin="dropzone"], [data-skin="hyperspace"], [data-skin="circuits"], [data-skin="newyear"], [data-skin="expedition"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="inferno"], [data-skin="deepwater"], [data-skin="space"], [data-skin="arcade"], [data-skin="ancient"]) { --on-accent: #111; }
+/* Where the accent is also a warning or problem color, normal gauges use a calmer one so a healthy
+   reading never looks like an alert. */
+:root[data-skin="stripes"] { --gauge: #7fb2ff; }
+:root[data-skin="snowfall"] { --gauge: #9ad7ff; }
+:root[data-skin="sweetheart"] { --gauge: #ffb3c8; }
+:root[data-skin="spooky"] { --gauge: #8bff5a; }
+:root[data-skin="harvest"] { --gauge: #f4d6a0; }
+:root[data-skin="expedition"] { --gauge: #8fd3a0; }
+:root[data-skin="newyear"] { --gauge: #fff3c4; }
+:root[data-skin="hyperspace"] { --gauge: var(--spark); }
+:root:is([data-skin="stripes"], [data-skin="snowfall"], [data-skin="sweetheart"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="expedition"], [data-skin="newyear"], [data-skin="hyperspace"]) {
+  --gauge-from: color-mix(in srgb, var(--gauge) 40%, var(--bg));
+}
 :root:is([data-skin="inferno"], [data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="deepwater"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="expedition"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"]) .theme-toggle { display: none; }
 :root:is([data-skin="inferno"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="deepwater"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="expedition"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"]) { color-scheme: dark; }
 :root[data-skin="handheld"] { color-scheme: light; }
@@ -1790,7 +1810,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="spooky"] body::before {
   inset: 0; opacity: 1; animation: none;
   background:
-    radial-gradient(circle at 93% 78%, #fff7d6 0 3.4vmax, rgba(255, 240, 200, .18) 3.6vmax, transparent 10vmax),
+    radial-gradient(circle at 56% 6%, #fff7d6 0 2.6vmax, rgba(255, 240, 200, .16) 2.8vmax, transparent 8vmax),
     radial-gradient(70vmax 26vmax at 50% 108%, rgba(140, 255, 90, .07), transparent 70%),
     radial-gradient(46vmax 30vmax at 8% 100%, rgba(255, 120, 20, .2), transparent 70%),
     linear-gradient(#0d0e12, #050405);
