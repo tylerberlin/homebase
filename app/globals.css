@@ -2499,11 +2499,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="deepwater"] #calendar .cal-dot { width: 10px; height: 10px; background: transparent !important; border: 1.5px solid currentColor; box-shadow: inset 2px -2px 0 -1px rgba(255, 255, 255, .6); color: var(--accent); }
 
 /* Time Circuits: Countdowns charge a flux capacitor */
-:root[data-skin="circuits"] #countdowns { background:
-    linear-gradient(90deg, transparent calc(100% - 92px), rgba(255, 255, 255, .03) calc(100% - 92px)),
-    var(--panel); position: relative; }
-:root[data-skin="circuits"] #countdowns::after {
-  display: block; content: ""; inset: 16px 18px auto auto; width: 64px; height: 64px; opacity: 1; border-radius: 4px; background:
+:root[data-skin="circuits"] #countdowns .card-title-row h3::after {
+  content: ""; display: inline-block; vertical-align: -9px; margin-left: 12px; width: 28px; height: 28px; border-radius: 3px; background:
     linear-gradient(#fff6d0, #fff6d0) 50% 50% / 6px 6px no-repeat,
     linear-gradient(90deg, transparent 44%, #ffe9a8 46% 54%, transparent 56%) 50% 100% / 100% 50% no-repeat,
     linear-gradient(60deg, transparent 46%, #ffe9a8 48% 52%, transparent 54%) 0 0 / 50% 50% no-repeat,
@@ -2581,7 +2578,7 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 @keyframes spooky-flicker { 0%, 100% { opacity: 1; } 91% { opacity: .35; } 92% { opacity: 1; } 95% { opacity: .55; } 96% { opacity: 1; } }
 :root[data-skin="inferno"] .issues { box-shadow: 0 0 0 2px #ff5a1f, 0 0 24px rgba(255, 90, 31, .45), var(--shadow); }
 
-@media (prefers-reduced-motion: reduce) { .issues, .issues::before, :root[data-skin] #countdowns::after, :root[data-skin] #countdowns .cd-n::after, :root[data-skin] #sports .team { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .issues, .issues::before, :root[data-skin] #countdowns h3::after, :root[data-skin] #countdowns .cd-n::after, :root[data-skin] #sports .team { animation: none !important; } }
 
 /* ---------- switching themes: each one makes its own entrance */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .55s; }
@@ -2712,3 +2709,6 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 .egg-deepwater { animation-name: egg-scrim-sea; }
 @keyframes egg-scrim-sea { 0% { background: rgba(40, 140, 190, 0); } 12%, 80% { background: rgba(40, 140, 190, .5); } 100% { background: rgba(40, 140, 190, 0); } }
 .egg-deepwater .egg-fx::after { filter: blur(1px) drop-shadow(0 0 30px rgba(0, 10, 20, .6)); opacity: 1; }
+
+/* the logo is clicked for easter eggs: don't select the title when it's clicked three times */
+.brand { -webkit-user-select: none; user-select: none; }
