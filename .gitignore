@@ -10,3 +10,4 @@ homebase.tgz
 __pycache__/
 .DS_Store
 data/
+.next.nosync/

@@ -82,9 +82,9 @@ function HomeCards({ s, set }: { s: Settings; set: (c: (s: Settings) => Settings
   return (
     <>
       <p className="set-intro">
-        Drag a card by its grip to move it. Switch one off to hide it. Or{" "}
+        Cards fill the Home grid in this order. Drag one by its grip to move it, or switch it off to hide it. To resize cards,{" "}
         <button type="button" className="link-btn" onClick={() => window.dispatchEvent(new Event(EDIT_LAYOUT_EVENT))}>
-          arrange them on the Home page
+          edit the layout on the Home page
         </button>
         .
       </p>

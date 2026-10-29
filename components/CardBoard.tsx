@@ -5,8 +5,8 @@ import { createPortal } from "react-dom";
 import { CARD_NAMES, type CardPref } from "@/lib/settings";
 import { Grip, useCardDrag } from "@/lib/useCardDrag";
 
-// Settings → Home cards: a small version of the Home layout to drag cards around in (two columns
-// on wide screens, one list on a phone). The Home tab's own edit mode works the same way.
+// Settings → Home cards: the cards in the order they fill the Home grid, to drag into a new order
+// or switch off. Moving and resizing on the grid itself happens in the Home tab's Edit layout.
 
 export default function CardBoard({
   cards, onChange, renderControls,
@@ -15,7 +15,8 @@ export default function CardBoard({
   onChange: (cards: CardPref[]) => void;
   renderControls: (c: CardPref, single: boolean) => React.ReactNode;
 }) {
-  const d = useCardDrag({ cards, onChange, narrowQuery: "(max-width: 640px)" });
+  // One list: the order cards fill the Home grid. Sizes are set on Home itself (Edit layout).
+  const d = useCardDrag({ cards, onChange, narrowQuery: "all" });
   const board = useRef<HTMLDivElement>(null);
 
   const row = (c: CardPref, ghost = false) => (

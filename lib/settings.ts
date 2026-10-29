@@ -14,7 +14,21 @@ export const CARD_NAMES: Record<CardId, string> = {
   sports: "Sports",
   markets: "Stocks",
 };
-export type CardPref = { id: CardId; on: boolean; col: 0 | 1 };
+/** A Home card: shown or not, where it goes (col is the old two-column layout; Settings still lists
+ *  it), and its size on the widget grid: w columns of 4, h rows of 56px (see .home-grid.free). */
+export type CardPref = { id: CardId; on: boolean; col: 0 | 1; w: number; h: number };
+export const GRID_COLS = 4;
+export const GRID_MAX_H = 14;
+/** Each card's natural size, and the smallest it can be made. */
+export const CARD_SIZE: Record<CardId, { w: number; h: number; minW: number; minH: number }> = {
+  clock: { w: 2, h: 3, minW: 1, minH: 2 },
+  weather: { w: 2, h: 8, minW: 1, minH: 3 },
+  calendar: { w: 2, h: 5, minW: 1, minH: 3 },
+  countdowns: { w: 2, h: 4, minW: 1, minH: 2 },
+  news: { w: 2, h: 7, minW: 1, minH: 3 },
+  sports: { w: 2, h: 6, minW: 1, minH: 3 },
+  markets: { w: 2, h: 5, minW: 1, minH: 3 },
+};
 
 export const LEAGUES = { mlb: "MLB", nfl: "NFL", nhl: "NHL", nba: "NBA" } as const;
 export type League = keyof typeof LEAGUES;
@@ -90,15 +104,9 @@ export const lookScript = `try{var l=JSON.parse(localStorage.getItem("${LOOK_KEY
 export const LIMITS = { teams: 16, tickers: 20, news: 24 };
 
 // Overall order is the phone order (one column); on wider screens each card goes in its column.
-export const DEFAULT_CARDS: CardPref[] = [
-  { id: "clock", on: true, col: 1 },
-  { id: "weather", on: true, col: 0 },
-  { id: "calendar", on: true, col: 1 },
-  { id: "countdowns", on: true, col: 1 },
-  { id: "sports", on: true, col: 1 },
-  { id: "markets", on: true, col: 1 },
-  { id: "news", on: true, col: 0 },
-];
+export const DEFAULT_CARDS: CardPref[] = (
+  [["weather", 0], ["clock", 1], ["calendar", 1], ["countdowns", 0], ["news", 1], ["sports", 0], ["markets", 1]] as const
+).map(([id, col]) => ({ id, on: true, col, w: CARD_SIZE[id].w, h: CARD_SIZE[id].h }));
 export const DEFAULT_LOOK: Look = { skin: "glass", accent: "blue", glass: "frosted", unit: "F", clock: "12", compact: false, gameDay: true };
 export const DEFAULT_DISPLAY: DisplayPrefs = {
   clock: true, bigClock: false, nextEvent: true, servers: true, links: true, issues: true, scoreboard: true,
@@ -183,7 +191,17 @@ export function sanitize(input: unknown, defaults: Settings): Settings {
   const saved = arr(s.cards)
     .map((c) => c as Record<string, unknown>)
     .filter((c) => CARD_IDS.includes(c?.id as CardId) && once(`c:${c.id}`))
-    .map((c) => ({ id: c.id as CardId, on: bool(c.on, true), col: c.col === 1 ? 1 : 0 }) as CardPref);
+    .map((c) => {
+      const id = c.id as CardId, size = CARD_SIZE[id];
+      const int = (v: unknown, lo: number, hi: number, d: number) => (Number.isInteger(v) ? Math.min(hi, Math.max(lo, v as number)) : d);
+      return { id, on: bool(c.on, true), col: c.col === 1 ? 1 : 0, w: int(c.w, size.minW, GRID_COLS, size.w), h: int(c.h, size.minH, GRID_MAX_H, size.h) } as CardPref;
+    });
+  // Saved before the widget grid: lay the two columns out side by side (left, right, left...) so
+  // the grid packs them much as they were.
+  if (saved.length && !arr(s.cards).some((c) => (c as Record<string, unknown>)?.w != null)) {
+    const left = saved.filter((c) => c.col === 0), right = saved.filter((c) => c.col === 1);
+    saved.splice(0, saved.length, ...Array.from({ length: Math.max(left.length, right.length) }, (_, i) => [left[i], right[i]]).flat().filter((c): c is CardPref => !!c));
+  }
   const cards = [...saved];
   defaults.cards.forEach((d, i) => {
     if (!cards.some((c) => c.id === d.id)) cards.splice(Math.min(i, cards.length), 0, d);
