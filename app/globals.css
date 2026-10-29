@@ -2718,26 +2718,17 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
    Home widget grid (HomeTab.tsx): 4 columns, rows of 56px; each card spans data-w columns and
    data-h rows and the grid packs them in order, filling gaps. Too-small cards scroll inside.
    ========================================================================================== */
-.home-grid.free { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 56px; grid-auto-flow: row dense; gap: 16px; align-items: stretch; }
+/* fine 8px rows with no row gap; each slot keeps 16px of space under its card instead, so cards
+   pack closely (HomeTab sets each slot's row span) */
+.home-grid.free { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 8px; grid-auto-flow: row dense; column-gap: 16px; row-gap: 0; align-items: start; }
 .home-grid.free > [data-w="1"] { grid-column: span 1; }
 .home-grid.free > [data-w="2"] { grid-column: span 2; }
 .home-grid.free > [data-w="3"] { grid-column: span 3; }
 .home-grid.free > [data-w="4"] { grid-column: span 4; }
-.home-grid.free > [data-h="1"] { grid-row: span 1; }
-.home-grid.free > [data-h="2"] { grid-row: span 2; }
-.home-grid.free > [data-h="3"] { grid-row: span 3; }
-.home-grid.free > [data-h="4"] { grid-row: span 4; }
-.home-grid.free > [data-h="5"] { grid-row: span 5; }
-.home-grid.free > [data-h="6"] { grid-row: span 6; }
-.home-grid.free > [data-h="7"] { grid-row: span 7; }
-.home-grid.free > [data-h="8"] { grid-row: span 8; }
-.home-grid.free > [data-h="9"] { grid-row: span 9; }
-.home-grid.free > [data-h="10"] { grid-row: span 10; }
-.home-grid.free > [data-h="11"] { grid-row: span 11; }
-.home-grid.free > [data-h="12"] { grid-row: span 12; }
-.home-grid.free > [data-h="13"] { grid-row: span 13; }
-.home-grid.free > [data-h="14"] { grid-row: span 14; }
-.home-grid.free > .home-slot { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.home-grid.free > .home-slot { min-width: 0; min-height: 0; height: 100%; display: flex; flex-direction: column; padding-bottom: 16px; box-sizing: border-box; }
+/* a fitted card is its own natural height (measured to set the span) */
+.home-grid.free > .home-slot[data-fit] > .card, .home-grid.free.editing > .home-slot[data-fit] > .edit-body { flex: none; }
+.home-grid.free > .home-slot[data-fit] > .card { overflow: visible; }
 .home-grid.free > .home-slot > .card { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent; }
 /* a narrow card: its rows tighten up */
 .home-grid.free > [data-w="1"] .mkt { grid-template-columns: minmax(0, 1fr) auto auto; }
@@ -2755,14 +2746,15 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 }
 @media (max-width: 600px) {
   .home-grid.free { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
-  .home-grid.free > .home-slot { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .home-grid.free > .home-slot { grid-column: 1 / -1 !important; grid-row: auto !important; height: auto; }
   .home-grid.free > .home-slot > .card { overflow: visible; }
   .home-grid.free .resize { display: none; }
 }
-:root[data-density="compact"] .home-grid.free { gap: 10px; }
+:root[data-density="compact"] .home-grid.free { column-gap: 10px; }
 
 /* edit layout on the grid */
 .home-grid.free.editing { padding-top: 14px; }
+.home-grid.free.editing > .home-slot { padding-bottom: 34px; }
 .home-grid.free.editing > .edit-tile { cursor: grab; }
 .home-grid.free.editing .edit-body { flex: 1; max-height: none; min-height: 0; overflow: hidden; border-radius: 16px; -webkit-mask-image: none; mask-image: none; display: flex; flex-direction: column; }
 .home-grid.free.editing .edit-body > .card { flex: 1; min-height: 0; overflow: hidden; }
@@ -2779,3 +2771,12 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 .size-badge { position: absolute; right: 30px; bottom: 6px; z-index: 3; padding: 3px 9px; border-radius: 99px; font-size: 12px; background: var(--accent); color: var(--on-accent, #fff); }
 .edit-hidden-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
 .edit-hidden-row .edit-off { gap: 10px; min-height: 48px; }
+/* the card you're moving, lifted under the pointer */
+.edit-ghost {
+  position: fixed; top: 0; left: 0; z-index: 60; pointer-events: none; display: flex; flex-direction: column; will-change: transform;
+  border-radius: 18px; background: var(--bg); box-shadow: 0 30px 60px -18px rgba(0, 0, 0, .65), 0 0 0 2px var(--accent);
+}
+.edit-ghost .edit-body { flex: 1; min-height: 0; overflow: hidden; border-radius: inherit; display: flex; flex-direction: column; pointer-events: none; }
+.edit-ghost .edit-body > .card { flex: 1; min-height: 0; overflow: hidden; margin: 0; }
+.home-grid.free.dragging .edit-tile { transition: none; }
+@media (prefers-reduced-motion: reduce) { .edit-ghost { box-shadow: 0 0 0 2px var(--accent); } }

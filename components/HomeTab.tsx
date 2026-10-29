@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CalendarData } from "@/lib/calendar";
 import { usePrefs } from "@/lib/prefs";
@@ -20,12 +20,19 @@ import Switch from "./Switch";
 import Upcoming from "./Upcoming";
 
 // The Home tab is a widget grid: 4 columns on a computer, 2 on a tablet, 1 on a phone. Each card
-// has a width (columns) and height (rows) and the grid packs them in order, filling gaps. In Edit
-// layout you drag a card to move it and drag its corner to resize it, in whole grid steps. A card
-// smaller than its content scrolls inside. On a phone cards stack at their natural height.
+// has a width in columns and fits its content's height, unless you've set a height by dragging its
+// corner (in 72px steps; double-click the corner to fit again). The grid packs cards in order in
+// fine 8px rows, so they sit close with few gaps. A card set smaller than its content scrolls
+// inside. On a phone cards stack at their natural height.
 
-const ROW = 56; // must match grid-auto-rows in .home-grid.free
-type Drag = { id: CardId; pointerId: number; x: number; y: number; target: number };
+const ROW = 56; // a height step is ROW + the 16px gap
+const FINE = 8; // grid-auto-rows in .home-grid.free
+const GAP = 16; // the space under each card (padding in the slot, since rows have no gap)
+const EDIT_GAP = 34; // more room while editing, for each card's controls and corner handle
+const STEP = (ROW + GAP) / FINE; // fine rows per height step
+// The pointer position lives in refs and moves the floating card directly, so dragging never
+// re-renders the page; state only changes when a card swaps places or snaps to a new size.
+type Drag = { id: CardId; pointerId: number; target: number; dx: number; dy: number; w: number; h: number };
 type Resize = { id: CardId; pointerId: number; left: number; top: number; colW: number; gap: number; cols: number; w: number; h: number };
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -52,6 +59,10 @@ export default function HomeTab({
   const [drag, setDrag] = useState<Drag | null>(null);
   const [resize, setResize] = useState<Resize | null>(null);
   const [said, setSaid] = useState("");
+  // Fine rows each fitted card needs, measured from its content.
+  const [fit, setFit] = useState<Partial<Record<CardId, number>>>({});
+  const gapRef = useRef(GAP);
+  gapRef.current = editing ? EDIT_GAP : GAP;
 
   useEffect(() => {
     if (!editing) return;
@@ -61,7 +72,7 @@ export default function HomeTab({
     return () => window.removeEventListener("keydown", onKey);
   }, [editing, onEditDone]);
 
-  const card = (id: CardId) => {
+  const cardFor = (id: CardId) => {
     switch (id) {
       case "clock":
         return <ClockCard status={status} />;
@@ -80,6 +91,14 @@ export default function HomeTab({
     }
   };
 
+  // Built once per data change, so reordering and resizing don't re-render the cards themselves.
+  const content = useMemo(
+    () => Object.fromEntries(s.cards.map((c) => [c.id, cardFor(c.id)])) as Record<CardId, React.ReactNode>,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [status, calendar, home, now, loc.mode, loc.coords, demo, s.cards.length],
+  );
+  const card = (id: CardId) => content[id];
+
   const save = (cards: CardPref[]) => update((x) => ({ ...x, cards }));
   const shownBase = s.cards.filter((c) => c.on);
   const hidden = s.cards.filter((c) => !c.on);
@@ -91,36 +110,93 @@ export default function HomeTab({
     const moving = shownBase.find((c) => c.id === drag.id)!;
     shown = [...rest.slice(0, drag.target), moving, ...rest.slice(drag.target)];
   }
+  const ghostRef = useRef<HTMLDivElement>(null);
+  const pointer = useRef({ x: 0, y: 0 });
   if (resize) shown = shown.map((c) => (c.id === resize.id ? { ...c, w: resize.w, h: resize.h } : c));
   const commitOrder = (list: CardPref[]) => save([...list, ...hidden]);
 
   const latest = useRef({ drag, resize, shownBase, shown });
   latest.current = { drag, resize, shownBase, shown };
 
+  const span = (c: CardPref) => (c.h ? c.h * STEP + (editing ? (EDIT_GAP - GAP) / FINE : 0) : fit[c.id] ?? CARD_SIZE[c.id].h * STEP);
+  const slotStyle = (c: CardPref) => ({ gridRow: `span ${span(c)}` });
+
+  // Measure fitted cards whenever their content changes size.
+  const observer = useRef<ResizeObserver | null>(null);
+  const watched = useRef(new WeakSet<Element>());
+  useLayoutEffect(() => {
+    observer.current ??= new ResizeObserver((entries) => {
+      setFit((prev) => {
+        let next = prev;
+        for (const e of entries) {
+          const id = (e.target.closest(".home-slot") as HTMLElement | null)?.dataset.id as CardId | undefined;
+          if (!id) continue;
+          const rows = Math.ceil(((e.target as HTMLElement).offsetHeight + gapRef.current) / FINE);
+          if (rows > 2 && next[id] !== rows) next = { ...next, [id]: rows };
+        }
+        return next;
+      });
+    });
+    for (const el of slots.current.values()) {
+      const body = el.querySelector(":scope > .card, :scope > .edit-body");
+      if (body && !watched.current.has(body)) {
+        watched.current.add(body);
+        observer.current.observe(body);
+      }
+    }
+  });
+  useEffect(() => () => observer.current?.disconnect(), []);
+
+  // Cards glide to their new places (FLIP): measure where each was, then animate from there.
+  const prevPos = useRef(new Map<CardId, { x: number; y: number }>());
+  const layoutKey = shown.map((c) => `${c.id}:${c.w}:${c.h}`).join();
+  useLayoutEffect(() => {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const next = new Map<CardId, { x: number; y: number }>();
+    for (const [id, el] of slots.current) {
+      const pos = { x: el.offsetLeft, y: el.offsetTop };
+      next.set(id, pos);
+      const was = prevPos.current.get(id);
+      if (!was || reduce) continue;
+      const dx = was.x - pos.x, dy = was.y - pos.y;
+      if (dx || dy) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 240, easing: "cubic-bezier(.2, .8, .2, 1)" });
+    }
+    prevPos.current = next;
+  }, [layoutKey, editing]);
+
   // Follow the pointer on the window while moving or resizing.
   const active = drag?.id ?? resize?.id;
   useEffect(() => {
     if (!active) return;
     let raf = 0;
-    const targetAt = (x: number, y: number, id: CardId) => {
-      const others = latest.current.shownBase.filter((c) => c.id !== id);
-      let best = others.length, bestD = Infinity;
-      others.forEach((c, i) => {
-        const r = slots.current.get(c.id)?.getBoundingClientRect();
-        if (!r) return;
-        if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
-          best = x < r.left + r.width / 2 ? i : i + 1;
-          bestD = -1;
-        } else if (bestD >= 0) {
-          const d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2));
-          if (d < bestD) [bestD, best] = [d, y < r.top + r.height / 2 ? i : i + 1];
-        }
-      });
-      return best;
+    /** The card under the pointer, by where cards sit in the grid (not mid-animation). */
+    const cardAt = (x: number, y: number) => {
+      const g = gridRef.current?.getBoundingClientRect();
+      if (!g) return null;
+      for (const c of latest.current.shown) {
+        const el = slots.current.get(c.id), pos = prevPos.current.get(c.id);
+        if (!el || !pos) continue;
+        const left = g.left + pos.x, top = g.top + pos.y;
+        if (x >= left && x <= left + el.offsetWidth && y >= top && y <= top + el.offsetHeight) return c.id;
+      }
+      return null;
+    };
+    const place = () => {
+      const d = latest.current.drag, el = ghostRef.current;
+      if (d && el) el.style.transform = `translate(${pointer.current.x - d.dx}px, ${pointer.current.y - d.dy}px) rotate(1.5deg)`;
     };
     const move = (e: PointerEvent) => {
-      const { drag: d, resize: z } = latest.current;
-      if (d && e.pointerId === d.pointerId) setDrag({ ...d, x: e.clientX, y: e.clientY, target: targetAt(e.clientX, e.clientY, d.id) });
+      const { drag: d, resize: z, shown: list } = latest.current;
+      if (d && e.pointerId === d.pointerId) {
+        pointer.current = { x: e.clientX, y: e.clientY };
+        // Hovering another card swaps the held one into its place.
+        const over = cardAt(e.clientX, e.clientY);
+        if (over && over !== d.id) {
+          const rest = list.filter((c) => c.id !== d.id);
+          const to = list.findIndex((c) => c.id === over);
+          if (to !== d.target && to >= 0 && to <= rest.length) setDrag({ ...d, target: to });
+        }
+      }
       if (z && e.pointerId === z.pointerId) {
         const size = CARD_SIZE[z.id];
         const w = clamp(Math.round((e.clientX - z.left + z.gap) / (z.colW + z.gap)), size.minW, z.cols);
@@ -143,18 +219,18 @@ export default function HomeTab({
       setDrag(null);
       setResize(null);
     };
-    // Scroll along when the pointer is held near the top or bottom edge.
-    const scroll = () => {
-      const d = latest.current.drag;
-      if (d) {
-        const edge = 90;
-        const v = d.y < edge ? -(edge - d.y) / 4 : d.y > innerHeight - edge ? (d.y - (innerHeight - edge)) / 4 : 0;
+    // Each frame: move the floating card, and scroll along near the top or bottom edge.
+    const frame = () => {
+      place();
+      if (latest.current.drag) {
+        const { y } = pointer.current, edge = 90;
+        const v = y < edge ? -(edge - y) / 4 : y > innerHeight - edge ? (y - (innerHeight - edge)) / 4 : 0;
         if (v) window.scrollBy(0, v);
       }
-      raf = requestAnimationFrame(scroll);
+      raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(scroll);
-    window.addEventListener("pointermove", move);
+    raf = requestAnimationFrame(frame);
+    window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", cancel);
     return () => {
@@ -174,8 +250,12 @@ export default function HomeTab({
     return { cols, gap, colW: (g.clientWidth - gap * (cols - 1)) / cols };
   };
 
-  const beginMove = (id: CardId, pointerId: number, x: number, y: number) =>
-    setDrag({ id, pointerId, x, y, target: shownBase.findIndex((c) => c.id === id) });
+  const beginMove = (id: CardId, pointerId: number, x: number, y: number) => {
+    const r = slots.current.get(id)?.getBoundingClientRect();
+    if (!r) return;
+    pointer.current = { x, y };
+    setDrag({ id, pointerId, target: shownBase.findIndex((c) => c.id === id), dx: x - r.left, dy: y - r.top, w: r.width, h: r.height });
+  };
 
   /** Pick a card up from anywhere on it: with a mouse once it moves a few pixels (so clicks still
    *  work), with a finger after a short press-and-hold (so a swipe still scrolls). */
@@ -219,7 +299,8 @@ export default function HomeTab({
     e.stopPropagation();
     const r = slots.current.get(c.id)!.getBoundingClientRect();
     const g = gridInfo();
-    setResize({ id: c.id, pointerId: e.pointerId, left: r.left, top: r.top, ...g, w: Math.min(c.w, g.cols), h: c.h });
+    const size = CARD_SIZE[c.id];
+    setResize({ id: c.id, pointerId: e.pointerId, left: r.left, top: r.top, ...g, w: Math.min(c.w, g.cols), h: c.h || clamp(Math.round(span(c) / STEP), size.minH, GRID_MAX_H) });
   };
 
   /** Keyboard: arrows on the grip move a card; arrows on the corner resize it. */
@@ -238,7 +319,7 @@ export default function HomeTab({
     const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
     if (!d) return;
     e.preventDefault();
-    const w = clamp(Math.min(c.w, cols) + d[0], size.minW, cols), h = clamp(c.h + d[1], size.minH, GRID_MAX_H);
+    const w = clamp(Math.min(c.w, cols) + d[0], size.minW, cols), h = clamp((c.h || Math.round(span(c) / STEP)) + d[1], size.minH, GRID_MAX_H);
     save(s.cards.map((x) => (x.id === c.id ? { ...x, w, h } : x)));
     setSaid(`${CARD_NAMES[c.id]}: ${w} wide, ${h} tall`);
   };
@@ -271,8 +352,10 @@ export default function HomeTab({
                 key={c.id}
                 ref={slotRef(c.id)}
                 className={`home-slot edit-tile ${held ? "placeholder" : ""} ${sizing ? "sizing" : ""}`}
+                data-id={c.id}
                 data-w={c.w}
-                data-h={c.h}
+                data-fit={c.h ? undefined : ""}
+                style={slotStyle(c)}
                 onPointerDown={held ? undefined : (e) => press(e, c)}
               >
                 {!held && (
@@ -301,7 +384,7 @@ export default function HomeTab({
                     </div>
                     {sizing && (
                       <span className="size-badge mono" aria-hidden="true">
-                        {resize!.w} × {resize!.h}
+                        {resize!.w} wide × {resize!.h} tall
                       </span>
                     )}
                     <button
@@ -310,6 +393,11 @@ export default function HomeTab({
                       aria-label={`Resize ${CARD_NAMES[c.id]}, ${c.w} wide and ${c.h} tall`}
                       aria-describedby="resize-help"
                       onPointerDown={(e) => startResize(e, c)}
+                      onDoubleClick={() => {
+                        save(s.cards.map((x) => (x.id === c.id ? { ...x, h: 0 } : x)));
+                        setSaid(`${CARD_NAMES[c.id]} fits its content`);
+                      }}
+                      title="Drag to resize · double-click to fit the content"
                       onKeyDown={(e) => onSizeKey(e, c)}
                     >
                       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
@@ -335,13 +423,18 @@ export default function HomeTab({
         {drag &&
           dragged &&
           createPortal(
-            <div className="edit-float" style={{ transform: `translate(${drag.x - 24}px, ${drag.y - 22}px)` }} aria-hidden="true">
-              <Grip size={16} /> {CARD_NAMES[dragged.id]}
+            <div
+              ref={ghostRef}
+              className="edit-ghost"
+              style={{ width: drag.w, height: drag.h, transform: `translate(${pointer.current.x - drag.dx}px, ${pointer.current.y - drag.dy}px) rotate(1.5deg)` }}
+              aria-hidden="true"
+            >
+              <div className="edit-body">{card(dragged.id)}</div>
             </div>,
             document.body,
           )}
         <p id="edit-help" className="sr-only">Use the arrow keys to move the card earlier or later.</p>
-        <p id="resize-help" className="sr-only">Use the arrow keys to make the card wider, narrower, taller or shorter.</p>
+        <p id="resize-help" className="sr-only">Use the arrow keys to make the card wider, narrower, taller or shorter. Double-click to fit its content.</p>
         <p className="sr-only" aria-live="polite">{said}</p>
       </>
     );
@@ -353,7 +446,7 @@ export default function HomeTab({
       {shown.length > 0 ? (
         <div ref={gridRef} className="grid home-grid free">
           {shown.map((c) => (
-            <div key={c.id} ref={slotRef(c.id)} className="home-slot" data-w={c.w} data-h={c.h}>
+            <div key={c.id} ref={slotRef(c.id)} className="home-slot" data-id={c.id} data-w={c.w} data-fit={c.h ? undefined : ""} style={slotStyle(c)}>
               {card(c.id)}
             </div>
           ))}
