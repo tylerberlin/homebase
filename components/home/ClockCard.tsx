@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useHour12 } from "@/lib/prefs";
+import { useHour12, usePrefs } from "@/lib/prefs";
 import type { Status } from "@/lib/types";
 
 // Big clock with seconds and today's date, plus the time where your servers are when it differs
@@ -28,8 +28,46 @@ const parts = (d: Date, hour12: boolean, timeZone?: string) => {
   return { hm: `${get("hour")}:${get("minute")}`, s: get("second"), ampm: get("dayPeriod") };
 };
 
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+/** One row of the Time Circuits theme's clock: month, day, year, AM/PM, hour, minute on a plate. */
+function CircuitRow({ label, d, color, hour12 }: { label: string; d: Date; color: "red" | "green" | "amber"; hour12: boolean }) {
+  const h = d.getHours();
+  const hh = hour12 ? h % 12 || 12 : h;
+  const field = (name: string, value: string) => (
+    <span className="tc-field">
+      <span className="tc-digits">{value}</span>
+      <span className="tc-name">{name}</span>
+    </span>
+  );
+  return (
+    <div className={`tc-row tc-${color}`} aria-label={`${label}: ${d.toLocaleString()}`}>
+      <div className="tc-fields" aria-hidden="true">
+        {field("Month", MONTHS[d.getMonth()])}
+        {field("Day", String(d.getDate()).padStart(2, "0"))}
+        {field("Year", String(d.getFullYear()))}
+        {hour12 && (
+          <span className="tc-field tc-ampm">
+            <span className={h < 12 ? "on" : ""}>AM</span>
+            <span className={h >= 12 ? "on" : ""}>PM</span>
+          </span>
+        )}
+        {field("Hour", String(hh).padStart(2, "0"))}
+        {field("Min", String(d.getMinutes()).padStart(2, "0"))}
+      </div>
+      <div className="tc-plate">{label}</div>
+    </div>
+  );
+}
+
+// Where the time machine was set, and when it last left.
+const DESTINATION = new Date(2015, 9, 21, 16, 29);
+const DEPARTED = new Date(1985, 9, 26, 1, 21);
+
 export default function ClockCard({ status }: { status: Status | null }) {
   const hour12 = useHour12();
+  const { settings } = usePrefs();
+  const skin = settings.look.skin;
   const now = useSecond();
   const here = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined;
   // One entry per time zone that isn't yours, named after the server there.
@@ -42,6 +80,16 @@ export default function ClockCard({ status }: { status: Status | null }) {
     const diff = Math.round((new Date(now.toLocaleString("en-US", { timeZone: tz })).getTime() - new Date(now.toLocaleString("en-US", { timeZone: here })).getTime()) / 3600_000);
     return diff === 0 ? "" : `${diff > 0 ? "+" : "−"}${Math.abs(diff)} h`;
   };
+  const daysToNewYear = Math.ceil((new Date(now.getFullYear() + 1, 0, 1).getTime() - now.getTime()) / 86400_000);
+  if (skin === "circuits") {
+    return (
+      <section className="card home-card clock-card tc-card" id="clock" aria-label="Clock">
+        <CircuitRow label="Destination time" d={DESTINATION} color="red" hour12={hour12} />
+        <CircuitRow label="Present time" d={now} color="green" hour12={hour12} />
+        <CircuitRow label="Last time departed" d={DEPARTED} color="amber" hour12={hour12} />
+      </section>
+    );
+  }
   return (
     <section className="card home-card clock-card" id="clock" aria-label="Clock">
       <div className="clock-time" role="timer" aria-live="off">
@@ -50,6 +98,11 @@ export default function ClockCard({ status }: { status: Status | null }) {
         {t.ampm && <span className="clock-ampm">{t.ampm}</span>}
       </div>
       <div className="clock-date">{now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</div>
+      {skin === "newyear" && (
+        <div className="clock-ny">
+          {daysToNewYear === 1 ? "1 day" : `${daysToNewYear} days`} until {now.getFullYear() + 1}
+        </div>
+      )}
       {zones.size > 0 && (
         <ul className="clock-zones">
           {[...zones].map(([tz, place]) => {

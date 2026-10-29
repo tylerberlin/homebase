@@ -26,7 +26,7 @@ export default function MarketsCard({ quotes }: { quotes: Quote[] }) {
         {quotes.map((q) => {
           const up = q.change >= 0;
           return (
-            <li key={q.symbol} className="mkt">
+            <li key={q.symbol} className={`mkt ${q.index ? "mkt-index" : ""}`}>
               <span className="mkt-name">
                 {q.name}
                 {q.name !== q.symbol && <span className="mkt-sym mono">{q.symbol.replace(/^\^/, "")}</span>}
