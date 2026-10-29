@@ -1,0 +1,19 @@
+# The agent in a container: for Unraid, Synology or any machine that runs Docker.
+# Set AGENT_TOKEN, then `docker compose up -d` in this folder (on Unraid: the Compose Manager plugin).
+services:
+  homebase-agent:
+    image: python:3.12-alpine
+    container_name: homebase-agent
+    restart: unless-stopped
+    network_mode: host                # report the host's own network name and port 9100
+    pid: host
+    command: python -I /agent/homebase_agent.py
+    environment:
+      AGENT_TOKEN: "CHANGE_ME_long_random_string"
+      DISK_PATH: "/host-disk"         # the disk to report (mounted below)
+      # MC_PORT: "25565"              # a Minecraft server on this machine
+    volumes:
+      - ./homebase_agent.py:/agent/homebase_agent.py:ro
+      - /etc/os-release:/host/etc/os-release:ro   # so the card names the host's OS, not the container's
+      - /var/run/docker.sock:/var/run/docker.sock:ro   # lists the containers; remove to hide them
+      - /:/host-disk:ro               # on Unraid use /mnt/user:/host-disk:ro for the array

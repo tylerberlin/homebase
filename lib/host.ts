@@ -1,6 +1,7 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statfsSync } from "node:fs";
+import http from "node:http";
 import os from "node:os";
-import type { HostHardware, HostStats } from "./types";
+import type { App, HostHardware, HostStats } from "./types";
 
 // NAS's own stats, read from the host's /proc and /sys (container uses host networking).
 
@@ -89,3 +90,51 @@ export const hostHardware = (): HostHardware => ({
   board_name: readText("/sys/class/dmi/id/board_name"),
   kernel: os.release(),
 });
+
+/** The operating system, for a server card without TrueNAS. In a container, mount the host's
+ *  /etc/os-release at /host/etc/os-release so it names the host's OS rather than the container's. */
+export function hostOs(): string {
+  for (const p of ["/host/etc/os-release", "/etc/os-release"]) {
+    const name = readText(p)?.match(/^PRETTY_NAME="?([^"\n]+)"?/m)?.[1];
+    if (name && !(p === "/etc/os-release" && /alpine/i.test(name) && existsSync("/.dockerenv"))) return name;
+  }
+  return os.type() === "Darwin" ? "macOS" : os.type();
+}
+
+/** Root disk usage (or DISK_PATH), for a server card without TrueNAS. */
+export function hostDisk(): Pick<HostStats, "disk_total" | "disk_used"> {
+  try {
+    const s = statfsSync(process.env.DISK_PATH || "/");
+    return { disk_total: s.blocks * s.bsize, disk_used: (s.blocks - s.bfree) * s.bsize };
+  } catch {
+    return {};
+  }
+}
+
+const DOCKER_STATE: Record<string, string> = { running: "RUNNING", restarting: "DEPLOYING", dead: "CRASHED" };
+
+/** Docker containers on this machine, when /var/run/docker.sock is mounted (read-only is enough). */
+export function dockerContainers(): Promise<App[] | undefined> {
+  const socketPath = process.env.DOCKER_SOCKET || "/var/run/docker.sock";
+  if (!existsSync(socketPath)) return Promise.resolve(undefined);
+  return new Promise((resolve) => {
+    const req = http.get({ socketPath, path: "/containers/json?all=1", timeout: 4000 }, (res) => {
+      let body = "";
+      res.on("data", (d) => (body += d));
+      res.on("end", () => {
+        try {
+          const list = JSON.parse(body) as { Names?: string[]; State?: string }[];
+          resolve(
+            list
+              .map((c) => ({ name: (c.Names?.[0] ?? "?").replace(/^\//, ""), state: DOCKER_STATE[c.State ?? ""] ?? "STOPPED" }))
+              .sort((a, b) => a.name.localeCompare(b.name)),
+          );
+        } catch {
+          resolve(undefined);
+        }
+      });
+    });
+    req.on("timeout", () => req.destroy());
+    req.on("error", () => resolve(undefined));
+  });
+}

@@ -1,0 +1,19 @@
+# systemd unit for Linux (a Pi, Ubuntu, Debian, Proxmox...). Copy the agent to /opt/homebase-agent,
+# put AGENT_TOKEN=... in /opt/homebase-agent/agent.env, then:
+#   sudo cp homebase-agent.service /etc/systemd/system/ && sudo systemctl enable --now homebase-agent
+[Unit]
+Description=Homebase stats agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/opt/homebase-agent/agent.env
+ExecStart=/usr/bin/python3 /opt/homebase-agent/homebase_agent.py
+Restart=always
+RestartSec=5
+DynamicUser=yes
+# To list Docker containers, uncomment (the docker group must exist):
+# SupplementaryGroups=docker
+
+[Install]
+WantedBy=multi-user.target

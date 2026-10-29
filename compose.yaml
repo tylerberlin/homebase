@@ -1,5 +1,6 @@
-# Paste into TrueNAS: Apps → Discover Apps → ⋮ → Install via YAML
-# Fill in the three CHANGE_ME values first.
+# Docker Compose for Homebase. On TrueNAS: Apps → Discover Apps → ⋮ → Install via YAML.
+# Fill in the CHANGE_ME values, and delete the parts for servers you don't have:
+# everything server-related is optional (see "Servers" in the README).
 services:
   homebase:
     image: node:22-alpine
@@ -12,6 +13,9 @@ services:
     volumes:
       - /mnt/tank/apps/homebase:/app
       - /mnt/tank/apps/minecraft/mods:/mc-mods:ro   # lists the Minecraft server's mods (read-only)
+      - ./data:/app/data            # settings, countdowns and logins when Upstash isn't connected
+      # - /var/run/docker.sock:/var/run/docker.sock:ro   # without TrueNAS: list this machine's containers
+      # - /etc/os-release:/host/etc/os-release:ro        # without TrueNAS: name the host's OS on its card
     environment:
       NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"         # Next binds to $HOSTNAME; Docker would otherwise set it to the machine name
@@ -38,10 +42,20 @@ services:
       NAS_MC_MODS: "/mc-mods"     # the mods folder mounted above; leave out to hide the mods list
       NAS_MC_LABEL: "Modded · Create"
 
-      # Pi stats reporter, reached over Tailscale (MagicDNS name or the Pi's 100.x address)
+      # Without TrueNAS: show this machine as a plain server card instead (and drop TRUENAS_API_KEY)
+      # NAS_ENABLED: "1"
+
+      # Other computers running agent/homebase_agent.py: "Name|url|token[|Location|lat|lon|tz]", comma-separated
+      # AGENTS: "Mini PC|http://192.168.1.30:9100/stats|CHANGE_ME,Mac|http://mac.local:9100/stats|CHANGE_ME"
+
+      # Proxmox VE (a read-only PVEAuditor API token)
+      # PROXMOX_URL: "https://192.168.1.20:8006"
+      # PROXMOX_TOKEN: "homebase@pve!dash=CHANGE_ME"
+
+      # One agent machine with its own settings (older setups; AGENTS does the same)
       PI_AGENT_URL: "http://CHANGE_ME_pi_tailscale_ip:9100/stats"
       PI_AGENT_TOKEN: "CHANGE_ME_same_token_as_on_the_pi"
-      # Optional: a Minecraft server on the Pi. Set MC_PORT in pi-agent too.
+      # Optional: a Minecraft server on the Pi. Set MC_PORT on the agent too.
       PI_MC_PORT: "25565"
       PI_MC_LABEL: "Survival World"
       PI_MC_ADDRESS: ""

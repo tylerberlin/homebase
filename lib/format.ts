@@ -22,5 +22,5 @@ export const pct = (a?: number | null, b?: number | null) => (a != null && b ? M
 export const level = (p: number | null | undefined, warn = 75, bad = 90): Level =>
   p == null ? "" : p >= bad ? "bad" : p >= warn ? "warn" : "";
 
-export const tempLevel = (t: number | undefined, kind: "pi" | "truenas"): Level =>
+export const tempLevel = (t: number | undefined, kind: string): Level =>
   kind === "pi" ? level(t, 70, 80) : level(t, 75, 85);

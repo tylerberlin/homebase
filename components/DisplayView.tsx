@@ -85,7 +85,7 @@ function useIdle(ms = 3000) {
 }
 
 function Storage({ s }: { s: Server }) {
-  const pool = s.truenas?.pools?.[0];
+  const pool = s.truenas?.pools?.[0] ?? s.storage?.[0];
   const label = pool ? `Pool ${pool.name}` : "Disk";
   const p = pool ? pct(pool.allocated, pool.size) : pct(s.stats.disk_used, s.stats.disk_total);
   if (p == null) return <div />;
@@ -146,6 +146,9 @@ function MiniServer({ s }: { s: Server }) {
     </div>
   );
 }
+
+/** The server grid: two big cards, or smaller ones in 3, 2×2 or 3×2 when there are more. */
+const gridClass = (n: number) => (n <= 2 ? "d-grid" : n === 3 ? "d-grid many n3" : n === 4 ? "d-grid many n4" : "d-grid many n6");
 
 function DisplayServer({ s }: { s: Server }) {
   const health = healthOf(s).level;
@@ -264,7 +267,7 @@ export default function DisplayView({
       <Scoreboard games={games} />
 
       {data && p.servers && data.servers.length > 0 && !playing && !rotating && (
-        <div className="d-grid">
+        <div className={gridClass(data.servers.length)}>
           {data.servers.map((s) => (
             <DisplayServer key={s.id} s={s} />
           ))}
@@ -279,7 +282,7 @@ export default function DisplayView({
               case "servers":
                 return !data.servers.length ? [] : one("Servers", (
                   <ServersSlide>
-                    <div className="d-grid">
+                    <div className={gridClass(data.servers.length)}>
                       {data.servers.map((s) => (
                         <DisplayServer key={s.id} s={s} />
                       ))}

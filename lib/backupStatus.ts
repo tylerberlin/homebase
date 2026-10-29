@@ -29,39 +29,51 @@ function offline(card: Server, lastAt: number | undefined, now: number): Server 
   };
 }
 
-const placeholder = (id: "nas" | "pi"): Server =>
-  id === "nas"
-    ? { id, name: config.nas.name, location: config.nas.location, kind: "truenas", tz: config.nas.tz, reachable: false, stats: {}, cpu_history: [], minecraft: null }
-    : { id, name: config.pi.name, location: config.pi.location, kind: "pi", tz: config.pi.tz, reachable: false, stats: {}, cpu_history: [], minecraft: null };
+const placeholder = (which: "nas" | "pi"): Server =>
+  which === "nas"
+    ? { id: config.nas.id, name: config.nas.name, location: config.nas.location, kind: config.truenas.apiKey ? "truenas" : "host", tz: config.nas.tz, reachable: false, stats: {}, cpu_history: [], minecraft: null }
+    : { id: config.pi.id, name: config.pi.name, location: config.pi.location, kind: "pi", tz: config.pi.tz, reachable: false, stats: {}, cpu_history: [], minecraft: null };
 
 export async function backupStatus(): Promise<Status> {
   const [nasRep, piRep, icons] = (await getJson<unknown>("nas", "pi", "icons")) as [NasReport | null, PiReport | null, IconIndex | null];
   const now = Date.now() / 1000;
   const fresh = (r: { at: number } | null): boolean => !!r && now - r.at < STALE_AFTER;
   const nasFresh = fresh(nasRep);
+  const { id: nasId } = config.nas, { id: piId } = config.pi;
   const fromNas = (id: string) => nasRep?.status.servers.find((s) => s.id === id);
+  const servers: Server[] = [];
 
   // NAS can only be described by its own reports.
-  let nas = fromNas("nas") ?? placeholder("nas");
-  if (!nasFresh) nas = { ...offline(nas, nasRep?.at, now), weather: (await weather(config.nas.lat, config.nas.lon)) ?? nas.weather };
+  if (config.nas.enabled || fromNas(nasId)) {
+    let nas = fromNas(nasId) ?? placeholder("nas");
+    if (!nasFresh) nas = { ...offline(nas, nasRep?.at, now), weather: (await weather(config.nas.lat, config.nas.lon)) ?? nas.weather };
+    servers.push(nas);
+  }
 
   // The Pi is seen two ways: through NAS's report (with CPU history), or its own push.
-  const piViaNas = fromNas("pi");
-  let pi: Server;
-  if (nasFresh && piViaNas?.reachable) pi = piViaNas;
-  else if (fresh(piRep) && piRep!.pi.reachable) {
-    pi = buildPiServer(piRep!.pi, {
-      history: [],
-      weather: piViaNas?.weather ?? (await weather(config.pi.lat, config.pi.lon)),
-      iconUrl: () => (icons?.pi ? `/api/mc-icon/pi?v=${icons.pi}` : undefined),
-      specs: piViaNas?.specs,
-    });
-  } else if (nasFresh && piViaNas) {
-    pi = piViaNas; // NAS can't reach it either, and says why
-  } else {
-    const lastAt = piRep?.at;
-    pi = { ...offline(piViaNas ?? placeholder("pi"), lastAt, now), weather: piViaNas?.weather ?? (await weather(config.pi.lat, config.pi.lon)) };
+  const piViaNas = fromNas(piId);
+  if (config.pi.enabled || piViaNas || piRep) {
+    let pi: Server;
+    if (nasFresh && piViaNas?.reachable) pi = piViaNas;
+    else if (fresh(piRep) && piRep!.pi.reachable) {
+      pi = buildPiServer(piRep!.pi, {
+        history: [],
+        weather: piViaNas?.weather ?? (await weather(config.pi.lat, config.pi.lon)),
+        iconUrl: () => (icons?.[piId] ? `/api/mc-icon/${piId}?v=${icons[piId]}` : undefined),
+        specs: piViaNas?.specs,
+        platform: piViaNas?.platform,
+      });
+    } else if (nasFresh && piViaNas) {
+      pi = piViaNas; // NAS can't reach it either, and says why
+    } else {
+      const lastAt = piRep?.at;
+      pi = { ...offline(piViaNas ?? placeholder("pi"), lastAt, now), weather: piViaNas?.weather ?? (await weather(config.pi.lat, config.pi.lon)) };
+    }
+    servers.push(pi);
   }
+
+  // Everything else (more agents, Proxmox) only reaches the backup through NAS's reports.
+  for (const s of nasRep?.status.servers ?? []) if (s.id !== nasId && s.id !== piId) servers.push(nasFresh ? s : offline(s, nasRep!.at, now));
 
   const links = nasFresh
     ? nasRep!.status.links
@@ -72,7 +84,7 @@ export async function backupStatus(): Promise<Status> {
     updated: latest ? Math.floor(latest) : null,
     refresh: REPORT_EVERY,
     backup: { nas: nasRep?.at, pi: piRep?.at },
-    servers: [nas, pi],
+    servers,
     links,
   };
 }

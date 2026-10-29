@@ -1,26 +1,29 @@
 import { createHash } from "node:crypto";
+import os from "node:os";
 import { config } from "./config";
-import { hostHardware, hostStats } from "./host";
+import { dockerContainers, hostDisk, hostHardware, hostOs, hostStats } from "./host";
 import { minecraftStatus } from "./minecraft";
 import { listMods } from "./minecraftMods";
-import { checkUrl, piStats } from "./remote";
-import { buildPiServer } from "./piServer";
-import { nasSpecs } from "./specs";
+import { buildAgentServer, buildPiServer } from "./piServer";
+import { proxmoxServers } from "./proxmox";
+import { agentStats, checkUrl, piStats } from "./remote";
+import { hostSpecs, nasSpecs } from "./specs";
 import { truenasStats } from "./truenas";
 import { weather } from "./weather";
-import type { Status } from "./types";
+import type { Server, Status } from "./types";
 
 // Background collector: every REFRESH seconds, gather everything into one snapshot that
 // /api/status serves. Kept on globalThis so instrumentation, route handlers and dev reloads
-// all share one loop and one CPU history.
+// all share one loop and one CPU history per server.
 
 const HISTORY = 60; // samples kept for sparklines (10 min at 10 s)
 
 type Collector = {
   state: Status;
-  hist: { nas: number[]; pi: number[] };
+  hist: Map<string, number[]>;
   icons: Map<string, string>;
-  lastPiSpecs?: Status["servers"][number]["specs"];
+  /** Last known hardware and tag of each agent machine, shown while it's unreachable. */
+  last: Map<string, { specs?: Server["specs"]; platform?: string }>;
   backup: { lastAt: number; sentIcons: Map<string, string>; failing: boolean };
 };
 const g = globalThis as typeof globalThis & { __homebaseCollector?: Collector };
@@ -42,62 +45,97 @@ function iconUrl(c: Collector, id: string, favicon?: string | null) {
   return `/api/mc-icon/${id}?v=${v}`;
 }
 
-const push = (arr: number[], v: number) => {
-  arr.push(v);
-  if (arr.length > HISTORY) arr.shift();
-};
+/** Adds a CPU sample to a server's history and returns a copy for the snapshot. */
+function track(c: Collector, id: string, cpu?: number) {
+  const arr = c.hist.get(id) ?? [];
+  if (cpu != null) {
+    arr.push(cpu);
+    if (arr.length > HISTORY) arr.shift();
+  }
+  c.hist.set(id, arr);
+  return [...arr];
+}
+
+/** The extra agent machines (AGENTS), with ids that don't clash with the NAS, the Pi or each other. */
+function agentCards() {
+  const taken = new Set([config.nas.id, config.pi.id]);
+  return config.agents.map((a) => {
+    let id = a.id;
+    for (let n = 2; taken.has(id); n++) id = `${a.id}-${n}`;
+    taken.add(id);
+    return { ...a, id };
+  });
+}
 
 async function collect(c: Collector) {
   const { nas: nasCfg, pi: piCfg, links } = config;
+  const truenas = nasCfg.enabled && !!config.truenas.apiKey;
+  const agents = agentCards();
+  const pveOn = !!config.proxmox.url && !!config.proxmox.token;
   const timedOut = { error: "timed out" };
-  const [host, nas, pi, nasMc, linkResults, nasWx, piWx] = await Promise.all([
+  const offline = { reachable: false as const, error: "timed out" };
+  const [host, nas, pi, nasMc, linkResults, nasWx, piWx, agentResults, agentWx, pveWx, containers] = await Promise.all([
     Promise.resolve().then(hostStats),
-    nasCfg.enabled && config.truenas.apiKey ? withTimeout(truenasStats(), 20000, timedOut) : Promise.resolve<Awaited<ReturnType<typeof truenasStats>>>({ error: "not set up" }),
-    piCfg.enabled ? withTimeout(piStats(), 20000, { reachable: false as const, error: "timed out" }) : Promise.resolve({ reachable: false as const, error: "not set up" }),
+    truenas ? withTimeout(truenasStats(), 20000, timedOut) : Promise.resolve<Awaited<ReturnType<typeof truenasStats>>>({ error: "not set up" }),
+    piCfg.enabled ? withTimeout(piStats(), 20000, offline) : Promise.resolve({ reachable: false as const, error: "not set up" }),
     nasCfg.enabled && nasCfg.mcPort ? minecraftStatus(nasCfg.mcHost, nasCfg.mcPort) : Promise.resolve(null),
     Promise.all(links.map((l) => checkUrl(l.url))),
     nasCfg.enabled ? weather(nasCfg.lat, nasCfg.lon) : Promise.resolve(undefined),
     piCfg.enabled ? weather(piCfg.lat, piCfg.lon) : Promise.resolve(undefined),
+    Promise.all(agents.map((a) => withTimeout(agentStats(a.url, a.token, a.name), 20000, offline))),
+    Promise.all(agents.map((a) => (a.lat != null && a.lon != null ? weather(a.lat, a.lon) : Promise.resolve(undefined)))),
+    pveOn && config.proxmox.lat != null && config.proxmox.lon != null ? weather(config.proxmox.lat, config.proxmox.lon) : Promise.resolve(undefined),
+    nasCfg.enabled && !truenas ? dockerContainers() : Promise.resolve(undefined),
   ]);
+  const pve = pveOn ? await withTimeout(proxmoxServers((id, cpu) => track(c, id, cpu), pveWx), 25000, []) : [];
 
   // Mods after the ping: its version picks which updates apply. Jars are only re-read when they change.
-  const nasMods = await withTimeout(listMods(nasCfg.mcModsDir, nasMc?.version?.match(/\d+\.\d+(\.\d+)?/)?.[0]), 20000, null);
+  const nasMods = nasCfg.enabled ? await withTimeout(listMods(nasCfg.mcModsDir, nasMc?.version?.match(/\d+\.\d+(\.\d+)?/)?.[0]), 20000, null) : null;
 
-  if (host.cpu_percent != null) push(c.hist.nas, host.cpu_percent);
+  /** An agent machine's card, remembering its hardware for when it goes offline. */
+  const agentCard = (id: string, build: (opts: Parameters<typeof buildPiServer>[1]) => Server, cpu?: number, wx?: Server["weather"]) => {
+    const last = c.last.get(id);
+    const s = build({ history: track(c, id, cpu), weather: wx, iconUrl: (f) => iconUrl(c, id, f), specs: last?.specs, platform: last?.platform });
+    if (s.reachable) c.last.set(id, { specs: s.specs, platform: s.platform });
+    return s;
+  };
 
-  if (pi.reachable && pi.cpu_percent != null) push(c.hist.pi, pi.cpu_percent);
-  const piServer = buildPiServer(pi, {
-    history: c.hist.pi,
-    weather: piWx,
-    iconUrl: (f) => iconUrl(c, "pi", f),
-    specs: c.lastPiSpecs,
-  });
-  if (piServer.reachable) c.lastPiSpecs = piServer.specs;
+  const nasCard = (): Server => {
+    const common = {
+      id: nasCfg.id, name: nasCfg.name, location: nasCfg.location, tz: nasCfg.tz, weather: nasWx, reachable: true,
+      cpu_history: track(c, nasCfg.id, host.cpu_percent),
+      web_url: nasCfg.webUrl || undefined,
+      minecraft: nasMc
+        ? { label: nasCfg.mcLabel, address: nasCfg.mcAddress, ...nasMc, favicon: iconUrl(c, nasCfg.id, nasMc.favicon), mods: nasMods }
+        : null,
+    };
+    if (truenas) return { ...common, kind: "truenas", platform: nasCfg.platform, stats: host, truenas: nas, specs: nasSpecs(nas.hardware, hostHardware(), nas.version) };
+    // A plain server: no TrueNAS, just this machine's own stats and its Docker containers.
+    const osName = hostOs();
+    return {
+      ...common,
+      kind: "host",
+      platform: osName.replace(/ GNU\/Linux| LTS|\s*\(.*\)/g, ""),
+      stats: { ...host, ...hostDisk() },
+      specs: hostSpecs({ model: os.cpus()[0]?.model, threads: os.cpus().length }, os.totalmem(), hostHardware(), osName),
+      apps: containers?.length ? containers : undefined,
+      appsLabel: containers?.length ? "Containers" : undefined,
+    };
+  };
 
   c.state = {
     updated: Math.floor(Date.now() / 1000),
     refresh: config.refresh,
     // Only the servers that are set up; with none, the dashboard is just the Home tab.
     servers: [
-      nasCfg.enabled && {
-        id: "nas",
-        name: nasCfg.name,
-        location: nasCfg.location,
-        kind: "truenas" as const,
-        tz: nasCfg.tz,
-        weather: nasWx,
-        reachable: true,
-        stats: host,
-        cpu_history: [...c.hist.nas],
-        truenas: nas,
-        specs: nasSpecs(nas.hardware, hostHardware(), nas.version),
-        web_url: nasCfg.webUrl || undefined,
-        minecraft: nasMc
-          ? { label: nasCfg.mcLabel, address: nasCfg.mcAddress, ...nasMc, favicon: iconUrl(c, "nas", nasMc.favicon), mods: nasMods }
-          : null,
-      },
-      piCfg.enabled && piServer,
-    ].filter((s): s is Status["servers"][number] => !!s),
+      ...(nasCfg.enabled ? [nasCard()] : []),
+      ...(piCfg.enabled ? [agentCard(piCfg.id, (o) => buildPiServer(pi, o), pi.reachable ? pi.cpu_percent : undefined, piWx)] : []),
+      ...agents.map((a, i) => {
+        const r = agentResults[i];
+        return agentCard(a.id, (o) => buildAgentServer(a, r, o), r.reachable ? r.cpu_percent : undefined, agentWx[i]);
+      }),
+      ...pve,
+    ],
     links: links.map((l, i) => ({ ...l, ...linkResults[i] })),
   };
 }
@@ -130,7 +168,8 @@ export function ensureCollector(): Collector {
   if (g.__homebaseCollector) return g.__homebaseCollector;
   const c: Collector = {
     state: { updated: null, servers: [], links: [] },
-    hist: { nas: [], pi: [] },
+    hist: new Map(),
+    last: new Map(),
     icons: new Map(),
     backup: { lastAt: 0, sentIcons: new Map(), failing: false },
   };

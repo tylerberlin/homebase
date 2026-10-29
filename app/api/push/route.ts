@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 // Backup site only: NAS and the Pi POST their latest status here every 30 s.
 // Requires the shared BACKUP_PUSH_TOKEN; Cloudflare Access is skipped for this path.
 
-const ICON_IDS = new Set(["nas", "pi"]);
+const ICON_ID = /^[a-z0-9-]{1,48}$/; // any server's id
 const MAX_BODY = 600_000;
 
 function authorized(req: Request) {
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
   // Minecraft server icons, sent only when they change.
   const icons = Object.entries(body.icons ?? {}).filter(
-    ([id, v]) => ICON_IDS.has(id) && typeof v === "string" && v.startsWith("data:image/") && v.length < 300_000,
+    ([id, v]) => ICON_ID.test(id) && typeof v === "string" && v.startsWith("data:image/") && v.length < 300_000,
   ) as [string, string][];
   if (icons.length) {
     const [index] = await getJson<Record<string, string>>("icons");

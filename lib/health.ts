@@ -19,7 +19,7 @@ export const isInfoAlert = (lvl?: string) => lvl === "INFO" || lvl === "NOTICE";
 export const worst = (issues: Issue[]): HealthLevel =>
   issues.some((i) => i.level === "bad") ? "bad" : issues.length ? "warn" : "ok";
 
-export const tempMax = (kind: Server["kind"]) => (kind === "pi" ? 90 : 100);
+export const tempMax = (kind: string) => (kind === "pi" ? 90 : 100);
 
 export function healthOf(s: Server): { level: HealthLevel; issues: Issue[] } {
   const issues: Issue[] = [];
@@ -53,6 +53,10 @@ export function healthOf(s: Server): { level: HealthLevel; issues: Issue[] } {
       else if (a.level === "WARNING") add("warn", `TrueNAS: ${a.text}`);
     }
   }
+
+  // Storage and apps on servers other than TrueNAS (Proxmox, Docker).
+  for (const p of s.storage ?? []) if (p.healthy === false || (p.status && p.status !== "ONLINE")) add("bad", `${s.name}: storage ${p.name} is ${p.status ?? "unhealthy"}`);
+  for (const a of s.apps ?? []) if (a.state === "CRASHED") add("bad", `${s.name}: ${a.name} crashed`);
 
   const mc = s.minecraft;
   if (mc && !mc.online) add("bad", `${mc.label} is offline`, mc.error);

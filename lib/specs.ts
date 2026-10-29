@@ -2,7 +2,7 @@ import type { HostHardware, NasHardware, PiHardware, Spec } from "./types";
 
 // Turns raw hardware facts into the rows shown in each card's Hardware section.
 
-const MEM_SIZES = [1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512];
+const MEM_SIZES = [1, 2, 4, 6, 8, 12, 16, 18, 24, 32, 36, 48, 64, 96, 128, 192, 256, 384, 512];
 
 /** Installed RAM as sold (the kernel reports a bit less than the sticks add up to). */
 export function memSize(bytes?: number) {
@@ -66,11 +66,33 @@ export function piSpecs(hw: PiHardware | undefined): Spec[] {
   const rows: Spec[] = [];
   if (!hw) return rows;
   const [board, rev] = (hw.model ?? "").split(/\s+Rev\s+/);
-  push(rows, "Board", board, rev ? `Rev ${rev}` : undefined);
+  push(rows, /Raspberry|Model B|Zero/.test(board) ? "Board" : "Model", board, rev ? `Rev ${rev}` : undefined);
   const cpuDetail = [hw.cores && `${hw.cores} cores`, hw.cpu_max_mhz && `${+(hw.cpu_max_mhz / 1000).toFixed(1)} GHz`].filter(Boolean).join(" · ");
   push(rows, "CPU", hw.cpu, cpuDetail || undefined);
   push(rows, "Memory", memSize(hw.mem_total));
   push(rows, "Storage", hw.disk_size ? `${driveSize(hw.disk_size)} ${hw.disk_type ?? "drive"}` : undefined);
   push(rows, "OS", hw.os?.replace(" GNU/Linux", ""), kernel(hw.kernel));
+  return rows;
+}
+
+/** A server card without TrueNAS: what Node and /sys can tell about this machine. */
+export function hostSpecs(cpu: { model?: string; threads: number }, memBytes: number, host: HostHardware, osName: string): Spec[] {
+  const rows: Spec[] = [];
+  push(rows, "CPU", cpu.model ? cleanCpu(cpu.model) : undefined, `${cpu.threads} threads`);
+  push(rows, "Memory", memSize(memBytes));
+  push(rows, "Motherboard", [host.board_vendor && cleanVendor(host.board_vendor), host.board_name].filter(Boolean).join(" "));
+  push(rows, "OS", osName.replace(" GNU/Linux", ""), kernel(host.kernel));
+  return rows;
+}
+
+/** A Proxmox node, from /nodes/{node}/status. */
+export function proxmoxSpecs(st: { cpuinfo?: { model?: string; cpus?: number; cores?: number; sockets?: number }; memory?: { total?: number }; pveversion?: string; kversion?: string }): Spec[] {
+  const rows: Spec[] = [];
+  const c = st.cpuinfo;
+  const cores = c?.cores && c.sockets ? c.cores * c.sockets : undefined;
+  push(rows, "CPU", c?.model ? cleanCpu(c.model) : undefined, [cores && `${cores} cores`, c?.cpus && `${c.cpus} threads`].filter(Boolean).join(" · ") || undefined);
+  push(rows, "Memory", memSize(st.memory?.total));
+  const pve = st.pveversion?.match(/pve-manager\/([\d.]+)/)?.[1];
+  push(rows, "OS", pve ? `Proxmox VE ${pve}` : undefined, kernel(st.kversion?.match(/Linux (\S+)/)?.[1]));
   return rows;
 }

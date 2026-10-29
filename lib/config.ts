@@ -1,6 +1,10 @@
 // Read once at server start. Secrets here never leave the server process.
 const E = (k: string, d = "") => process.env[k] ?? d;
 
+/** "My Server" → "my-server", for element ids and URLs. */
+export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "server";
+const num = (v?: string) => (v && Number.isFinite(Number(v)) ? Number(v) : undefined);
+
 /** "Name|https://url,Name2|https://url2" → [{ name, url }] */
 const parseLinks = (raw: string) =>
   raw
@@ -18,9 +22,12 @@ export const config = {
     apiKey: E("TRUENAS_API_KEY"),
     verifySsl: E("TRUENAS_VERIFY_SSL", "false").toLowerCase() === "true",
   },
+  // The machine Homebase runs on. With TRUENAS_API_KEY it's a TrueNAS card (pools, apps, alerts);
+  // with NAS_ENABLED=1 and no key it's a plain server card (this machine's stats and Docker containers).
   nas: {
-    // Shown when TRUENAS_API_KEY is set (or NAS_ENABLED=1 to show just this machine's own stats).
     enabled: E("NAS_ENABLED") === "1" || !!E("TRUENAS_API_KEY"),
+    id: E("NAS_ID", "nas"),
+    platform: E("NAS_PLATFORM", "TrueNAS"), // the tag on its TrueNAS card
     name: E("NAS_NAME", "NAS"),
     location: E("NAS_LOCATION", "Home"),
     mcLabel: E("NAS_MC_LABEL", "Modded · Create"),
@@ -34,18 +41,37 @@ export const config = {
     lon: Number(E("NAS_LON", "-74.01")),
     tz: E("NAS_TZ", "America/New_York"),
   },
+  // One machine running the stats agent (agent/homebase_agent.py). Kept for older setups; AGENTS takes any number.
   pi: {
-    enabled: !!E("PI_AGENT_URL"), // shown when the Pi stats agent is set up
+    enabled: !!E("PI_AGENT_URL"),
+    id: E("PI_ID", "pi"),
     name: E("PI_NAME", "pi"),
     location: E("PI_LOCATION", "Remote"),
     agentUrl: E("PI_AGENT_URL"),
     agentToken: E("PI_AGENT_TOKEN"),
     mcLabel: E("PI_MC_LABEL", "Minecraft"),
-    mcPort: Number(E("PI_MC_PORT", "0") || 0), // set when the Pi runs a Minecraft server (same as MC_PORT in pi-agent)
+    mcPort: Number(E("PI_MC_PORT", "0") || 0), // set when the Pi runs a Minecraft server (same as MC_PORT on its agent)
     mcAddress: E("PI_MC_ADDRESS"),
     lat: Number(E("PI_LAT", "47.61")),
     lon: Number(E("PI_LON", "-122.33")),
     tz: E("PI_TZ", "America/Los_Angeles"),
+  },
+  // More machines running the stats agent: "Name|http://host:9100/stats|token", comma-separated. Optional
+  // extra fields set the card's place: "Name|url|token|Location|lat|lon|time zone".
+  agents: E("AGENTS")
+    .split(",")
+    .map((x) => x.trim().split("|").map((p) => p.trim()))
+    .filter((p) => p.length >= 2 && /^https?:\/\//i.test(p[1]))
+    .map(([name, url, token = "", location = "", lat, lon, tz]) => ({ id: slug(name), name, url, token, location, lat: num(lat), lon: num(lon), tz: tz || undefined })),
+  // Proxmox VE over its API, one card per node. Token: "user@realm!tokenid=secret" (a read-only PVEAuditor token is enough).
+  proxmox: {
+    url: E("PROXMOX_URL").replace(/\/+$/, ""), // e.g. https://192.168.1.20:8006
+    token: E("PROXMOX_TOKEN"),
+    verifySsl: E("PROXMOX_VERIFY_SSL", "false").toLowerCase() === "true",
+    location: E("PROXMOX_LOCATION", "Home"),
+    lat: num(E("PROXMOX_LAT")),
+    lon: num(E("PROXMOX_LON")),
+    tz: E("PROXMOX_TZ") || undefined,
   },
   // Where "Home" is for weather. Defaults to the NAS's location; set HOME_LAT/HOME_LON with no servers.
   homePlace: {

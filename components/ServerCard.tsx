@@ -50,11 +50,14 @@ const HEALTH_LABEL = { ok: "healthy", warn: "warning", bad: "problem" } as const
 export default function ServerCard({ s }: { s: Server }) {
   const st = s.stats ?? {};
   const tn = s.truenas ?? {};
-  const tag = s.kind === "pi" ? "Raspberry Pi 5" : "TrueNAS";
+  const tag = s.platform ?? (s.kind === "pi" ? "Raspberry Pi" : s.kind === "truenas" ? "TrueNAS" : "Server");
   const health = healthOf(s).level;
 
   const memP = pct(st.mem_used, st.mem_total);
   const diskP = pct(st.disk_used, st.disk_total);
+  // Storage and apps come from TrueNAS, or from Proxmox and Docker on other servers.
+  const pools = tn.pools ?? s.storage ?? [];
+  const apps = tn.apps ?? s.apps ?? [];
   const alerts = tn.alerts ?? [];
   const infoAlerts = alerts.filter((a) => isInfoAlert(a.level));
   const realAlerts = alerts.filter((a) => !isInfoAlert(a.level));
@@ -99,7 +102,7 @@ export default function ServerCard({ s }: { s: Server }) {
     );
   }
 
-  const runningApps = tn.apps?.filter((a) => a.state === "RUNNING").length ?? 0;
+  const runningApps = apps.filter((a) => a.state === "RUNNING").length;
   const peak = s.cpu_history?.length ? Math.round(Math.max(...s.cpu_history)) : null;
 
   return (
@@ -145,80 +148,76 @@ export default function ServerCard({ s }: { s: Server }) {
           </div>
           <Sparkline values={s.cpu_history} />
         </div>
-        {s.kind === "pi" && (
+        {!pools.length && st.disk_total != null && (
           <div className="metrics one">
             <Metric label="Disk" val={st.disk_total ? `${bytes(st.disk_used)} / ${bytes(st.disk_total)}` : "–"} bar={diskP} lvl={level(diskP, 80, 92)} />
           </div>
         )}
       </div>
 
-      {s.kind === "truenas" && (
-        <>
-          {tn.error && (
-            <div className="section">
-              <h3>TrueNAS</h3>
-              <div className="err">{tn.error}</div>
-            </div>
-          )}
-          {!!tn.pools?.length && (
-            <div className="section">
-              <h3>Storage</h3>
-              {tn.pools.map((p) => {
-                const pp = pct(p.allocated, p.size);
-                const bad = p.healthy === false || (!!p.status && p.status !== "ONLINE");
-                return (
-                  <div className="pool" key={p.name}>
-                    <div className="pool-top">
-                      <span>
-                        <strong>{p.name}</strong> {bad && <span className="s err">{p.status ?? "UNHEALTHY"}</span>}
-                      </span>
-                      <span className="mono s">
-                        {bytes(p.allocated)} / {bytes(p.size)}
-                      </span>
-                    </div>
-                    <div className="bar">
-                      <i className={bad ? "bad" : level(pp, 80, 90)} style={{ width: `${pp ?? 0}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-              {infoAlerts.map((a, i) => (
-                <div className="storage-note" key={i}>
-                  {a.text}
-                </div>
-              ))}
-            </div>
-          )}
-          {!!tn.apps?.length && (
-            <div className="section">
-              <h3>
-                Apps · {runningApps} of {tn.apps.length} running
-              </h3>
-              <div className="apps">
-                {tn.apps.map((a) => (
-                  <span className="app" key={a.name}>
-                    <span className={`dot ${appDot(a.state)}`} />
-                    {a.name}
-                    <span className="sr-only"> ({(a.state ?? "unknown").toLowerCase()})</span>
+      {tn.error && (
+        <div className="section">
+          <h3>TrueNAS</h3>
+          <div className="err">{tn.error}</div>
+        </div>
+      )}
+      {pools.length > 0 && (
+        <div className="section">
+          <h3>Storage</h3>
+          {pools.map((p) => {
+            const pp = pct(p.allocated, p.size);
+            const bad = p.healthy === false || (!!p.status && p.status !== "ONLINE");
+            return (
+              <div className="pool" key={p.name}>
+                <div className="pool-top">
+                  <span>
+                    <strong>{p.name}</strong> {bad && <span className="s err">{p.status ?? "UNHEALTHY"}</span>}
                   </span>
-                ))}
+                  <span className="mono s">
+                    {bytes(p.allocated)} / {bytes(p.size)}
+                  </span>
+                </div>
+                <div className="bar">
+                  <i className={bad ? "bad" : level(pp, 80, 90)} style={{ width: `${pp ?? 0}%` }} />
+                </div>
               </div>
+            );
+          })}
+          {infoAlerts.map((a, i) => (
+            <div className="storage-note" key={i}>
+              {a.text}
             </div>
-          )}
-          {(realAlerts.length > 0 || (!tn.pools?.length && infoAlerts.length > 0)) && (
-            <div className="section">
-              <h3>Alerts</h3>
-              <ul className="alerts">
-                {(tn.pools?.length ? realAlerts : alerts).map((a, i) => (
-                  <li key={i}>
-                    <span className={`lvl ${a.level}`}>{a.level}</span>
-                    <span>{a.text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
+          ))}
+        </div>
+      )}
+      {apps.length > 0 && (
+        <div className="section">
+          <h3>
+            {s.appsLabel ?? "Apps"} · {runningApps} of {apps.length} running
+          </h3>
+          <div className="apps">
+            {apps.map((a) => (
+              <span className="app" key={a.name}>
+                <span className={`dot ${appDot(a.state)}`} />
+                {a.name}
+                <span className="sr-only"> ({(a.state ?? "unknown").toLowerCase()})</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {(realAlerts.length > 0 || (!pools.length && infoAlerts.length > 0)) && (
+        <div className="section">
+          <h3>Alerts</h3>
+          <ul className="alerts">
+            {(pools.length ? realAlerts : alerts).map((a, i) => (
+              <li key={i}>
+                <span className={`lvl ${a.level}`}>{a.level}</span>
+                <span>{a.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <MinecraftBlock mc={s.minecraft} />
       <Hardware specs={s.specs} />

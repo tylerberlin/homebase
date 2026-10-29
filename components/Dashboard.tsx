@@ -104,11 +104,10 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "servers", label: "Servers" },
   { id: "minecraft", label: "Minecraft" },
 ];
-const SERVER_ANCHORS = new Set(["nas", "pi", "links"]);
 const tabFromHash = (): Tab => {
   const h = window.location.hash.slice(1);
   if (h === "servers" || h === "minecraft") return h;
-  if (SERVER_ANCHORS.has(h)) return "servers"; // issue links jump to a server card
+  if (h && h !== "home" && h !== "top") return "servers"; // issue links jump to a server card or #links
   return "home";
 };
 
@@ -255,7 +254,10 @@ export default function Dashboard({
         ? "All systems normal"
         : `${issues.length} ${issues.length === 1 ? "issue" : "issues"}`; // the strip below says what they are
 
-  const [first, ...rest] = data?.servers ?? [];
+  // Servers alternate between the two columns; endpoints go under the right one.
+  const servers = data?.servers ?? [];
+  const left = servers.filter((_, i) => i % 2 === 0);
+  const right = servers.filter((_, i) => i % 2 === 1);
   const demoQuery = demo ? (demo === "normal" ? "demo" : `demo=${demo}`) : "";
   const displayHref = `?${[demoQuery, "display"].filter(Boolean).join("&")}`;
   const exitHref = demoQuery ? `?${demoQuery}` : "/";
@@ -353,9 +355,13 @@ export default function Dashboard({
 
       {tab === "servers" && ready && (
         <div className="grid">
-          <div className="col">{first && <ServerCard s={first} />}</div>
           <div className="col">
-            {rest.map((s) => (
+            {left.map((s) => (
+              <ServerCard key={s.id} s={s} />
+            ))}
+          </div>
+          <div className="col">
+            {right.map((s) => (
               <ServerCard key={s.id} s={s} />
             ))}
             {data.links.length > 0 && (

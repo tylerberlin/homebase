@@ -55,14 +55,14 @@ pnpm dev
 ```
 
 Open <http://localhost:8090/?demo> for sample data. Add `&display` for the room display,
-or `&game` for a sample live game. `?demo=nomc` shows it without any Minecraft server.
+or `&game` for a sample live game. `?demo=nomc` shows it without any Minecraft server, and `?demo=many` with a Proxmox node,
+a Linux mini PC and a Mac.
 
 ## Run it for real
 
 **No server? No problem.** Homebase works as an everyday home dashboard on its own: clock, weather,
 calendar, countdowns, sports, stocks and news. The server parts (the Servers tab, status pill and
-server strip) only appear once you set up a server (`TRUENAS_API_KEY`, `PI_AGENT_URL` or `NAS_ENABLED=1`)
-or endpoints to check (`LINKS`). Preview it with `?demo=noservers`.
+server strip) only appear once you add a server (see below) or endpoints to check (`LINKS`). Preview it with `?demo=noservers`.
 
 Settings, countdowns and logins are saved to Upstash Redis if you connect it (`KV_REST_API_URL`,
 `KV_REST_API_TOKEN`), otherwise to a private file on the machine running Homebase (`DATA_DIR`, default `./data`).
@@ -74,8 +74,6 @@ Settings come from environment variables; see `lib/config.ts` for the full list 
 | --- | --- |
 | `SESSION_SECRET` | Signs login cookies. Use a long random string. |
 | `TRUENAS_API_KEY` | Read-only stats from TrueNAS. |
-| `PI_AGENT_URL`, `PI_AGENT_TOKEN` | The Pi stats agent in `pi-agent/`. |
-| `NAS_LAT`, `NAS_LON`, `NAS_TZ` | Weather and local time for each server. |
 | `TEAMS`, `TICKERS`, `NEWS_FEEDS` | Defaults for the Home tab (also editable in Settings). |
 | `CALENDARS` | `Name|https://….ics`, comma-separated. Fetched server-side only. |
 | `PUBLIC_HOST` | The address you reach it on, for passkeys (e.g. `dash.example.com`). |
@@ -84,6 +82,48 @@ Settings come from environment variables; see `lib/config.ts` for the full list 
 Build a standalone bundle with `pnpm bundle`, then run `node server.js` from it.
 
 Keep secrets in environment variables, never in the code.
+
+## Servers
+
+Any mix of these, each with its own card (CPU, memory, temperature, disk, uptime, hardware,
+and storage and apps where the server has them):
+
+| What | How | Card shows |
+| --- | --- | --- |
+| **The machine Homebase runs on** | `NAS_ENABLED=1` | Its own stats, plus Docker containers if `/var/run/docker.sock` is mounted |
+| **TrueNAS** (Homebase running on it) | `TRUENAS_API_KEY` | Pools, apps and alerts from TrueNAS |
+| **Any other computer**: Linux, a Raspberry Pi, macOS, Windows, Unraid | Run the agent, then list it in `AGENTS` | Its stats, real CPU temperature on Intel/AMD/Pi, Docker containers |
+| **Proxmox VE** | `PROXMOX_URL`, `PROXMOX_TOKEN` | One card per node: storages, VMs and containers |
+
+**The agent** (`agent/homebase_agent.py`) is one small Python file. On Linux it needs nothing else;
+on macOS and Windows install `psutil` first.
+
+```sh
+# Linux, macOS or Windows
+AGENT_TOKEN=some-long-random-string python3 homebase_agent.py
+```
+
+- **Linux service:** `agent/homebase-agent.service` keeps it running (instructions inside).
+- **Unraid, Synology or any Docker host:** `agent/docker-compose.yml` runs it in a container.
+- **Windows:** `pip install psutil`, then add a Task Scheduler task that runs `python homebase_agent.py`
+  at startup with `AGENT_TOKEN` set.
+
+Then tell Homebase about each machine, comma-separated. Location, coordinates (for weather) and
+time zone are optional:
+
+```sh
+AGENTS="Mini PC|http://192.168.1.30:9100/stats|token,Mac|http://mac.local:9100/stats|token|Office|40.71|-74.01|America/New_York"
+```
+
+Keep the agent's port on your home network or Tailscale rather than the open internet.
+
+**Proxmox:** create an API token (Datacenter → Permissions → API Tokens) with the `PVEAuditor`
+role, then set `PROXMOX_URL=https://your-proxmox:8006` and
+`PROXMOX_TOKEN=user@pam!tokenid=secret`. Proxmox's built-in certificate is self-signed, so it
+isn't checked unless you set `PROXMOX_VERIFY_SSL=true`.
+
+Weather and local time on a card: `NAS_LAT`/`NAS_LON`/`NAS_TZ` for this machine, the extra
+`AGENTS` fields for agents, and `PROXMOX_LAT`/`PROXMOX_LON`/`PROXMOX_TZ` for Proxmox.
 
 ## License
 

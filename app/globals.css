@@ -1980,3 +1980,16 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="stripes"] .tab.on, :root[data-skin="stripes"] .chip.on { background: var(--accent); color: #fff; box-shadow: none; }
 :root[data-skin="stripes"] .btn { background: var(--accent); color: #fff; }
 :root[data-skin="stripes"] .bar > i { background: linear-gradient(90deg, #1f4fd6, #7fb2ff); }
+
+/* ---------- room display with more than two servers: smaller cards that still fit on one screen */
+.d-grid.many { grid-auto-rows: minmax(0, 1fr); }
+.d-grid.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.d-grid.n4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.d-grid.n6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.d-grid.many .d-card { min-height: 0; overflow: hidden; gap: 1.4vmin; padding: 2vmin 2.4vmin; }
+.d-grid.many .d-card h2 { font-size: clamp(18px, 3.4vmin, 40px); }
+.d-grid.many .d-card .local { display: none; }
+.d-grid.many .d-gauges { min-height: 0; }
+.display .d-grid.many .gauge-dial { max-width: 15vmin; }
+.d-grid.n6 .d-foot { display: none; }
+@media (orientation: portrait) { .d-grid.n3, .d-grid.n6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
