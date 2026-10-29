@@ -404,12 +404,12 @@ a.issue:hover { background: var(--chip); }
 .local-wx + .local-time::before { display: inline-block; }
 .local > .local-time:first-child::before { display: none; }
 .wx { flex: none; }
-.wx-clear, .wx-sun { color: #f7c552; }
-.wx-night, .wx-moon { color: #b9cdf5; }
+.wx-clear, .wx-sun { color: var(--wx-sun, #f7c552); }
+.wx-night, .wx-moon { color: var(--wx-moon, #b9cdf5); }
 .wx-partly .wx-cloud, .wx-cloudy, .wx-cloud { color: var(--ink); }
 .wx-partly .wx-cloud, .wx-rain .wx-cloud, .wx-snow .wx-cloud, .wx-storm .wx-cloud { fill: var(--panel); }
-.wx-rain, .wx-snow { color: #7cc3ff; }
-.wx-storm { color: #f7c552; }
+.wx-rain, .wx-snow { color: var(--wx-rain, #7cc3ff); }
+.wx-storm { color: var(--wx-sun, #f7c552); }
 .wx-rain .wx-cloud, .wx-snow .wx-cloud, .wx-storm .wx-cloud { color: var(--ink); }
 
 /* ---------- room display (?display): sized to the viewport, readable from across the room */
@@ -572,14 +572,14 @@ a.issue:hover { background: var(--chip); }
 .wx-hour:first-child { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .wx-hour-t { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .wx-hour-v { font-size: 14px; font-weight: 500; }
-.wx-rain { font-size: 11px; color: #7cc3ff; }
+.wx-rain { font-size: 11px; color: var(--wx-rain, #7cc3ff); }
 .wx-days { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 2px; }
 .wx-day { display: grid; grid-template-columns: 52px 22px 34px 34px 1fr 34px; align-items: center; gap: 8px; padding: 5px 0; font-size: 14px; }
 .wx-day-name { font-weight: 500; }
 .wx-lo { color: var(--muted); text-align: right; }
 .wx-hi { text-align: left; }
 .wx-range { position: relative; height: 5px; border-radius: 99px; background: var(--track); }
-.wx-range i { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #6fc3ff, #f7c552); }
+.wx-range i { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, var(--wx-cool, #6fc3ff), var(--wx-warm, #f7c552)); }
 .wx-sun { margin-top: 10px; font-size: 12px; color: var(--muted); }
 
 /* sports */
@@ -1135,9 +1135,10 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root:is([data-skin="stripes"], [data-skin="snowfall"], [data-skin="sweetheart"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="expedition"], [data-skin="newyear"], [data-skin="hyperspace"]) {
   --gauge-from: color-mix(in srgb, var(--gauge) 40%, var(--bg));
 }
-:root:is([data-skin="inferno"], [data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="deepwater"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="expedition"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"]) .theme-toggle { display: none; }
-:root:is([data-skin="inferno"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="deepwater"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="expedition"], [data-skin="spooky"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"]) { color-scheme: dark; }
-:root[data-skin="handheld"] { color-scheme: light; }
+:root:is([data-skin="inferno"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="spooky"]) .theme-toggle { display: none; }
+:root:is([data-skin="inferno"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="spooky"]) { color-scheme: dark; }
+:root:is([data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="deepwater"], [data-skin="expedition"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"])[data-mode="dark"] { color-scheme: dark; }
+:root:is([data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="deepwater"], [data-skin="expedition"], [data-skin="harvest"], [data-skin="snowfall"], [data-skin="newyear"], [data-skin="sweetheart"], [data-skin="stripes"])[data-mode="light"] { color-scheme: light; }
 :root[data-skin] .settings-panel { background: var(--panel); }
 @media (prefers-reduced-motion: reduce) { :root[data-skin] body::before, :root[data-skin] body::after, :root[data-skin] .brand h1 { animation: none !important; } }
 
@@ -2013,3 +2014,219 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 .display .d-grid.many .gauge-dial { max-width: 15vmin; }
 .d-grid.n6 .d-foot { display: none; }
 @media (orientation: portrait) { .d-grid.n3, .d-grid.n6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+
+/* ==========================================================================================
+   Light versions (and Handheld's dark one). data-mode is the light or dark actually showing,
+   set before first paint in layout.tsx, so each version is one selector.
+   ========================================================================================== */
+
+/* Handheld at night: the shell in shadow and a backlit screen */
+:root[data-skin="handheld"][data-mode="dark"] {
+  --bg: #6e0818;
+  --panel: #102a15; --chip: #17391d;
+  --ink: #c2f59a; --muted: #86c464; --faint: rgba(194, 245, 154, .16);
+  --line: #0a0a0a; --edge: #3b3b3b;
+  --ok: #7dff6a; --warn: #ffd34d; --bad: #ff6b6b; --accent: #9be86b; --spark: #9be86b; --track: rgba(194, 245, 154, .16);
+}
+:root[data-skin="handheld"][data-mode="dark"] body::before { background: radial-gradient(circle, rgba(0, 0, 0, .18) 1.5px, transparent 2px) 0 0 / 14px 14px, linear-gradient(170deg, #8f0d22, #6e0818 45%, #4f0511); }
+:root[data-skin="handheld"][data-mode="dark"] :is(.card, .issues, .srv-summary, .banner) { box-shadow: inset 0 0 28px rgba(155, 232, 107, .12), var(--shadow); }
+:root[data-skin="handheld"][data-mode="dark"] .bar { background: rgba(194, 245, 154, .14); }
+:root[data-skin="handheld"][data-mode="dark"] .bar > i { background: repeating-linear-gradient(90deg, var(--accent) 0 5px, transparent 5px 7px); }
+
+/* Ancient by day: sunlit sandstone, the glow turned to carved teal */
+:root[data-skin="ancient"][data-mode="light"] {
+  --bg: #e9e3d4;
+  --panel: rgba(251, 248, 240, .88); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .55), transparent 40%); --chip: rgba(10, 120, 150, .08);
+  --ink: #1c2a2f; --muted: #57686e; --faint: rgba(10, 80, 100, .1);
+  --line: rgba(10, 120, 150, .26); --edge: rgba(10, 130, 160, .7);
+  --ok: #1b8f53; --warn: #a96400; --bad: #bf3626; --accent: #0a86ad; --spark: #b8720f; --track: rgba(10, 120, 150, .14);
+  --shadow: 0 20px 40px -30px rgba(60, 50, 20, .45);
+}
+:root[data-skin="ancient"][data-mode="light"] body::before {
+  background:
+    repeating-radial-gradient(circle at 88% 12%, rgba(10, 134, 173, .08) 0 1px, transparent 1px 64px),
+    radial-gradient(40vmax 34vmax at 88% 12%, rgba(255, 236, 190, .7), transparent 70%),
+    radial-gradient(36vmax 28vmax at 8% 96%, rgba(184, 114, 15, .12), transparent 70%),
+    linear-gradient(#f2ede1, #ddd5c2);
+}
+:root[data-skin="ancient"][data-mode="light"] .card { box-shadow: inset 0 0 30px rgba(10, 134, 173, .05), var(--shadow); }
+:root[data-skin="ancient"][data-mode="light"] .brand h1 { color: #0a4f66; text-shadow: 0 1px 0 #fff, 0 0 18px rgba(10, 134, 173, .2); }
+:root[data-skin="ancient"][data-mode="light"] .tab.on, :root[data-skin="ancient"][data-mode="light"] .chip.on { color: #0a4f66; background: rgba(10, 134, 173, .12); }
+
+/* Drop Zone by day: bright sky in the lobby */
+:root[data-skin="dropzone"][data-mode="light"] {
+  --bg: #8fd3ff;
+  --panel: rgba(255, 255, 255, .86); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .6), transparent 40%); --chip: rgba(10, 60, 160, .08);
+  --ink: #0a2a6e; --muted: #3e5d9b; --faint: rgba(10, 60, 160, .08);
+  --line: rgba(10, 60, 160, .18); --edge: rgba(10, 60, 160, .45);
+  --ok: #0f9a4a; --warn: #c97800; --bad: #dc2440; --accent: #ffd400; --spark: #1a7ee8; --track: rgba(10, 60, 160, .12);
+  --gauge: #1a7ee8; --gauge-from: #8fc6ff; --shadow: 0 20px 36px -24px rgba(10, 50, 140, .45);
+}
+:root[data-skin="dropzone"][data-mode="light"] body::before { background: radial-gradient(ellipse 90% 70% at 50% 0%, #ffffff, #c4e8ff 40%, #84cbff 75%, #57b0f2); }
+:root[data-skin="dropzone"][data-mode="light"] body::after { background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 255, 255, .3) 0 7deg, transparent 7deg 14deg); }
+:root[data-skin="dropzone"][data-mode="light"] .brand h1 { color: #0a2a6e; text-shadow: 0 4px 0 #ffd400; }
+:root[data-skin="dropzone"][data-mode="light"] :is(.home-card h3, .card-title-row h3, .section h3) { color: #1a63d6; }
+
+/* Deep Water by day: tropical shallows with sunlight dancing on the sand */
+:root[data-skin="deepwater"][data-mode="light"] {
+  --bg: #bdeaf3;
+  --panel: rgba(255, 255, 255, .74); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .6), transparent 40%); --chip: rgba(0, 110, 140, .08);
+  --ink: #06323f; --muted: #3c6a77; --faint: rgba(0, 110, 140, .08);
+  --line: rgba(0, 120, 150, .22); --edge: rgba(0, 140, 170, .5);
+  --ok: #0c946a; --warn: #b96f00; --bad: #dc3a2f; --accent: #008cb4; --spark: #00a2c4; --track: rgba(0, 120, 150, .14);
+  --shadow: 0 22px 40px -28px rgba(0, 70, 90, .45);
+}
+:root[data-skin="deepwater"][data-mode="light"] body::before {
+  background:
+    repeating-radial-gradient(ellipse 60px 36px at 30% 40%, rgba(255, 255, 255, .0) 0 18px, rgba(255, 255, 255, .22) 20px 22px, rgba(255, 255, 255, 0) 24px 40px),
+    conic-gradient(from 158deg at 42% -12%, transparent 0deg, rgba(255, 255, 255, .25) 5deg, transparent 10deg, rgba(255, 255, 255, .18) 17deg, transparent 22deg, rgba(255, 255, 255, .2) 30deg, transparent 35deg),
+    linear-gradient(#e9fbff, #a8e4ef 45%, #5cc6da);
+}
+:root[data-skin="deepwater"][data-mode="light"] body::after { opacity: .22; }
+
+/* Expedition by day: green jungle in sunlight */
+:root[data-skin="expedition"][data-mode="light"] {
+  --bg: #e5eed8;
+  --panel: rgba(251, 252, 245, .9); --sheen: linear-gradient(180deg, rgba(255, 245, 210, .45), transparent 40%); --chip: rgba(70, 110, 30, .08);
+  --ink: #1f2a17; --muted: #56634c; --faint: rgba(40, 70, 20, .08);
+  --line: rgba(160, 110, 0, .28); --edge: rgba(160, 110, 0, .6);
+  --ok: #3b8a28; --warn: #a96f00; --bad: #c3271d; --accent: #b98000; --spark: #c3271d; --track: rgba(60, 90, 30, .12);
+  --gauge: #3f8f4e; --gauge-from: #b8d9a8; --shadow: 0 20px 40px -30px rgba(40, 60, 20, .45);
+  --palms: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%2396bd78'%3E%3Cellipse cx='150' cy='100' rx='56' ry='9'/%3E%3Cellipse cx='150' cy='100' rx='50' ry='8' transform='rotate(40 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='58' ry='9' transform='rotate(80 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='48' ry='8' transform='rotate(120 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='56' ry='9' transform='rotate(160 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='50' ry='8' transform='rotate(200 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='58' ry='9' transform='rotate(240 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='48' ry='8' transform='rotate(280 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='54' ry='9' transform='rotate(320 100 100)'/%3E%3C/g%3E%3Cg fill='%23b5d39a'%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(20 100 100)'/%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(100 100 100)'/%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(180 100 100)'/%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(260 100 100)'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-skin="expedition"][data-mode="light"] body::before {
+  background:
+    var(--palms) -260px calc(100% + 260px) / 620px 620px no-repeat,
+    var(--palms) calc(100% + 240px) -240px / 560px 560px no-repeat,
+    radial-gradient(60vmax 40vmax at 70% -10%, rgba(255, 244, 200, .9), transparent 70%),
+    linear-gradient(#f3f6e9, #cfe0b8);
+}
+:root[data-skin="expedition"][data-mode="light"] body::after { background: radial-gradient(circle closest-side, transparent 58%, rgba(60, 90, 30, .14) 61%, transparent 64%, transparent 74%, rgba(60, 90, 30, .1) 77%, transparent 80%) 88% 86% / 0 0 no-repeat; animation: ex-ripple 12s ease-out infinite; }
+:root[data-skin="expedition"][data-mode="light"] .brand h1 { text-shadow: 0 3px 0 #7a1a12; }
+
+/* Harvest by day: a crisp autumn afternoon */
+:root[data-skin="harvest"][data-mode="light"] {
+  --bg: #fbefdc;
+  --panel: rgba(255, 251, 243, .88); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .5), transparent 40%); --chip: rgba(160, 80, 20, .08);
+  --ink: #3a210e; --muted: #77583c; --faint: rgba(120, 60, 10, .08);
+  --line: rgba(200, 110, 40, .3); --edge: rgba(200, 110, 40, .6);
+  --ok: #568a24; --warn: #b56c00; --bad: #bd3d27; --accent: #cc6a14; --spark: #bd3d27; --track: rgba(160, 80, 20, .12);
+  --gauge: #b5793a; --gauge-from: #ecd2ac; --shadow: 0 20px 40px -30px rgba(90, 40, 0, .4);
+}
+:root[data-skin="harvest"][data-mode="light"] body::before { background: radial-gradient(56vmax 36vmax at 82% -4%, rgba(255, 190, 90, .45), transparent 70%), radial-gradient(50vmax 34vmax at 6% 104%, rgba(220, 110, 40, .2), transparent 70%), linear-gradient(#fff6e8, #f2d9bb); }
+:root[data-skin="harvest"][data-mode="light"] .brand h1 { text-shadow: 0 2px 0 #f2cf9c; }
+
+/* Snowfall by day: a bright snowy morning */
+:root[data-skin="snowfall"][data-mode="light"] {
+  --bg: #eaf3fb;
+  --panel: rgba(255, 255, 255, .82); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .7), transparent 40%); --chip: rgba(20, 60, 100, .06);
+  --ink: #10263b; --muted: #4c677f; --faint: rgba(20, 60, 100, .08);
+  --line: rgba(20, 60, 100, .16); --edge: rgba(20, 60, 100, .35);
+  --ok: #1a9459; --warn: #b97700; --bad: #d22f42; --accent: #d22f42; --spark: #1a9459; --track: rgba(20, 60, 100, .1);
+  --gauge: #3b8fd9; --gauge-from: #b9d9f5; --shadow: 0 20px 40px -28px rgba(20, 50, 90, .35);
+}
+:root[data-skin="snowfall"][data-mode="light"] body::before {
+  background:
+    radial-gradient(circle, #ff4d5e 0 4px, rgba(255, 77, 94, .35) 5px, transparent 9px) 0 10px / 96px 22px repeat-x,
+    radial-gradient(circle, #2fbf77 0 4px, rgba(47, 191, 119, .35) 5px, transparent 9px) 32px 14px / 96px 22px repeat-x,
+    radial-gradient(circle, #ffb81f 0 4px, rgba(255, 184, 31, .35) 5px, transparent 9px) 64px 10px / 96px 22px repeat-x,
+    linear-gradient(rgba(20, 60, 100, .25), rgba(20, 60, 100, .25)) 0 12px / 100% 1px no-repeat,
+    radial-gradient(130vmax 26vmax at 28% 112%, #ffffff 49.6%, transparent 50%),
+    radial-gradient(110vmax 24vmax at 88% 114%, #f1f7fd 49.6%, transparent 50%),
+    linear-gradient(#cfe2f3, #f4f9fd);
+}
+:root[data-skin="snowfall"][data-mode="light"] body::after { filter: drop-shadow(0 0 1px rgba(40, 80, 130, .55)); }
+:root[data-skin="snowfall"][data-mode="light"] .card::before { filter: drop-shadow(0 1px 1px rgba(20, 50, 90, .35)); }
+:root[data-skin="snowfall"][data-mode="light"] .brand h1 { color: #10263b; text-shadow: none; }
+:root[data-skin="snowfall"][data-mode="light"] :is(.home-card h3, .card-title-row h3, .section h3) { color: #c42a3b; }
+
+/* New Year by day: champagne and cream */
+:root[data-skin="newyear"][data-mode="light"] {
+  --bg: #fbf6ea;
+  --panel: rgba(255, 253, 247, .9); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .6), transparent 40%); --chip: rgba(170, 130, 40, .08);
+  --ink: #2a2112; --muted: #76664a; --faint: rgba(120, 90, 20, .08);
+  --line: rgba(190, 150, 60, .3); --edge: rgba(190, 150, 60, .65);
+  --ok: #2a9459; --warn: #a97200; --bad: #c3322c; --accent: #a87b1f; --spark: #a87b1f; --track: rgba(170, 130, 40, .12);
+  --gauge: #b8892a; --gauge-from: #eedcb0; --shadow: 0 20px 40px -30px rgba(80, 60, 10, .4);
+}
+:root[data-skin="newyear"][data-mode="light"] body { background: radial-gradient(70vmax 50vmax at 50% 0%, #fffdf6, #f4ead2); }
+:root[data-skin="newyear"][data-mode="light"] .brand h1 { text-shadow: 0 1px 0 #fff, 0 0 16px rgba(190, 150, 60, .3); }
+
+/* Sweetheart by day: soft blush pink (still no purple) */
+:root[data-skin="sweetheart"][data-mode="light"] {
+  --bg: #fff0f4;
+  --panel: rgba(255, 255, 255, .84); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .6), transparent 40%); --chip: rgba(220, 60, 110, .07);
+  --ink: #4a0f24; --muted: #8f4c66; --faint: rgba(200, 50, 100, .08);
+  --line: rgba(230, 80, 130, .24); --edge: rgba(230, 80, 130, .5);
+  --ok: #129a62; --warn: #b97700; --bad: #c81a40; --accent: #e23a6e; --spark: #e23a6e; --track: rgba(230, 80, 130, .12);
+  --gauge: #e86a96; --gauge-from: #f8c6d6; --shadow: 0 20px 40px -30px rgba(120, 20, 60, .35);
+}
+:root[data-skin="sweetheart"][data-mode="light"] body::before { background: radial-gradient(56vmax 40vmax at 50% 108%, rgba(255, 120, 160, .3), transparent 70%), radial-gradient(40vmax 30vmax at 90% 0%, rgba(255, 180, 200, .5), transparent 70%), linear-gradient(#fff7f9, #ffdfe8); }
+:root[data-skin="sweetheart"][data-mode="light"] .brand h1 { text-shadow: 0 2px 0 #ffd0dd; }
+
+/* Stars & Stripes by day: white with navy stars */
+:root[data-skin="stripes"][data-mode="light"] {
+  --bg: #f4f6fb;
+  --panel: rgba(255, 255, 255, .88); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .6), transparent 40%); --chip: rgba(20, 50, 140, .06);
+  --ink: #0a1a48; --muted: #48588a; --faint: rgba(20, 50, 140, .08);
+  --line: rgba(20, 50, 140, .16); --edge: rgba(20, 50, 140, .4);
+  --ok: #188f50; --warn: #b97700; --bad: #d01f38; --accent: #d01f38; --spark: #1f4fd6; --track: rgba(20, 50, 140, .1);
+  --gauge: #1f4fd6; --gauge-from: #b8c9f3; --shadow: 0 20px 40px -30px rgba(10, 30, 90, .35);
+}
+:root[data-skin="stripes"][data-mode="light"] body::before {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 170'%3E%3Cpath d='M20.0 14.0 L21.6 17.8 L25.7 18.1 L22.6 20.8 L23.5 24.9 L20.0 22.7 L16.5 24.9 L17.4 20.8 L14.3 18.1 L18.4 17.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M56.0 14.0 L57.6 17.8 L61.7 18.1 L58.6 20.8 L59.5 24.9 L56.0 22.7 L52.5 24.9 L53.4 20.8 L50.3 18.1 L54.4 17.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M92.0 14.0 L93.6 17.8 L97.7 18.1 L94.6 20.8 L95.5 24.9 L92.0 22.7 L88.5 24.9 L89.4 20.8 L86.3 18.1 L90.4 17.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M128.0 14.0 L129.6 17.8 L133.7 18.1 L130.6 20.8 L131.5 24.9 L128.0 22.7 L124.5 24.9 L125.4 20.8 L122.3 18.1 L126.4 17.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M164.0 14.0 L165.6 17.8 L169.7 18.1 L166.6 20.8 L167.5 24.9 L164.0 22.7 L160.5 24.9 L161.4 20.8 L158.3 18.1 L162.4 17.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M200.0 14.0 L201.6 17.8 L205.7 18.1 L202.6 20.8 L203.5 24.9 L200.0 22.7 L196.5 24.9 L197.4 20.8 L194.3 18.1 L198.4 17.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M38.0 44.0 L39.6 47.8 L43.7 48.1 L40.6 50.8 L41.5 54.9 L38.0 52.7 L34.5 54.9 L35.4 50.8 L32.3 48.1 L36.4 47.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M74.0 44.0 L75.6 47.8 L79.7 48.1 L76.6 50.8 L77.5 54.9 L74.0 52.7 L70.5 54.9 L71.4 50.8 L68.3 48.1 L72.4 47.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M110.0 44.0 L111.6 47.8 L115.7 48.1 L112.6 50.8 L113.5 54.9 L110.0 52.7 L106.5 54.9 L107.4 50.8 L104.3 48.1 L108.4 47.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M146.0 44.0 L147.6 47.8 L151.7 48.1 L148.6 50.8 L149.5 54.9 L146.0 52.7 L142.5 54.9 L143.4 50.8 L140.3 48.1 L144.4 47.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M182.0 44.0 L183.6 47.8 L187.7 48.1 L184.6 50.8 L185.5 54.9 L182.0 52.7 L178.5 54.9 L179.4 50.8 L176.3 48.1 L180.4 47.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M218.0 44.0 L219.6 47.8 L223.7 48.1 L220.6 50.8 L221.5 54.9 L218.0 52.7 L214.5 54.9 L215.4 50.8 L212.3 48.1 L216.4 47.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M20.0 74.0 L21.6 77.8 L25.7 78.1 L22.6 80.8 L23.5 84.9 L20.0 82.7 L16.5 84.9 L17.4 80.8 L14.3 78.1 L18.4 77.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M56.0 74.0 L57.6 77.8 L61.7 78.1 L58.6 80.8 L59.5 84.9 L56.0 82.7 L52.5 84.9 L53.4 80.8 L50.3 78.1 L54.4 77.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M92.0 74.0 L93.6 77.8 L97.7 78.1 L94.6 80.8 L95.5 84.9 L92.0 82.7 L88.5 84.9 L89.4 80.8 L86.3 78.1 L90.4 77.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M128.0 74.0 L129.6 77.8 L133.7 78.1 L130.6 80.8 L131.5 84.9 L128.0 82.7 L124.5 84.9 L125.4 80.8 L122.3 78.1 L126.4 77.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M164.0 74.0 L165.6 77.8 L169.7 78.1 L166.6 80.8 L167.5 84.9 L164.0 82.7 L160.5 84.9 L161.4 80.8 L158.3 78.1 L162.4 77.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M200.0 74.0 L201.6 77.8 L205.7 78.1 L202.6 80.8 L203.5 84.9 L200.0 82.7 L196.5 84.9 L197.4 80.8 L194.3 78.1 L198.4 77.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M38.0 104.0 L39.6 107.8 L43.7 108.1 L40.6 110.8 L41.5 114.9 L38.0 112.7 L34.5 114.9 L35.4 110.8 L32.3 108.1 L36.4 107.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M74.0 104.0 L75.6 107.8 L79.7 108.1 L76.6 110.8 L77.5 114.9 L74.0 112.7 L70.5 114.9 L71.4 110.8 L68.3 108.1 L72.4 107.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M110.0 104.0 L111.6 107.8 L115.7 108.1 L112.6 110.8 L113.5 114.9 L110.0 112.7 L106.5 114.9 L107.4 110.8 L104.3 108.1 L108.4 107.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M146.0 104.0 L147.6 107.8 L151.7 108.1 L148.6 110.8 L149.5 114.9 L146.0 112.7 L142.5 114.9 L143.4 110.8 L140.3 108.1 L144.4 107.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M182.0 104.0 L183.6 107.8 L187.7 108.1 L184.6 110.8 L185.5 114.9 L182.0 112.7 L178.5 114.9 L179.4 110.8 L176.3 108.1 L180.4 107.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M218.0 104.0 L219.6 107.8 L223.7 108.1 L220.6 110.8 L221.5 114.9 L218.0 112.7 L214.5 114.9 L215.4 110.8 L212.3 108.1 L216.4 107.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M20.0 134.0 L21.6 137.8 L25.7 138.1 L22.6 140.8 L23.5 144.9 L20.0 142.7 L16.5 144.9 L17.4 140.8 L14.3 138.1 L18.4 137.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M56.0 134.0 L57.6 137.8 L61.7 138.1 L58.6 140.8 L59.5 144.9 L56.0 142.7 L52.5 144.9 L53.4 140.8 L50.3 138.1 L54.4 137.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M92.0 134.0 L93.6 137.8 L97.7 138.1 L94.6 140.8 L95.5 144.9 L92.0 142.7 L88.5 144.9 L89.4 140.8 L86.3 138.1 L90.4 137.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M128.0 134.0 L129.6 137.8 L133.7 138.1 L130.6 140.8 L131.5 144.9 L128.0 142.7 L124.5 144.9 L125.4 140.8 L122.3 138.1 L126.4 137.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M164.0 134.0 L165.6 137.8 L169.7 138.1 L166.6 140.8 L167.5 144.9 L164.0 142.7 L160.5 144.9 L161.4 140.8 L158.3 138.1 L162.4 137.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3Cpath d='M200.0 134.0 L201.6 137.8 L205.7 138.1 L202.6 140.8 L203.5 144.9 L200.0 142.7 L196.5 144.9 L197.4 140.8 L194.3 138.1 L198.4 137.8 Z' fill='%231f3a8a' fill-opacity='.2'/%3E%3C/svg%3E") 2vw 2vh / min(420px, 46vw) auto no-repeat,
+    repeating-linear-gradient(180deg, rgba(208, 31, 56, .07) 0 7vh, rgba(255, 255, 255, .5) 7vh 14vh),
+    linear-gradient(#ffffff, #e6ecfa);
+}
+:root[data-skin="stripes"][data-mode="light"] .brand h1 { color: #0a1a48; }
+:root[data-skin="stripes"][data-mode="light"] :is(.home-card h3, .card-title-row h3, .section h3) { color: #d01f38; }
+
+
+/* ==========================================================================================
+   Weather icons in each theme's colors. The pixel themes draw them as pixel art instead
+   (the second drawing inside each icon in Weather.tsx).
+   ========================================================================================== */
+:root[data-skin="neon"] { --wx-sun: #fcee0a; --wx-moon: #00eaff; --wx-rain: #00eaff; }
+:root[data-skin="space"] { --wx-sun: #ffd27a; --wx-moon: #9fe6ff; --wx-rain: #5ad8ff; }
+:root[data-skin="hyperspace"] { --wx-sun: #ffe81f; --wx-moon: #dfe8ff; --wx-rain: #4fb6ff; }
+:root[data-skin="circuits"] { --wx-sun: #ffb21e; --wx-moon: #3dff6e; --wx-rain: #3dff6e; }
+:root[data-skin="ancient"] { --wx-sun: #f5a524; --wx-moon: #38d6ff; --wx-rain: #38d6ff; }
+:root[data-skin="dropzone"] { --wx-sun: #ffe23f; --wx-moon: #e6f2ff; }
+:root[data-skin="deepwater"] { --wx-sun: #ffd36b; --wx-moon: #cdeeff; --wx-rain: #7fe3ff; }
+:root[data-skin="expedition"] { --wx-sun: #ffb400; --wx-moon: #f4efe1; --wx-rain: #9ad7c0; }
+:root[data-skin="spooky"] { --wx-sun: #ff8a1f; --wx-moon: #fff7d6; --wx-rain: #8bff5a; }
+:root[data-skin="harvest"] { --wx-sun: #ffa63d; --wx-moon: #fbe3c0; --wx-rain: #9cc3d6; }
+:root[data-skin="snowfall"] { --wx-sun: #ffd36b; --wx-moon: #e8f3ff; --wx-rain: #9ad7ff; }
+:root[data-skin="newyear"] { --wx-sun: #ffd36e; --wx-moon: #fff3c4; --wx-rain: #fff3c4; }
+:root[data-skin="sweetheart"] { --wx-sun: #ffc35a; --wx-moon: #ffd6e2; --wx-rain: #ff8fb0; }
+:root[data-skin="stripes"] { --wx-sun: #ffc24d; --wx-moon: #ffffff; --wx-rain: #7fb2ff; }
+:root[data-skin="arcade"] { --wx-sun: #ffe14d; --wx-moon: #2de2ff; --wx-rain: #2de2ff; }
+:root[data-skin="inferno"] { --wx-sun: #ffcf4a; --wx-moon: #ffd8b0; --wx-rain: #ff9a3c; }
+/* glowing themes: the icons glow too */
+:root:is([data-skin="neon"], [data-skin="circuits"], [data-skin="ancient"], [data-skin="hyperspace"], [data-skin="space"]) .wx { filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent)); }
+/* light versions: deeper colors that still read on a pale background */
+:root[data-skin][data-mode="light"]:not([data-skin="blocks"], [data-skin="handheld"]) { --wx-sun: #e39a12; --wx-moon: #5a76a8; --wx-rain: #2f86cf; }
+:root[data-skin="sweetheart"][data-mode="light"] { --wx-rain: #e23a6e; }
+:root[data-skin="ancient"][data-mode="light"] { --wx-moon: #0a86ad; --wx-rain: #0a86ad; }
+
+/* pixel art: hidden unless a pixel theme is on */
+.wx-px { display: none; }
+:root:is([data-skin="blocks"], [data-skin="inferno"], [data-skin="arcade"], [data-skin="handheld"]) .wx > .wx-vec { display: none; }
+:root:is([data-skin="blocks"], [data-skin="inferno"], [data-skin="arcade"], [data-skin="handheld"]) .wx > .wx-px { display: inline; }
+:root:is([data-skin="blocks"], [data-skin="inferno"], [data-skin="arcade"], [data-skin="handheld"]) .wx { filter: none; }
+.px-y { fill: var(--wx-sun, #f7c552); }
+.px-m { fill: var(--wx-moon, #b9cdf5); }
+.px-c { fill: var(--px-cloud, #eef1f4); }
+.px-e { fill: var(--px-shade, #a9b2bc); }
+.px-b { fill: var(--wx-rain, #7cc3ff); }
+.px-w { fill: var(--px-snow, #ffffff); }
+:root[data-skin="blocks"][data-mode="light"] { --px-cloud: #ffffff; --px-shade: #c3ccd6; --px-snow: #7cc3ff; }
+:root[data-skin="inferno"] { --px-cloud: #8a7d80; --px-shade: #574a4e; }
+:root[data-skin="arcade"] { --px-cloud: #e8f6ff; --px-shade: #5d7fa6; }
+/* the LCD is one ink: every pixel in the screen's color */
+:root[data-skin="handheld"] { --wx-sun: var(--ink); --wx-moon: var(--ink); --wx-rain: var(--ink); --px-cloud: var(--muted); --px-shade: var(--ink); --px-snow: var(--ink); }
+/* the forecast's low-to-high bars: from the theme's rain color to its sun color */
+:root[data-skin]:not([data-skin="spooky"], [data-skin="blocks"]) { --wx-cool: var(--wx-rain, #6fc3ff); --wx-warm: var(--wx-sun, #f7c552); }
+:root[data-skin="handheld"] { --wx-cool: var(--muted); --wx-warm: var(--ink); }

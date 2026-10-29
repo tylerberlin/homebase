@@ -35,9 +35,9 @@ export const SKIN_NAMES: Record<Skin, string> = {
   spooky: "Spooky", harvest: "Harvest", snowfall: "Snowfall", newyear: "New Year", sweetheart: "Sweetheart", stripes: "Stars & Stripes",
 };
 export const SKIN_MODE: Record<Skin, "both" | "light" | "dark"> = {
-  glass: "both", blocks: "both", inferno: "dark", handheld: "light", ancient: "dark", dropzone: "dark", arcade: "dark", neon: "dark", space: "dark",
-  deepwater: "dark", circuits: "dark", hyperspace: "dark", expedition: "dark",
-  spooky: "dark", harvest: "dark", snowfall: "dark", newyear: "dark", sweetheart: "dark", stripes: "dark",
+  glass: "both", blocks: "both", inferno: "dark", handheld: "both", ancient: "both", dropzone: "both", arcade: "dark", neon: "dark", space: "dark",
+  deepwater: "both", circuits: "dark", hyperspace: "dark", expedition: "both",
+  spooky: "dark", harvest: "both", snowfall: "both", newyear: "both", sweetheart: "both", stripes: "both",
 };
 // Earlier theme ids, so a saved choice survives the rename.
 const OLD_SKINS: Record<string, Skin> = {

@@ -31,6 +31,7 @@ function applyTheme(t: Theme) {
   const root = document.documentElement;
   if (t === "system") delete root.dataset.theme;
   else root.dataset.theme = t;
+  (window as typeof window & { __bdMode?: () => void }).__bdMode?.();
   // Keep the phone status bar in step: pinned themes use the page background, "system" restores
   // the light/dark pair Next rendered into <head>.
   const bg = getComputedStyle(root).getPropertyValue("--bg").trim();

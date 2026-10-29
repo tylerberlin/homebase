@@ -39,7 +39,9 @@ export const viewport: Viewport = {
 };
 
 // Applies the remembered theme and look before first paint so there's no light/dark or color flash.
-const themeScript = `try{var t=localStorage.getItem("bd-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
+// data-mode is always the light or dark actually showing (the picked theme, or the system's), so
+// themes with a light and a dark version need one selector each rather than a media query and a pick.
+const themeScript = `try{var r=document.documentElement,t=localStorage.getItem("bd-theme");if(t)r.dataset.theme=t;var q=matchMedia("(prefers-color-scheme: dark)"),u=function(){r.dataset.mode=r.dataset.theme||(q.matches?"dark":"light")};u();q.addEventListener("change",u);window.__bdMode=u}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
