@@ -37,7 +37,7 @@ async function placeName(lat: number, lon: number): Promise<string> {
 
 export async function forecast(at?: { lat: number; lon: number }, unit: "F" | "C" = "F"): Promise<Forecast | undefined> {
   const here = !!at;
-  const { lat, lon } = at ?? config.nas;
+  const { lat, lon } = at ?? config.homePlace;
   const f = unit === "C" ? "celsius" : "fahrenheit";
   return cached(`forecast:${lat},${lon}:${f}`, 10 * 60 * 1000, async () => {
     const om = await getJson<OM>(
@@ -57,7 +57,7 @@ export async function forecast(at?: { lat: number; lon: number }, unit: "F" | "C
     } catch {}
     const r = Math.round;
     return {
-      place: here ? await placeName(lat, lon) : config.nas.location,
+      place: here ? await placeName(lat, lon) : config.homePlace.location,
       here,
       unit: f === "celsius" ? "C" : "F",
       now: {

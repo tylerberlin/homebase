@@ -9,3 +9,4 @@ homebase.tgz
 .env*
 __pycache__/
 .DS_Store
+data/

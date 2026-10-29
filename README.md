@@ -59,6 +59,14 @@ or `&game` for a sample live game. `?demo=nomc` shows it without any Minecraft s
 
 ## Run it for real
 
+**No server? No problem.** Homebase works as an everyday home dashboard on its own: clock, weather,
+calendar, countdowns, sports, stocks and news. The server parts (the Servers tab, status pill and
+server strip) only appear once you set up a server (`TRUENAS_API_KEY`, `PI_AGENT_URL` or `NAS_ENABLED=1`)
+or endpoints to check (`LINKS`). Preview it with `?demo=noservers`.
+
+Settings, countdowns and logins are saved to Upstash Redis if you connect it (`KV_REST_API_URL`,
+`KV_REST_API_TOKEN`), otherwise to a private file on the machine running Homebase (`DATA_DIR`, default `./data`).
+
 Settings come from environment variables; see `lib/config.ts` for the full list and
 `compose.yaml` for a TrueNAS / Docker example. The main ones:
 
@@ -71,6 +79,7 @@ Settings come from environment variables; see `lib/config.ts` for the full list 
 | `TEAMS`, `TICKERS`, `NEWS_FEEDS` | Defaults for the Home tab (also editable in Settings). |
 | `CALENDARS` | `Name|https://….ics`, comma-separated. Fetched server-side only. |
 | `PUBLIC_HOST` | The address you reach it on, for passkeys (e.g. `dash.example.com`). |
+| `HOME_LAT`, `HOME_LON`, `HOME_LOCATION` | Where "Home" is for weather (defaults to the NAS location). |
 
 Build a standalone bundle with `pnpm bundle`, then run `node server.js` from it.
 

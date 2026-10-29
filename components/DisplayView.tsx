@@ -184,7 +184,7 @@ function DisplayServer({ s }: { s: Server }) {
 }
 
 export default function DisplayView({
-  data, issues, overall, overallText, backendError, exitHref, calendar = null, settingsButton, demo = false, games: allGames = [],
+  data, issues, overall, overallText, backendError, exitHref, calendar = null, settingsButton, demo = false, games: allGames = [], monitoring = true,
 }: {
   data: Status | null;
   issues: Issue[];
@@ -196,6 +196,7 @@ export default function DisplayView({
   settingsButton?: React.ReactNode;
   demo?: boolean;
   games?: LiveGame[];
+  monitoring?: boolean;
 }) {
   const { settings } = usePrefs();
   const p = settings.display;
@@ -225,10 +226,12 @@ export default function DisplayView({
           <NextGame games={games} />
         </div>
         <div className="d-right">
-          <span className={`pill d-pill ${overall ? "state-" + overall : ""}`}>
-            <span className={`dot live ${overall}`} />
-            <span aria-live="polite">{overallText}</span>
-          </span>
+          {monitoring && (
+            <span className={`pill d-pill ${overall ? "state-" + overall : ""}`}>
+              <span className={`dot live ${overall}`} />
+              <span aria-live="polite">{overallText}</span>
+            </span>
+          )}
           <div className="d-controls">
             {settingsButton}
             {canFullscreen && (
@@ -260,7 +263,7 @@ export default function DisplayView({
 
       <Scoreboard games={games} />
 
-      {data && p.servers && !playing && !rotating && (
+      {data && p.servers && data.servers.length > 0 && !playing && !rotating && (
         <div className="d-grid">
           {data.servers.map((s) => (
             <DisplayServer key={s.id} s={s} />
@@ -274,7 +277,7 @@ export default function DisplayView({
             const one = (label: string, node: React.ReactNode) => [{ id, label, node }];
             switch (id) {
               case "servers":
-                return one("Servers", (
+                return !data.servers.length ? [] : one("Servers", (
                   <ServersSlide>
                     <div className="d-grid">
                       {data.servers.map((s) => (
@@ -299,14 +302,14 @@ export default function DisplayView({
           })}
         />
       )}
-      {data && p.servers && playing && (
+      {data && p.servers && data.servers.length > 0 && playing && (
         <div className="d-mini">
           {data.servers.map((s) => (
             <MiniServer key={s.id} s={s} />
           ))}
         </div>
       )}
-      {!p.servers && !playing && !rotating && <div className="d-spacer" />}
+      {(!p.servers || !data?.servers.length) && !playing && !rotating && <div className="d-spacer" />}
 
       {data && p.links && !playing && data.links.length > 0 && (
         <div className="d-links">

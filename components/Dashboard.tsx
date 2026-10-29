@@ -123,10 +123,12 @@ function useTab() {
   return tab;
 }
 
-function Tabs({ tab, minecraft }: { tab: Tab; minecraft: boolean }) {
+function Tabs({ tab, minecraft, servers }: { tab: Tab; minecraft: boolean; servers: boolean }) {
+  const shown = TABS.filter((t) => (minecraft || t.id !== "minecraft") && (servers || t.id !== "servers"));
+  if (shown.length < 2) return null; // just Home: no tab bar
   return (
     <nav className="tabs" aria-label="Sections">
-      {TABS.filter((t) => minecraft || t.id !== "minecraft").map((t) => (
+      {shown.map((t) => (
         <a key={t.id} href={t.id === "home" ? "#home" : `#${t.id}`} className={`tab ${tab === t.id ? "on" : ""}`} aria-current={tab === t.id ? "page" : undefined}>
           {t.label}
         </a>
@@ -166,7 +168,9 @@ export default function Dashboard({
   const hashTab = useTab();
   // The Minecraft tab only shows when a server has one configured.
   const hasMinecraft = !!data?.servers.some((s) => s.minecraft);
-  const tab = hashTab === "minecraft" && data && !hasMinecraft ? "home" : hashTab;
+  // Servers are optional: with none set up (and no endpoints to check) it's a plain home dashboard.
+  const monitoring = !data?.updated || data.servers.length > 0 || data.links.length > 0;
+  const tab = (hashTab === "minecraft" && data && !hasMinecraft) || (hashTab === "servers" && !monitoring) ? "home" : hashTab;
   useIdleLogout(!demo, display);
   const { settings } = usePrefs();
   // Your teams' games: for game-day colors everywhere and the room display's scoreboard.
@@ -270,6 +274,7 @@ export default function Dashboard({
           settingsButton={settingsButton}
           demo={!!demo}
           games={games}
+          monitoring={monitoring}
         />
         {settingsPanel}
       </div>
@@ -297,13 +302,15 @@ export default function Dashboard({
         </div>
         <div className="overall">
           <GameDayChip games={games} />
-          <span className={`pill ${overall ? "state-" + overall : ""}`}>
-            <span className={`dot live ${overall}`} />
-            <span className="pill-text" aria-live="polite">
-              {overallText}
+          {monitoring && (
+            <span className={`pill ${overall ? "state-" + overall : ""}`}>
+              <span className={`dot live ${overall}`} />
+              <span className="pill-text" aria-live="polite">
+                {overallText}
+              </span>
             </span>
-          </span>
-          <UpdatedAgo updated={ready ? data.updated : null} refresh={data?.refresh ?? 10} onStale={setStaleFor} />
+          )}
+          {monitoring && <UpdatedAgo updated={ready ? data.updated : null} refresh={data?.refresh ?? 10} onStale={setStaleFor} />}
           <a className="theme-btn" href={displayHref} title="Display mode" aria-label="Open display mode">
             <DisplayIcon size={16} />
           </a>
@@ -326,7 +333,7 @@ export default function Dashboard({
         </div>
       </header>
 
-      <Tabs tab={tab} minecraft={hasMinecraft} />
+      <Tabs tab={tab} minecraft={hasMinecraft} servers={monitoring} />
 
       {tab === "home" && settings.quickLinks && <QuickLinks links={quickLinks} />}
 

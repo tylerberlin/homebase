@@ -5,7 +5,7 @@ import { ChevronIcon } from "../icons";
 // One glass strip on Home: each server at a glance, and who's on Minecraft (if a server has it). Opens the Servers tab.
 
 export default function ServerSummary({ data }: { data: Status | null }) {
-  if (!data?.updated) return null;
+  if (!data?.updated || !data.servers.length) return null;
   const mc = data.servers.some((s) => s.minecraft);
   const players = data.servers.reduce((n, s) => n + (s.minecraft?.online ? (s.minecraft.players_online ?? 0) : 0), 0);
   return (

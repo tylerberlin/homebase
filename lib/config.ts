@@ -19,6 +19,8 @@ export const config = {
     verifySsl: E("TRUENAS_VERIFY_SSL", "false").toLowerCase() === "true",
   },
   nas: {
+    // Shown when TRUENAS_API_KEY is set (or NAS_ENABLED=1 to show just this machine's own stats).
+    enabled: E("NAS_ENABLED") === "1" || !!E("TRUENAS_API_KEY"),
     name: E("NAS_NAME", "NAS"),
     location: E("NAS_LOCATION", "Home"),
     mcLabel: E("NAS_MC_LABEL", "Modded · Create"),
@@ -33,6 +35,7 @@ export const config = {
     tz: E("NAS_TZ", "America/New_York"),
   },
   pi: {
+    enabled: !!E("PI_AGENT_URL"), // shown when the Pi stats agent is set up
     name: E("PI_NAME", "pi"),
     location: E("PI_LOCATION", "Remote"),
     agentUrl: E("PI_AGENT_URL"),
@@ -43,6 +46,12 @@ export const config = {
     lat: Number(E("PI_LAT", "47.61")),
     lon: Number(E("PI_LON", "-122.33")),
     tz: E("PI_TZ", "America/Los_Angeles"),
+  },
+  // Where "Home" is for weather. Defaults to the NAS's location; set HOME_LAT/HOME_LON with no servers.
+  homePlace: {
+    lat: Number(E("HOME_LAT", E("NAS_LAT", "40.71"))),
+    lon: Number(E("HOME_LON", E("NAS_LON", "-74.01"))),
+    location: E("HOME_LOCATION", E("NAS_LOCATION", "Home")),
   },
   // Backup site on Vercel. On NAS and the Pi: where to send reports. On Vercel: BACKUP_MODE=1.
   backup: {
@@ -87,13 +96,11 @@ export const config = {
       .map(([category, source, url]) => ({ category, source, url })),
   },
   // Public endpoints the dashboard checks
-  links: parseLinks(E("LINKS", "Cloud|https://cloud.example.com")),
+  links: parseLinks(E("LINKS")),
   // Shortcuts row under the header (not checked, just links)
   quickLinks: parseLinks(
     E(
       "QUICK_LINKS",
-      "TrueNAS|https://truenas.local,Cloud|https://cloud.example.com,Cloudflare|https://dash.cloudflare.com," +
-        "Vercel|https://vercel.com/dashboard,Tailscale|https://login.tailscale.com/admin/machines",
     ),
   ),
 };

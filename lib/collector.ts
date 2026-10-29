@@ -52,12 +52,12 @@ async function collect(c: Collector) {
   const timedOut = { error: "timed out" };
   const [host, nas, pi, nasMc, linkResults, nasWx, piWx] = await Promise.all([
     Promise.resolve().then(hostStats),
-    withTimeout(truenasStats(), 20000, timedOut),
-    withTimeout(piStats(), 20000, { reachable: false as const, error: "timed out" }),
-    nasCfg.mcPort ? minecraftStatus(nasCfg.mcHost, nasCfg.mcPort) : Promise.resolve(null),
+    nasCfg.enabled && config.truenas.apiKey ? withTimeout(truenasStats(), 20000, timedOut) : Promise.resolve<Awaited<ReturnType<typeof truenasStats>>>({ error: "not set up" }),
+    piCfg.enabled ? withTimeout(piStats(), 20000, { reachable: false as const, error: "timed out" }) : Promise.resolve({ reachable: false as const, error: "not set up" }),
+    nasCfg.enabled && nasCfg.mcPort ? minecraftStatus(nasCfg.mcHost, nasCfg.mcPort) : Promise.resolve(null),
     Promise.all(links.map((l) => checkUrl(l.url))),
-    weather(nasCfg.lat, nasCfg.lon),
-    weather(piCfg.lat, piCfg.lon),
+    nasCfg.enabled ? weather(nasCfg.lat, nasCfg.lon) : Promise.resolve(undefined),
+    piCfg.enabled ? weather(piCfg.lat, piCfg.lon) : Promise.resolve(undefined),
   ]);
 
   // Mods after the ping: its version picks which updates apply. Jars are only re-read when they change.
@@ -77,12 +77,13 @@ async function collect(c: Collector) {
   c.state = {
     updated: Math.floor(Date.now() / 1000),
     refresh: config.refresh,
+    // Only the servers that are set up; with none, the dashboard is just the Home tab.
     servers: [
-      {
+      nasCfg.enabled && {
         id: "nas",
         name: nasCfg.name,
         location: nasCfg.location,
-        kind: "truenas",
+        kind: "truenas" as const,
         tz: nasCfg.tz,
         weather: nasWx,
         reachable: true,
@@ -95,8 +96,8 @@ async function collect(c: Collector) {
           ? { label: nasCfg.mcLabel, address: nasCfg.mcAddress, ...nasMc, favicon: iconUrl(c, "nas", nasMc.favicon), mods: nasMods }
           : null,
       },
-      piServer,
-    ],
+      piCfg.enabled && piServer,
+    ].filter((s): s is Status["servers"][number] => !!s),
     links: links.map((l, i) => ({ ...l, ...linkResults[i] })),
   };
 }

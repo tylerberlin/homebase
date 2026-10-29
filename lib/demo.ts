@@ -5,12 +5,13 @@ const GiB = 2 ** 30, TiB = 2 ** 40;
 const hist = (base: number, jitter: number) =>
   Array.from({ length: 60 }, (_, i) => Math.max(1, Math.min(100, base + Math.sin(i / 5) * jitter + Math.random() * jitter)));
 
-export type DemoVariant = "normal" | "issues" | "stale" | "nomc";
+export type DemoVariant = "normal" | "issues" | "stale" | "nomc" | "noservers";
 
-/** Sample data for ?demo. ?demo=issues shows problem states; ?demo=stale shows old data; ?demo=nomc has no Minecraft servers. */
+/** Sample data for ?demo. ?demo=issues shows problem states; ?demo=stale shows old data; ?demo=nomc has no Minecraft servers; ?demo=noservers has no servers at all. */
 export function demoStatus(variant: DemoVariant = "normal"): Status {
   const s = healthy();
   if (variant === "stale") s.updated! -= 150;
+  if (variant === "noservers") { s.servers = []; s.links = []; }
   if (variant === "nomc") s.servers.forEach((x) => (x.minecraft = null));
   if (variant === "issues") {
     const [nas, pi] = s.servers;
