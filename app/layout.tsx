@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Alegreya_Sans, Alfa_Slab_One, Anton, Chakra_Petch, Cinzel, IBM_Plex_Mono, IBM_Plex_Sans, Orbitron, Press_Start_2P, Rajdhani, Share_Tech_Mono, Tiny5, VT323 } from "next/font/google";
+import { Alegreya_Sans, Alfa_Slab_One, Anton, Chakra_Petch, Cinzel, Creepster, Fraunces, IBM_Plex_Mono, IBM_Plex_Sans, Mountains_of_Christmas, Orbitron, Pacifico, Press_Start_2P, Rajdhani, Share_Tech_Mono, Tiny5, VT323 } from "next/font/google";
 import { lookScript } from "@/lib/settings";
 import "./globals.css";
 
@@ -17,6 +17,10 @@ const drop = Anton({ subsets: ["latin"], weight: "400", variable: "--font-drop",
 const led = Share_Tech_Mono({ subsets: ["latin"], weight: "400", variable: "--font-led", preload: false });
 const hyper = Orbitron({ subsets: ["latin"], weight: ["500", "700", "900"], variable: "--font-hyper", preload: false });
 const slab = Alfa_Slab_One({ subsets: ["latin"], weight: "400", variable: "--font-slab", preload: false });
+const spooky = Creepster({ subsets: ["latin"], weight: "400", variable: "--font-spooky", preload: false });
+const harvest = Fraunces({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-harvest", preload: false });
+const snow = Mountains_of_Christmas({ subsets: ["latin"], weight: "700", variable: "--font-snow", preload: false });
+const script = Pacifico({ subsets: ["latin"], weight: "400", variable: "--font-script", preload: false });
 
 export const metadata: Metadata = {
   title: "Homebase",
@@ -39,7 +43,7 @@ const themeScript = `try{var t=localStorage.getItem("bd-theme");if(t)document.do
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={[sans, mono, pixel, arcade, terminal, neon, hud, ancient, ancientBody, drop, led, hyper, slab].map((f) => f.variable).join(" ")} suppressHydrationWarning>
+    <html lang="en" className={[sans, mono, pixel, arcade, terminal, neon, hud, ancient, ancientBody, drop, led, hyper, slab, spooky, harvest, snow, script].map((f) => f.variable).join(" ")} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript + lookScript }} />
       </head>

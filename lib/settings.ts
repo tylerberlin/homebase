@@ -27,15 +27,17 @@ export type Accent = (typeof ACCENTS)[number];
 export const GLASS = ["clear", "frosted", "solid"] as const;
 // Themes: the glass look (with the accent and glass choices above), or a retro-game-inspired one with its
 // own colors, fonts and background. SKIN_MODE says which follow the light/dark button.
-export const SKINS = ["glass", "blocks", "inferno", "handheld", "ancient", "dropzone", "arcade", "neon", "space", "deepwater", "circuits", "hyperspace", "expedition"] as const;
+export const SKINS = ["glass", "blocks", "inferno", "handheld", "ancient", "dropzone", "arcade", "neon", "space", "deepwater", "circuits", "hyperspace", "expedition", "spooky", "harvest", "snowfall", "newyear", "sweetheart", "stripes"] as const;
 export type Skin = (typeof SKINS)[number];
 export const SKIN_NAMES: Record<Skin, string> = {
   glass: "Glass", blocks: "Blocks", inferno: "Inferno", handheld: "Handheld", ancient: "Ancient", dropzone: "Drop Zone", arcade: "Arcade", neon: "Neon", space: "Space",
   deepwater: "Deep Water", circuits: "Time Circuits", hyperspace: "Hyperspace", expedition: "Expedition",
+  spooky: "Spooky", harvest: "Harvest", snowfall: "Snowfall", newyear: "New Year", sweetheart: "Sweetheart", stripes: "Stars & Stripes",
 };
 export const SKIN_MODE: Record<Skin, "both" | "light" | "dark"> = {
   glass: "both", blocks: "both", inferno: "dark", handheld: "light", ancient: "dark", dropzone: "dark", arcade: "dark", neon: "dark", space: "dark",
   deepwater: "dark", circuits: "dark", hyperspace: "dark", expedition: "dark",
+  spooky: "dark", harvest: "dark", snowfall: "dark", newyear: "dark", sweetheart: "dark", stripes: "dark",
 };
 // Earlier theme ids, so a saved choice survives the rename.
 const OLD_SKINS: Record<string, Skin> = {
