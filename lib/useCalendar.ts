@@ -26,11 +26,12 @@ function demoCalendar(): CalendarData {
     updated: Date.now(),
     errors: [],
     events: [
-      ev("Dentist", "Personal", "#4ea8ff", soon.toISOString(), new Date(soon.getTime() + 3600e3).toISOString(), false, "Main St"),
-      ev("Minecraft build night", "Personal", "#4ea8ff", at(0, 20), at(0, 22)),
-      ev("Day off", "Work", "#34d3c0", day(1), day(2), true),
-      ev("Team sync", "Work", "#34d3c0", at(2, 10), at(2, 10, 30)),
-      ev("Swap Pi to SSD", "Personal", "#4ea8ff", at(3, 15), at(3, 16)),
+      ev("Pick up hoverboard", "Personal", "#4ea8ff", soon.toISOString(), new Date(soon.getTime() + 3600e3).toISOString(), false, "Courthouse Square"),
+      ev("Enchantment Under the Sea dance", "Personal", "#4ea8ff", at(0, 20), at(0, 22)),
+      ev("Lightning hits the clock tower", "Personal", "#4ea8ff", at(0, 22, 4), at(0, 22, 5)),
+      ev("Jaws 19 premiere", "Work", "#34d3c0", day(1), day(2), true),
+      ev("Lunch at Caf\u00e9 80\u2019s", "Work", "#34d3c0", at(2, 12), at(2, 13)),
+      ev("Refuel Mr. Fusion", "Personal", "#4ea8ff", at(3, 15), at(3, 16)),
     ],
   };
 }

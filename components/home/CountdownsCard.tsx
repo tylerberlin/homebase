@@ -27,9 +27,9 @@ export default function CountdownsCard({ now, demo }: { now: number; demo: boole
     if (demo) {
       const inDays = (n: number) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
       setList([
-        { id: "a", title: "Winter break", date: inDays(52) },
-        { id: "b", title: "Minecraft 1.22 drops", date: inDays(9) },
-        { id: "c", title: "Domain renewal", date: inDays(260) },
+        { id: "a", title: "Hit 88 mph", date: inDays(88) },
+        { id: "b", title: "Self-lacing shoes ship", date: inDays(9) },
+        { id: "c", title: "Trip back to 1985", date: inDays(5) },
       ]);
       return;
     }

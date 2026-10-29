@@ -248,8 +248,8 @@ function demoGames(): LiveGame[] {
       broadcast: "FOX",
       away: { abbr: "BOS", name: "Red Sox", color: "#bd3039", score: 3, record: "97-65", lines: [0, 1, 0, 2, 0, 0, 0], mine: false, hits: 7, errors: 1, logo: "https://a.espncdn.com/i/teamlogos/mlb/500/bos.png" },
       home: { abbr: "NYY", name: "Yankees", color: "#0c2340", score: 4, record: "92-70", lines: [1, 0, 0, 0, 3, 0, 0], mine: true, hits: 8, errors: 0, logo: "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" },
-      situation: { balls: 2, strikes: 1, outs: 1, bases: [true, false, true], batter: "J. Smith", pitcher: "D. Jones" },
-      lastPlay: "Single to right field, runner to third.",
+      situation: { balls: 2, strikes: 1, outs: 1, bases: [true, false, true], batter: "B. Tannen", pitcher: "G. McFly" },
+      lastPlay: "Tannen fouls one off the clock tower. Make like a tree.",
     },
   ];
 }

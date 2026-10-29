@@ -51,7 +51,7 @@ function healthy(): Status {
           { board_vendor: "Gigabyte Technology Co., Ltd.", board_name: "B550M DS3H", kernel: "6.12.105-production+truenas" },
           "25.04.2",
         ),
-        minecraft: { label: "Modded · Create", address: "mc.example.com", online: true, players_online: 2, players_max: 20, players: ["Alex", "Steve"], version: "NeoForge 1.21.1", motd: "Create + Steam \x27n\x27 Rails", ping_ms: 3,
+        minecraft: { label: "Modded · Create", address: "mc.example.com", online: true, players_online: 2, players_max: 20, players: ["Marty", "Doc"], version: "NeoForge 1.21.1", motd: "Create + Steam \x27n\x27 Rails", ping_ms: 3,
           mods: {
             loader: "NeoForge 1.21.1",
             mods: [
@@ -63,13 +63,13 @@ function healthy(): Status {
           } },
       },
       {
-        id: "pi", name: "pi", location: "Seattle", kind: "pi", reachable: true,
+        id: "pi", name: "pi", location: "Hill Valley", kind: "pi", reachable: true,
         tz: "America/Los_Angeles", weather: { temp: 61, code: 0, is_day: true, high: 85, low: 72, unit: "F" },
         stats: { cpu_percent: 9.1, cores: 4, temp_c: 54.3, mem_used: 2.9 * GiB, mem_total: 8 * GiB, disk_used: 38 * GiB, disk_total: 117 * GiB, uptime_seconds: 302400, load: [0.38, 0.41, 0.36] },
         cpu_history: hist(8, 5),
         specs: piSpecs({ model: "Raspberry Pi 5 Model B Rev 1.1", cpu: "Arm Cortex-A76", cores: 4, cpu_max_mhz: 2400, mem_total: 7.87 * GiB,
           disk_size: 31914983424, disk_type: "microSD", os: "Debian GNU/Linux 13 (trixie)", kernel: "6.12.75+rpt-rpi-2712" }),
-        minecraft: { label: "Survival World", address: "", online: true, players_online: 0, players_max: 20, players: [], version: "1.21.10", motd: "Survival World", ping_ms: 41 },
+        minecraft: { label: "Hill Valley", address: "", online: true, players_online: 1, players_max: 20, players: ["Einstein"], version: "1.21.10", motd: "1.21 gigawatts", ping_ms: 41 },
       },
     ],
     links: [{ name: "Cloud", url: "https://cloud.example.com", up: true, code: 200, ms: 184 }],
