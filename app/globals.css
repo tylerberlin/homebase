@@ -1115,8 +1115,8 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 /* ---------- shared by every game theme */
 :root[data-skin] .card::before, :root[data-skin] .card::after { display: none; }
 :root[data-skin] .logo { box-shadow: none; }
-:root:is([data-skin="inferno"], [data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"]) .theme-toggle { display: none; }
-:root:is([data-skin="inferno"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"]) { color-scheme: dark; }
+:root:is([data-skin="inferno"], [data-skin="handheld"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="deepwater"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="expedition"]) .theme-toggle { display: none; }
+:root:is([data-skin="inferno"], [data-skin="ancient"], [data-skin="dropzone"], [data-skin="arcade"], [data-skin="neon"], [data-skin="space"], [data-skin="deepwater"], [data-skin="circuits"], [data-skin="hyperspace"], [data-skin="expedition"]) { color-scheme: dark; }
 :root[data-skin="handheld"] { color-scheme: light; }
 :root[data-skin] .settings-panel { background: var(--panel); }
 @media (prefers-reduced-motion: reduce) { :root[data-skin] body::before, :root[data-skin] body::after, :root[data-skin] .brand h1 { animation: none !important; } }
@@ -1557,3 +1557,205 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 :root[data-skin="dropzone"] .switch.on i { background: #0a2a6e; }
 /* the LCD is one ink: no yellow sun or light-blue rain on the green screen */
 :root[data-skin="handheld"] :is(.wx-clear, .wx-sun, .wx-night, .wx-moon, .wx-rain, .wx-snow) { color: var(--ink); }
+
+/* ==========================================================================================
+   Movie nights: four themes inspired by films, each with its own small easter egg.
+   ========================================================================================== */
+
+/* ---------- picker previews */
+.prev-deepwater { background: conic-gradient(from 160deg at 40% -20%, transparent 0deg, rgba(190, 240, 255, .25) 6deg, transparent 12deg, rgba(190, 240, 255, .18) 22deg, transparent 28deg), linear-gradient(#0a5378, #04263d 55%, #010c16); }
+.prev-deepwater::after {
+  content: ""; position: absolute; left: 22px; bottom: 6px; width: 44px; height: 18px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40'%3E%3Cpath fill='%23000' fill-opacity='.7' d='M2 6 L14 18 C30 10 58 8 80 13 L84 3 L88 14 C93 15 97 18 99 21 C96 24 90 26 82 27 L70 27 L74 35 L62 28 C44 30 28 28 14 23 L2 35 L8 21 Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.prev-circuits { background: linear-gradient(90deg, transparent, #ff6a00 40%, #ffd36b) bottom / 100% 3px no-repeat, #0b0c0f; }
+.prev-circuits::after {
+  content: ""; position: absolute; inset: 7px 14px 10px;
+  background: linear-gradient(#ff3b30 0 0) 0 0 / 62% 6px no-repeat, linear-gradient(#3dff6e 0 0) 0 11px / 46% 6px no-repeat, linear-gradient(#ffb21e 0 0) 0 22px / 54% 6px no-repeat;
+  filter: drop-shadow(0 0 3px rgba(255, 120, 40, .8));
+}
+.prev-hyperspace { background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(220, 230, 255, .55) 0 .6deg, transparent .6deg 7deg), #000; }
+.prev-hyperspace::after { content: ""; position: absolute; left: 30%; right: 30%; top: 17px; height: 10px; background: #ffe81f; transform: perspective(40px) rotateX(30deg); box-shadow: 0 0 10px rgba(255, 232, 31, .6); }
+.prev-expedition { background: radial-gradient(circle at 0 100%, #021208 30%, transparent 31%), radial-gradient(circle at 100% 0, #021208 26%, transparent 27%), linear-gradient(#0e3a20, #06150c); }
+.prev-expedition::after { content: ""; position: absolute; inset: 12px 18px; background: linear-gradient(#e8382d 0 0) 0 0 / 100% 3px no-repeat, linear-gradient(#ffb400 0 0) 0 4px / 100% 3px no-repeat, #1a2a1c; border: 1px solid rgba(255, 180, 0, .5); }
+
+/* ==========================================================================================
+   Deep Water: the open ocean at dusk. Light rays from the surface, deep blue fading to black,
+   and every so often something big swims past along the bottom.
+   ========================================================================================== */
+:root[data-skin="deepwater"] {
+  --bg: #021422;
+  --panel: rgba(3, 28, 46, .66); --sheen: linear-gradient(180deg, rgba(160, 230, 255, .08), transparent 40%); --chip: rgba(127, 220, 255, .08);
+  --ink: #eaf8ff; --muted: #9ec3d6; --faint: rgba(127, 220, 255, .1);
+  --line: rgba(127, 220, 255, .2); --edge: rgba(170, 235, 255, .55);
+  --ok: #4ee6b0; --warn: #ffb547; --bad: #ff4a3d; --accent: #5cd2ff; --spark: #7fe3ff; --track: rgba(127, 220, 255, .12);
+  --blur: blur(12px) saturate(140%); --shadow: 0 26px 50px -30px rgba(0, 0, 0, .95);
+}
+:root[data-skin="deepwater"] body::before {
+  opacity: 1;
+  background:
+    linear-gradient(transparent 25%, rgba(1, 10, 18, .85) 90%),
+    conic-gradient(from 158deg at 42% -12%, transparent 0deg, rgba(190, 240, 255, .07) 5deg, transparent 10deg, rgba(190, 240, 255, .05) 17deg, transparent 22deg,
+      rgba(190, 240, 255, .06) 30deg, transparent 35deg, rgba(190, 240, 255, .04) 41deg, transparent 46deg),
+    radial-gradient(50vmax 30vmax at 45% -5%, rgba(120, 220, 255, .22), transparent 70%),
+    linear-gradient(#0a5378, #043049 35%, #021624 70%, #010a12);
+  animation: dw-sway 16s ease-in-out infinite alternate;
+}
+@keyframes dw-sway { to { transform: translate3d(2.5vmax, 0, 0) rotate(.8deg); } }
+/* the easter egg: a shadow cruising past near the sea floor */
+:root[data-skin="deepwater"] body::after {
+  inset: auto auto 7vh 0; width: 300px; height: 120px; opacity: .55;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40'%3E%3Cpath fill='%23000814' d='M2 6 L14 18 C30 10 58 8 80 13 L84 3 L88 14 C93 15 97 18 99 21 C96 24 90 26 82 27 L70 27 L74 35 L62 28 C44 30 28 28 14 23 L2 35 L8 21 Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: blur(1.5px);
+  animation: dw-cruise 46s linear infinite;
+}
+@keyframes dw-cruise { 0% { transform: translateX(-40vw) translateY(0); } 50% { transform: translateX(50vw) translateY(-3vh); } 100% { transform: translateX(130vw) translateY(0); } }
+:root[data-skin="deepwater"] :is(.card, .issues) { border-radius: 16px; }
+:root[data-skin="deepwater"] .card::before { display: block; left: 28px; right: 28px; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
+:root[data-skin="deepwater"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-drop), sans-serif; font-weight: 400; }
+:root[data-skin="deepwater"] .brand h1 { font-size: 32px; text-transform: uppercase; letter-spacing: .05em; color: #ff4337; text-shadow: 0 0 24px rgba(255, 60, 50, .35); }
+:root[data-skin="deepwater"] .card-head h2 { font-size: 22px; letter-spacing: .03em; }
+:root[data-skin="deepwater"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 15px; letter-spacing: .1em; color: var(--accent); }
+:root[data-skin="deepwater"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 999px; }
+:root[data-skin="deepwater"] .tab.on, :root[data-skin="deepwater"] .chip.on { background: rgba(92, 210, 255, .2); box-shadow: inset 0 0 0 1px var(--edge); }
+:root[data-skin="deepwater"] .btn { background: #ff4a3d; color: #fff; border-radius: 999px; }
+:root[data-skin="deepwater"] .bar > i { background: linear-gradient(90deg, #1b8fd1, #7fe3ff); }
+:root[data-skin="deepwater"] .switch.on i { background: #021422; }
+
+/* ==========================================================================================
+   Time Circuits: a brushed-steel dashboard with glowing red, green and amber digit displays,
+   and two trails of fire burning across the road underneath.
+   ========================================================================================== */
+:root[data-skin="circuits"] {
+  --font-sans: var(--font-hud); --font-mono: var(--font-led);
+  --bg: #07080a;
+  --panel: rgba(24, 26, 31, .98);
+  --sheen: repeating-linear-gradient(90deg, rgba(255, 255, 255, .02) 0 1px, transparent 1px 3px), linear-gradient(180deg, rgba(255, 255, 255, .07), transparent 40%);
+  --chip: rgba(255, 255, 255, .06);
+  --ink: #f1f1ef; --muted: #a3a7ad; --faint: rgba(255, 255, 255, .07);
+  --line: rgba(255, 255, 255, .14); --edge: rgba(255, 255, 255, .35);
+  --ok: #3dff6e; --warn: #ffb21e; --bad: #ff3b30; --accent: #ffb21e; --spark: #3dff6e; --track: rgba(255, 255, 255, .08);
+  --blur: none; --shadow: 0 22px 40px -24px rgba(0, 0, 0, .95);
+  --led: var(--bad);
+}
+/* each panel is one of the three time readouts: red, green, amber */
+:root[data-skin="circuits"] :is(.home-slot, .grid > *):nth-child(3n + 2) { --led: var(--ok); }
+:root[data-skin="circuits"] :is(.home-slot, .grid > *):nth-child(3n) { --led: var(--warn); }
+:root[data-skin="circuits"] body::before {
+  opacity: 1; animation: none;
+  background: radial-gradient(60vmax 40vmax at 50% 0%, rgba(80, 120, 255, .1), transparent 70%), radial-gradient(50vmax 30vmax at 50% 105%, rgba(255, 110, 20, .14), transparent 70%), linear-gradient(#0b0d12, #050506);
+}
+/* the easter egg: fire trails on the road, flickering */
+:root[data-skin="circuits"] body::after {
+  inset: auto -10vw -6vh; height: 26vh; opacity: .9;
+  background:
+    linear-gradient(90deg, transparent 0, rgba(255, 106, 0, .0) 8%, #ff6a00 38%, #ffd36b 72%, #fff3c4) 0 38% / 100% 3px no-repeat,
+    linear-gradient(90deg, transparent 0, rgba(255, 106, 0, .0) 8%, #ff6a00 38%, #ffd36b 72%, #fff3c4) 0 74% / 100% 4px no-repeat;
+  filter: drop-shadow(0 0 6px #ff6a00) drop-shadow(0 0 14px rgba(255, 106, 0, .6));
+  transform: perspective(500px) rotateX(64deg);
+  animation: tc-flicker 2.4s steps(6) infinite;
+}
+@keyframes tc-flicker { 0%, 100% { opacity: .9; } 30% { opacity: .7; } 55% { opacity: 1; } 80% { opacity: .78; } }
+:root[data-skin="circuits"] :is(.card, .issues) { border-radius: 4px; border: 1px solid var(--line); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), var(--shadow); }
+:root[data-skin="circuits"] .card::before { display: block; left: 18px; right: auto; top: -1px; width: 72px; height: 3px; background: var(--led); box-shadow: 0 0 10px var(--led); }
+:root[data-skin="circuits"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app, .wx-hour, .spark-wrap) { border-radius: 3px; }
+:root[data-skin="circuits"] :is(.brand h1, .card-head h2, .tab, .btn) { text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+:root[data-skin="circuits"] .brand h1 { font-size: 24px; color: #ffd36b; text-shadow: 0 0 14px rgba(255, 140, 30, .6); }
+:root[data-skin="circuits"] :is(.home-card h3, .card-title-row h3, .section h3) { color: var(--led); text-shadow: 0 0 8px var(--led); letter-spacing: .2em; }
+:root[data-skin="circuits"] :is(.clock-hm, .d-clock, .gauge-val, .sb-score) { font-family: var(--font-led), monospace; font-weight: 400; color: var(--led); text-shadow: 0 0 14px var(--led); letter-spacing: 0; }
+:root[data-skin="circuits"] .tab.on, :root[data-skin="circuits"] .chip.on { color: #111; background: var(--accent); box-shadow: 0 0 14px -2px var(--accent); }
+:root[data-skin="circuits"] .btn { color: #111; background: linear-gradient(#d9dbe0, #9da1a8); border-radius: 3px; }
+:root[data-skin="circuits"] .bar, :root[data-skin="circuits"] .bar > i { border-radius: 0; }
+:root[data-skin="circuits"] .bar > i { background: repeating-linear-gradient(90deg, var(--ok) 0 6px, transparent 6px 8px); filter: drop-shadow(0 0 4px var(--ok)); }
+:root[data-skin="circuits"] .gauge-fill { filter: drop-shadow(0 0 4px currentColor); }
+:root[data-skin="circuits"] .switch.on i { background: #111; }
+
+/* ==========================================================================================
+   Hyperspace: stars stretched into streaks, a yellow title tipped back like opening text,
+   and a glowing blade along the top of every panel (blue, green, then red).
+   ========================================================================================== */
+:root[data-skin="hyperspace"] {
+  --font-sans: var(--font-hud);
+  --bg: #000;
+  --panel: rgba(6, 8, 14, .8); --sheen: linear-gradient(180deg, rgba(255, 232, 31, .05), transparent 30%); --chip: rgba(255, 232, 31, .07);
+  --ink: #f3f5ff; --muted: #a6adc4; --faint: rgba(255, 255, 255, .08);
+  --line: rgba(255, 232, 31, .22); --edge: rgba(255, 232, 31, .6);
+  --ok: #57f287; --warn: #ffb02e; --bad: #ff3b3b; --accent: #ffe81f; --spark: #4fb6ff; --track: rgba(255, 255, 255, .1);
+  --blur: blur(6px); --shadow: 0 24px 50px -30px rgba(0, 0, 0, 1);
+  --blade: #4fb6ff;
+}
+:root[data-skin="hyperspace"] :is(.home-slot, .grid > *):nth-child(3n + 2) { --blade: #57f287; }
+:root[data-skin="hyperspace"] :is(.home-slot, .grid > *):nth-child(3n) { --blade: #ff3b3b; }
+:root[data-skin="hyperspace"] body::before {
+  inset: -20vmax; opacity: .9;
+  background:
+    repeating-conic-gradient(from 0deg at 50% 50%, rgba(210, 225, 255, .5) 0 .18deg, transparent .18deg 2.3deg),
+    repeating-conic-gradient(from 1deg at 50% 50%, rgba(160, 200, 255, .35) 0 .12deg, transparent .12deg 3.7deg);
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 6%, rgba(0, 0, 0, .25) 18%, #000 70%); mask: radial-gradient(circle at 50% 50%, transparent 6%, rgba(0, 0, 0, .25) 18%, #000 70%);
+  animation: hs-jump 24s ease-in-out infinite alternate;
+}
+@keyframes hs-jump { from { transform: scale(1) rotate(0deg); } to { transform: scale(1.18) rotate(4deg); } }
+:root[data-skin="hyperspace"] body::after {
+  inset: 0; opacity: 1; animation: none;
+  background: radial-gradient(40vmax 30vmax at 20% 15%, rgba(40, 80, 200, .22), transparent 70%), radial-gradient(36vmax 26vmax at 85% 85%, rgba(120, 40, 160, .0), transparent 70%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .06), transparent 30%);
+}
+:root[data-skin="hyperspace"] :is(.card, .issues) { border-radius: 6px; border: 1px solid var(--line); }
+:root[data-skin="hyperspace"] .card::before { display: block; left: 22px; right: 22px; top: -1px; height: 2px; background: #fff; border-radius: 2px; box-shadow: 0 0 4px 1px var(--blade), 0 0 14px 3px var(--blade); }
+:root[data-skin="hyperspace"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 6px; }
+:root[data-skin="hyperspace"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3, .tab) { font-family: var(--font-hyper), sans-serif; text-transform: uppercase; }
+:root[data-skin="hyperspace"] .brand h1 { font-size: 24px; font-weight: 900; letter-spacing: .2em; color: var(--accent); transform: perspective(240px) rotateX(16deg); transform-origin: 50% 100%; text-shadow: 0 0 20px rgba(255, 232, 31, .35); }
+:root[data-skin="hyperspace"] .card-head h2 { font-weight: 700; letter-spacing: .1em; font-size: 17px; }
+:root[data-skin="hyperspace"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 11px; font-weight: 700; letter-spacing: .22em; color: var(--accent); }
+:root[data-skin="hyperspace"] .tab { font-size: 12px; font-weight: 700; letter-spacing: .14em; }
+:root[data-skin="hyperspace"] .tab.on, :root[data-skin="hyperspace"] .chip.on { background: rgba(255, 232, 31, .14); color: var(--accent); box-shadow: inset 0 0 0 1px var(--edge); }
+:root[data-skin="hyperspace"] .btn { background: var(--accent); color: #000; border-radius: 6px; }
+:root[data-skin="hyperspace"] .bar > i { background: #fff; box-shadow: 0 0 4px 1px var(--spark), 0 0 10px 2px var(--spark); }
+:root[data-skin="hyperspace"] .gauge-fill { filter: drop-shadow(0 0 5px currentColor); }
+:root[data-skin="hyperspace"] .switch.on i { background: #000; }
+
+/* ==========================================================================================
+   Expedition: a night in the island jungle. Palm shadows in the corners, warm fence lights,
+   rain, and tour-jeep stripes on every panel. Now and then the ground shakes.
+   ========================================================================================== */
+:root[data-skin="expedition"] {
+  --bg: #07140d;
+  --panel: rgba(14, 28, 18, .84); --sheen: linear-gradient(180deg, rgba(255, 190, 60, .06), transparent 40%); --chip: rgba(255, 190, 60, .08);
+  --ink: #f4efe1; --muted: #b9b39b; --faint: rgba(255, 255, 255, .07);
+  --line: rgba(255, 180, 0, .24); --edge: rgba(255, 180, 0, .6);
+  --ok: #7bd35a; --warn: #ffb400; --bad: #e8382d; --accent: #ffb400; --spark: #ffb400; --track: rgba(255, 255, 255, .1);
+  --blur: blur(8px); --shadow: 0 24px 46px -28px rgba(0, 0, 0, .95);
+  --palms: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23020f07'%3E%3Cellipse cx='150' cy='100' rx='56' ry='9'/%3E%3Cellipse cx='150' cy='100' rx='50' ry='8' transform='rotate(40 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='58' ry='9' transform='rotate(80 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='48' ry='8' transform='rotate(120 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='56' ry='9' transform='rotate(160 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='50' ry='8' transform='rotate(200 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='58' ry='9' transform='rotate(240 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='48' ry='8' transform='rotate(280 100 100)'/%3E%3Cellipse cx='150' cy='100' rx='54' ry='9' transform='rotate(320 100 100)'/%3E%3C/g%3E%3Cg fill='%23062514'%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(20 100 100)'/%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(100 100 100)'/%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(180 100 100)'/%3E%3Cellipse cx='140' cy='100' rx='40' ry='6' transform='rotate(260 100 100)'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-skin="expedition"] body::before {
+  inset: 0; opacity: 1; animation: none;
+  background:
+    var(--palms) -260px calc(100% + 260px) / 620px 620px no-repeat,
+    var(--palms) calc(100% + 240px) -240px / 560px 560px no-repeat,
+    radial-gradient(60vmax 30vmax at 50% 108%, rgba(255, 180, 0, .14), transparent 70%),
+    radial-gradient(50vmax 40vmax at 20% 30%, rgba(30, 110, 60, .25), transparent 70%),
+    radial-gradient(40vmax 30vmax at 80% 70%, rgba(20, 90, 50, .2), transparent 70%),
+    linear-gradient(#0b2416, #06130b);
+}
+/* rain, and the easter egg: a ripple from something heavy, every so often */
+:root[data-skin="expedition"] body::after {
+  inset: 0; opacity: 1;
+  background:
+    radial-gradient(circle closest-side, transparent 58%, rgba(255, 230, 170, .14) 61%, transparent 64%, transparent 74%, rgba(255, 230, 170, .1) 77%, transparent 80%) 88% 86% / 0 0 no-repeat,
+    repeating-linear-gradient(105deg, rgba(200, 230, 255, .045) 0 1px, transparent 1px 16px) 0 0 / 100% 100%;
+  animation: ex-rain .9s linear infinite, ex-ripple 12s ease-out infinite;
+}
+@keyframes ex-rain { to { background-position: 88% 86%, -40px 120px; } }
+@keyframes ex-ripple { 0%, 80% { background-size: 0 0, 100% 100%; } 100% { background-size: 340px 340px, 100% 100%; } }
+:root[data-skin="expedition"] .brand h1 { animation: ex-tremor 12s linear infinite; }
+@keyframes ex-tremor { 0%, 80%, 84%, 100% { translate: 0 0; } 81% { translate: 0 2px; } 82% { translate: 0 -1px; } 83% { translate: 0 1px; } }
+:root[data-skin="expedition"] :is(.card, .issues) { border-radius: 6px; border: 1px solid var(--line); }
+:root[data-skin="expedition"] .card::before { display: block; left: 0; right: 0; top: 0; height: 7px; border-radius: 6px 6px 0 0; background: linear-gradient(#e8382d 0 0) 0 0 / 100% 3px no-repeat, linear-gradient(#ffb400 0 0) 0 4px / 100% 3px no-repeat; }
+:root[data-skin="expedition"] :is(.tabs, .srv-summary, .quick-link, .overall .pill, .chip, .tab, .theme-btn, .tag, .app) { border-radius: 4px; }
+:root[data-skin="expedition"] :is(.brand h1, .card-head h2, .home-card h3, .card-title-row h3, .section h3) { font-family: var(--font-slab), serif; font-weight: 400; }
+:root[data-skin="expedition"] .brand h1 { font-size: 30px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); text-shadow: 0 3px 0 #7a1a12, 0 0 22px rgba(255, 180, 0, .25); }
+:root[data-skin="expedition"] .card-head h2 { font-size: 20px; letter-spacing: .02em; }
+:root[data-skin="expedition"] :is(.home-card h3, .card-title-row h3, .section h3) { font-size: 13px; letter-spacing: .1em; color: var(--accent); }
+:root[data-skin="expedition"] .tab.on, :root[data-skin="expedition"] .chip.on { background: var(--accent); color: #1a1205; box-shadow: none; }
+:root[data-skin="expedition"] .btn { background: #e8382d; color: #fff; border-radius: 4px; }
+:root[data-skin="expedition"] .bar > i { background: linear-gradient(90deg, #ff7a00, var(--accent)); }
+:root[data-skin="expedition"] .switch.on i { background: #1a1205; }

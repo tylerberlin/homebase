@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Alegreya_Sans, Anton, Chakra_Petch, Cinzel, IBM_Plex_Mono, IBM_Plex_Sans, Press_Start_2P, Rajdhani, Tiny5, VT323 } from "next/font/google";
+import { Alegreya_Sans, Alfa_Slab_One, Anton, Chakra_Petch, Cinzel, IBM_Plex_Mono, IBM_Plex_Sans, Orbitron, Press_Start_2P, Rajdhani, Share_Tech_Mono, Tiny5, VT323 } from "next/font/google";
 import { lookScript } from "@/lib/settings";
 import "./globals.css";
 
@@ -14,6 +14,9 @@ const hud = Chakra_Petch({ subsets: ["latin"], weight: ["400", "500", "600"], va
 const ancient = Cinzel({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-ancient", preload: false });
 const ancientBody = Alegreya_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-ancient-body", preload: false });
 const drop = Anton({ subsets: ["latin"], weight: "400", variable: "--font-drop", preload: false });
+const led = Share_Tech_Mono({ subsets: ["latin"], weight: "400", variable: "--font-led", preload: false });
+const hyper = Orbitron({ subsets: ["latin"], weight: ["500", "700", "900"], variable: "--font-hyper", preload: false });
+const slab = Alfa_Slab_One({ subsets: ["latin"], weight: "400", variable: "--font-slab", preload: false });
 
 export const metadata: Metadata = {
   title: "Homebase",
@@ -36,7 +39,7 @@ const themeScript = `try{var t=localStorage.getItem("bd-theme");if(t)document.do
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={[sans, mono, pixel, arcade, terminal, neon, hud, ancient, ancientBody, drop].map((f) => f.variable).join(" ")} suppressHydrationWarning>
+    <html lang="en" className={[sans, mono, pixel, arcade, terminal, neon, hud, ancient, ancientBody, drop, led, hyper, slab].map((f) => f.variable).join(" ")} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript + lookScript }} />
       </head>

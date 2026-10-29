@@ -18,7 +18,8 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
 - **Customizable**: drag cards around right on the page, show or hide them, and pick teams,
   stocks and feeds in Settings.
 - **Themes**: Glass (with accent colors), Blocks, Inferno, Handheld, Ancient, Drop Zone,
-  Arcade, Neon and Space. Optional game-day colors tint the page in your team's color
+  Arcade, Neon and Space, plus four movie-night themes: Deep Water, Time Circuits,
+  Hyperspace and Expedition (each hides a small easter egg). Optional game-day colors tint the page in your team's color
   while they're playing.
 - **Room display**: a full-screen mode with a big clock, a live scoreboard and rotating cards.
 - **Own login**: a password plus Face ID / Touch ID passkeys, signed session cookies, and
