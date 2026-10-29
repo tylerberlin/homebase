@@ -96,6 +96,18 @@ export const config = {
     .map((x) => x.trim().split("|").map((p) => p.trim()))
     .filter((p) => p.length >= 2 && /^(https?|webcal):\/\//i.test(p[p.length - 1]))
     .map((p) => ({ name: p[0], color: p.length >= 3 ? p[1] : "", url: p[p.length - 1].replace(/^webcal:/i, "https:") })),
+  // The Now Playing card. MUSIC: machines running the agent with NOW_PLAYING=1, as
+  // "Name|http://host:9100|token", comma-separated; these get play/pause and skip buttons.
+  // LASTFM_USER + LASTFM_API_KEY: whatever you play anywhere that scrobbles to Last.fm (shown only).
+  music: {
+    players: E("MUSIC")
+      .split(",")
+      .map((x) => x.trim().split("|").map((p) => p.trim()))
+      .filter((p) => p.length >= 2 && /^https?:\/\//i.test(p[1]))
+      .map(([name, url, token = ""]) => ({ name, url: url.replace(/\/+$/, "").replace(/\/stats$/, ""), token })),
+    lastfmUser: E("LASTFM_USER"),
+    lastfmKey: E("LASTFM_API_KEY"),
+  },
   // Home tab
   home: {
     // "league:team" (ESPN abbreviations): mlb, nfl, nhl, nba

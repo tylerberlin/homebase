@@ -13,9 +13,13 @@ network or Tailscale), and every request must carry the token.
 Settings come from environment variables:
   AGENT_TOKEN   required; the same token goes in Homebase's AGENTS setting
   AGENT_PORT    default 9100
+  AGENT_BIND    the address to listen on (default all); e.g. this machine's Tailscale address
   DISK_PATH     which disk to report (default: the system disk)
   MC_PORT       a local Minecraft server's port, to report its players (MC_HOST defaults to 127.0.0.1)
   DOCKER_SOCKET default /var/run/docker.sock; containers are listed when it's readable
+  NOW_PLAYING   1 to share what's playing for the Now Playing card, with play/pause and skip:
+                the Music app or Spotify on macOS (macOS asks once to let it control them), or any
+                player that works with playerctl on Linux
 
 If BACKUP_PUSH_URL and BACKUP_PUSH_TOKEN are set, it also sends the report to a Homebase backup
 site every 30 s (see the README).
@@ -28,6 +32,7 @@ import shutil
 import socket
 import struct
 import subprocess
+import tempfile
 import threading
 import time
 import urllib.request
@@ -36,12 +41,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 SYSTEM = {"Linux": "linux", "Darwin": "darwin", "Windows": "windows"}.get(platform.system(), "linux")
 TOKEN = os.environ.get("AGENT_TOKEN") or os.environ.get("PI_AGENT_TOKEN", "")
 PORT = int(os.environ.get("AGENT_PORT") or os.environ.get("PI_AGENT_PORT") or 9100)
+BIND = os.environ.get("AGENT_BIND", "0.0.0.0")
 MC_HOST = os.environ.get("MC_HOST", "127.0.0.1")
 MC_PORT = int(os.environ.get("MC_PORT", "0") or 0)  # 0 = no Minecraft server here
 DOCKER_SOCKET = os.environ.get("DOCKER_SOCKET", "/var/run/docker.sock")
 PUSH_URL = os.environ.get("BACKUP_PUSH_URL", "").rstrip("/")
 PUSH_TOKEN = os.environ.get("BACKUP_PUSH_TOKEN", "")
 PUSH_EVERY = 30
+NOW_PLAYING = os.environ.get("NOW_PLAYING", "").lower() in ("1", "true", "yes", "on")
 
 try:
     import psutil  # optional on Linux, needed on macOS and Windows
@@ -286,6 +293,8 @@ def _windows_hardware():
 
 
 def hardware():
+    if SYSTEM != "linux" and psutil is None:
+        return {}  # sharing only what's playing (see __main__)
     hw = {"linux": _linux_hardware, "darwin": _mac_hardware, "windows": _windows_hardware}[SYSTEM]()
     return {k: v for k, v in hw.items() if v is not None}
 
@@ -417,6 +426,183 @@ def minecraft_status(host, port, timeout=4):
         return {"online": False, "error": str(e) or e.__class__.__name__}
 
 
+# ---- Now playing -------------------------------------------------------------------
+# What's playing, its cover, and play/pause/skip/volume. macOS: the Music app and Spotify, through
+# AppleScript (only when the app is already open; it never launches one). Linux: playerctl (MPRIS).
+
+SEP = "\x1f"
+MAC_APPS = ("Music", "Spotify")
+# Per app: the player state, track fields and volume, separated by SEP. Spotify reports ms.
+_MAC_NOW = """
+if application "{app}" is running then
+  tell application "{app}"
+    try
+      set ps to player state as string
+      if ps is "stopped" then return "stopped"
+      set tr to current track
+      return ps & (character id 31) & (name of tr) & (character id 31) & (artist of tr) & (character id 31) & (album of tr) & (character id 31) & ((duration of tr) as string) & (character id 31) & ((player position) as string) & (character id 31) & ((sound volume) as string)
+    on error
+      return "stopped"
+    end try
+  end tell
+end if
+return "off"
+"""
+_MAC_ART = {
+    "Music": """
+tell application "Music"
+  set d to raw data of artwork 1 of current track
+end tell
+set f to open for access (POSIX file "{path}") with write permission
+set eof f to 0
+write d to f
+close access f
+""",
+    "Spotify": 'tell application "Spotify" to return artwork url of current track',
+}
+_MAC_DO = {"playpause": "playpause", "next": "next track", "previous": "previous track"}
+_art = {"key": None, "data": None}
+_art_lock = threading.Lock()
+
+
+def _num(v):
+    try:
+        return float(str(v).replace(",", "."))
+    except ValueError:
+        return None
+
+
+def _osascript(script, timeout=4):
+    return _run(["osascript", "-e", script], timeout)
+
+
+def _mac_players():
+    out = []
+    for app in MAC_APPS:
+        # Only ask apps that are open: naming one that isn't installed makes macOS ask where it is.
+        if not _run(["pgrep", "-x", app]):
+            continue
+        raw = _osascript(_MAC_NOW.replace("{app}", app))
+        parts = raw.split(SEP)
+        if len(parts) < 7 or parts[0] not in ("playing", "paused"):
+            continue
+        duration = _num(parts[4])
+        if app == "Spotify" and duration:
+            duration /= 1000
+        out.append({
+            "app": app, "state": parts[0], "title": parts[1], "artist": parts[2], "album": parts[3],
+            "duration": duration, "position": _num(parts[5]), "volume": _num(parts[6]),
+        })
+    return out
+
+
+_PLAYERCTL_FMT = SEP.join(["{{playerName}}", "{{lc(status)}}", "{{title}}", "{{artist}}", "{{album}}", "{{mpris:length}}", "{{position}}", "{{volume}}", "{{mpris:artUrl}}"])
+
+
+def _linux_players():
+    if not shutil.which("playerctl"):
+        return []
+    out = []
+    for line in _run(["playerctl", "-a", "metadata", "--format", _PLAYERCTL_FMT]).splitlines():
+        p = line.split(SEP)
+        if len(p) < 9 or p[1] not in ("playing", "paused") or not p[2]:
+            continue
+        length, pos, vol = _num(p[5]), _num(p[6]), _num(p[7])
+        out.append({
+            "app": p[0], "state": p[1], "title": p[2], "artist": p[3], "album": p[4],
+            "duration": length / 1e6 if length else None, "position": pos / 1e6 if pos is not None else None,
+            "volume": round(vol * 100) if vol is not None else None, "art_url": p[8] or None,
+        })
+    return out
+
+
+def now_playing():
+    """The player that's playing (or else paused), or {"state": "off"}."""
+    if not NOW_PLAYING:
+        return {"state": "off", "enabled": False}
+    players = {"darwin": _mac_players, "linux": _linux_players}.get(SYSTEM, lambda: [])()
+    if not players:
+        return {"state": "off"}
+    p = next((x for x in players if x["state"] == "playing"), players[0])
+    p = dict(p)
+    p["key"] = f'{p["app"]}|{p["artist"]}|{p["album"]}'
+    p.pop("art_url", None)
+    p["controls"] = True
+    return p
+
+
+def _fetch(url, limit=5_000_000):
+    if url.startswith("file://"):
+        with open(urllib.request.url2pathname(url[7:]), "rb") as f:
+            return f.read(limit)
+    if not url.startswith("https://"):
+        return None
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "homebase-agent"}), timeout=6) as r:
+        return r.read(limit)
+
+
+def now_playing_art():
+    """The current track's cover image (bytes), cached per album."""
+    if not NOW_PLAYING:
+        return None
+    players = {"darwin": _mac_players, "linux": _linux_players}.get(SYSTEM, lambda: [])()
+    if not players:
+        return None
+    p = next((x for x in players if x["state"] == "playing"), players[0])
+    key = f'{p["app"]}|{p["artist"]}|{p["album"]}'
+    with _art_lock:
+        if _art["key"] == key:
+            return _art["data"]
+        data = None
+        try:
+            if SYSTEM == "darwin" and p["app"] == "Music":
+                fd, path = tempfile.mkstemp(prefix="homebase-art-")
+                os.close(fd)
+                try:
+                    _osascript(_MAC_ART["Music"].replace("{path}", path), 8)
+                    with open(path, "rb") as f:
+                        data = f.read() or None
+                finally:
+                    os.unlink(path)
+            elif SYSTEM == "darwin" and p["app"] == "Spotify":
+                url = _osascript(_MAC_ART["Spotify"])
+                data = _fetch(url) if url else None
+            elif p.get("art_url"):
+                data = _fetch(p["art_url"])
+        except (OSError, ValueError):
+            data = None
+        _art.update(key=key, data=data)
+        return data
+
+
+def control(action, value=None, app=None):
+    """play/pause, next, previous, or volume (0-100) on the player that's showing."""
+    if not NOW_PLAYING:
+        return False
+    players = {"darwin": _mac_players, "linux": _linux_players}.get(SYSTEM, lambda: [])()
+    target = next((x for x in players if x["app"] == app), None) or next((x for x in players if x["state"] == "playing"), None) or (players[0] if players else None)
+    if not target:
+        return False
+    name = target["app"]
+    if SYSTEM == "darwin":
+        if action == "volume":
+            cmd = f"set sound volume to {max(0, min(100, int(value or 0)))}"
+        elif action in _MAC_DO:
+            cmd = _MAC_DO[action]
+        else:
+            return False
+        _osascript(f'tell application "{name}" to {cmd}')
+        return True
+    if action == "volume":
+        args = ["volume", str(max(0, min(100, int(value or 0))) / 100)]
+    elif action in ("playpause", "next", "previous"):
+        args = ["play-pause" if action == "playpause" else action]
+    else:
+        return False
+    _run(["playerctl", "-p", name, *args])
+    return True
+
+
 # ---- The report, and serving it ----------------------------------------------------
 
 def report():
@@ -462,11 +648,39 @@ def push_loop():
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path.split("?")[0] != "/stats":
+        path = self.path.split("?")[0]
+        if path not in ("/stats", "/nowplaying", "/nowplaying/art"):
             return self._send(404, {"error": "not found"})
         if not TOKEN or self.headers.get("X-Token") != TOKEN:
             return self._send(401, {"error": "bad token"})
-        self._send(200, report())
+        if path == "/stats":
+            if SYSTEM != "linux" and psutil is None:
+                return self._send(503, {"error": "install psutil for stats (pip install psutil)"})
+            return self._send(200, report())
+        if path == "/nowplaying":
+            return self._send(200, now_playing())
+        data = now_playing_art()
+        if not data:
+            return self._send(404, {"error": "no cover"})
+        kind = "image/png" if data[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
+        self.send_response(200)
+        self.send_header("Content-Type", kind)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def do_POST(self):
+        if self.path.split("?")[0] != "/control":
+            return self._send(404, {"error": "not found"})
+        if not TOKEN or self.headers.get("X-Token") != TOKEN:
+            return self._send(401, {"error": "bad token"})
+        try:
+            size = min(int(self.headers.get("Content-Length") or 0), 4096)
+            body = json.loads(self.rfile.read(size) or b"{}")
+        except ValueError:
+            return self._send(400, {"error": "bad request"})
+        ok = control(str(body.get("action", "")), body.get("value"), body.get("app"))
+        self._send(200 if ok else 409, {"ok": ok})
 
     def _send(self, code, obj):
         data = json.dumps(obj).encode()
@@ -483,12 +697,13 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     if not TOKEN:
         raise SystemExit("Set AGENT_TOKEN first (any long random string; the same one goes in Homebase).")
-    if SYSTEM != "linux" and psutil is None:
+    if SYSTEM != "linux" and psutil is None and not NOW_PLAYING:
         raise SystemExit("On macOS and Windows the agent needs psutil: pip install psutil")
     if psutil is not None:
         psutil.cpu_percent(interval=None)
-    cpu_percent()  # prime the counter so the first reading isn't a startup spike
+    if SYSTEM == "linux" or psutil is not None:
+        cpu_percent()  # prime the counter so the first reading isn't a startup spike
     if PUSH_URL and PUSH_TOKEN:
         threading.Thread(target=push_loop, daemon=True).start()
-    print(f"homebase agent ({PLATFORM['os']}) listening on :{PORT}", flush=True)
-    ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    print(f"homebase agent ({PLATFORM['os']}) listening on :{PORT}" + (", sharing now playing" if NOW_PLAYING else ""), flush=True)
+    ThreadingHTTPServer((BIND, PORT), Handler).serve_forever()

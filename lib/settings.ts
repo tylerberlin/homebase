@@ -3,11 +3,12 @@
 // gets the same setup; the server's own config (lib/config.ts) supplies the starting values.
 // Safe to import from the browser: no server-only code here (see settingsStore.ts).
 
-export const CARD_IDS = ["clock", "weather", "news", "calendar", "countdowns", "sports", "markets"] as const;
+export const CARD_IDS = ["clock", "weather", "music", "news", "calendar", "countdowns", "sports", "markets"] as const;
 export type CardId = (typeof CARD_IDS)[number];
 export const CARD_NAMES: Record<CardId, string> = {
   clock: "Clock",
   weather: "Weather",
+  music: "Now playing",
   news: "News",
   calendar: "Upcoming",
   countdowns: "Countdowns",
@@ -23,6 +24,7 @@ export const GRID_MAX_H = 14;
 export const CARD_SIZE: Record<CardId, { w: number; h: number; minW: number; minH: number }> = {
   clock: { w: 2, h: 3, minW: 1, minH: 2 },
   weather: { w: 2, h: 8, minW: 1, minH: 3 },
+  music: { w: 2, h: 3, minW: 1, minH: 2 },
   calendar: { w: 2, h: 5, minW: 1, minH: 3 },
   countdowns: { w: 2, h: 4, minW: 1, minH: 2 },
   news: { w: 2, h: 7, minW: 1, minH: 3 },
@@ -105,7 +107,7 @@ export const LIMITS = { teams: 16, tickers: 20, news: 24 };
 
 // Overall order is the phone order (one column); on wider screens each card goes in its column.
 export const DEFAULT_CARDS: CardPref[] = (
-  [["weather", 0], ["clock", 1], ["calendar", 1], ["countdowns", 0], ["news", 1], ["sports", 0], ["markets", 1]] as const
+  [["weather", 0], ["clock", 1], ["music", 1], ["calendar", 1], ["countdowns", 0], ["news", 1], ["sports", 0], ["markets", 1]] as const
 ).map(([id, col]) => ({ id, on: true, col, w: CARD_SIZE[id].w, h: 0 }));
 export const DEFAULT_LOOK: Look = { skin: "glass", accent: "blue", glass: "frosted", unit: "F", clock: "12", compact: false, gameDay: true };
 export const DEFAULT_DISPLAY: DisplayPrefs = {

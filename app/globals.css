@@ -2798,3 +2798,56 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 .edit-ghost .edit-body > .card { flex: 1; min-height: 0; overflow: hidden; margin: 0; }
 .home-grid.free.dragging .edit-tile { transition: none; }
 @media (prefers-reduced-motion: reduce) { .edit-ghost { box-shadow: 0 0 0 2px var(--accent); } }
+
+/* ---------- Now playing */
+.np { position: relative; isolation: isolate; overflow: hidden; container-type: inline-size; }
+/* The glow is clipped by its own box so it never counts toward the card's measured height. */
+.np-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.np-glow {
+  position: absolute; inset: -30%; background-size: cover; background-position: center;
+  filter: blur(42px) saturate(1.5); opacity: .32; transform: translateZ(0); pointer-events: none;
+}
+:root[data-mode="light"] .np-glow { opacity: .22; }
+.np-src { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+.np-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.np-eq i { width: 3px; height: 4px; border-radius: 1px; background: var(--accent); }
+.np.is-playing .np-eq i { animation: np-eq 1s ease-in-out infinite; }
+.np.is-playing .np-eq i:nth-child(2) { animation-delay: -.35s; }
+.np.is-playing .np-eq i:nth-child(3) { animation-delay: -.7s; }
+@keyframes np-eq { 0%, 100% { height: 3px; } 50% { height: 11px; } }
+.np-main { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 16px; align-items: center; }
+.np-art { aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--chip); box-shadow: 0 8px 24px rgb(0 0 0 / .28), inset 0 0 0 1px var(--edge); }
+.np-art img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.np.is-paused .np-art img { transform: scale(.94); }
+.np-art-blank {
+  width: 100%; height: 100%; display: grid; place-items: center; color: var(--on-accent, #fff);
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--accent) 65%, white), var(--accent) 55%, color-mix(in srgb, var(--accent) 60%, black));
+}
+.np-info { min-width: 0; display: grid; gap: 2px; }
+.np-title { margin: 0; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-artist { margin: 0 0 8px; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-time { display: grid; gap: 4px; margin-bottom: 8px; }
+.np-bar { height: 4px; border-radius: 2px; background: var(--faint); overflow: hidden; }
+.np-bar span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 1s linear; }
+.np-times { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.np-controls { display: flex; align-items: center; gap: 8px; }
+.np-btn {
+  display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 999px; padding: 0; cursor: pointer;
+  border: 0; background: none; color: var(--ink); transition: background .15s, transform .1s;
+}
+.np-btn:hover { background: var(--chip); }
+.np-btn:active { transform: scale(.92); }
+.np-btn:disabled { opacity: .5; cursor: default; }
+.np-play { width: 44px; height: 44px; background: var(--accent); color: var(--on-accent, #fff); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 45%, transparent); }
+.np-play:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
+.np-note { margin: 0; font-size: 12px; color: var(--muted); }
+.np-error { margin: 4px 0 0; font-size: 12px; color: var(--bad); }
+@container (max-width: 300px) {
+  .np-main { grid-template-columns: minmax(0, 1fr); }
+  .np-art { width: min(100%, 220px); justify-self: center; }
+  .np-controls { justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .np.is-playing .np-eq i { animation: none; height: 8px; }
+  .np-bar span, .np-art img { transition: none; }
+}

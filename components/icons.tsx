@@ -103,3 +103,32 @@ export const PlusIcon = ({ size = 14 }: P) => (
     <path d="M12 5v14M5 12h14" />
   </svg>
 );
+// Player buttons: filled, so they read at a glance.
+export const PlayIcon = ({ size = 18 }: P) => (
+  <svg {...base(size)} fill="currentColor" stroke="none">
+    <path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6Z" />
+  </svg>
+);
+export const PauseIcon = ({ size = 18 }: P) => (
+  <svg {...base(size)} fill="currentColor" stroke="none">
+    <rect x="6.5" y="5" width="4" height="14" rx="1.2" />
+    <rect x="13.5" y="5" width="4" height="14" rx="1.2" />
+  </svg>
+);
+export const NextIcon = ({ size = 16 }: P) => (
+  <svg {...base(size)} fill="currentColor" stroke="none">
+    <path d="M4 6.3v11.4a1 1 0 0 0 1.55.83L13 13.6v4.1a1 1 0 0 0 1.55.83l8.2-5.7a1 1 0 0 0 0-1.66l-8.2-5.7A1 1 0 0 0 13 6.3v4.1L5.55 5.47A1 1 0 0 0 4 6.3Z" transform="translate(-1.5 0)" />
+  </svg>
+);
+export const PrevIcon = ({ size = 16 }: P) => (
+  <svg {...base(size)} fill="currentColor" stroke="none" style={{ transform: "scaleX(-1)" }}>
+    <path d="M4 6.3v11.4a1 1 0 0 0 1.55.83L13 13.6v4.1a1 1 0 0 0 1.55.83l8.2-5.7a1 1 0 0 0 0-1.66l-8.2-5.7A1 1 0 0 0 13 6.3v4.1L5.55 5.47A1 1 0 0 0 4 6.3Z" transform="translate(-1.5 0)" />
+  </svg>
+);
+export const MusicIcon = ({ size = 16 }: P) => (
+  <svg {...base(size)}>
+    <path d="M9 18V5.5l11-2V16" />
+    <circle cx="6.5" cy="18" r="2.5" />
+    <circle cx="17.5" cy="16" r="2.5" />
+  </svg>
+);

@@ -11,6 +11,7 @@ import { useHome, useNow } from "@/lib/useHome";
 import { useWeatherLocation } from "@/lib/useWeatherLocation";
 import ClockCard from "./home/ClockCard";
 import CountdownsCard from "./home/CountdownsCard";
+import NowPlayingCard from "./home/NowPlayingCard";
 import MarketsCard from "./home/MarketsCard";
 import NewsCard from "./home/NewsCard";
 import ServerSummary from "./home/ServerSummary";
@@ -79,6 +80,8 @@ export default function HomeTab({
         return <ClockCard status={status} />;
       case "weather":
         return <WeatherCard w={home?.weather} loc={loc} />;
+      case "music":
+        return <NowPlayingCard demo={!!demo} />;
       case "news":
         return now != null && home ? <NewsCard headlines={home.headlines} now={now} /> : null;
       case "calendar":
@@ -133,6 +136,7 @@ export default function HomeTab({
   // Measure fitted cards whenever their content changes size.
   const observer = useRef<ResizeObserver | null>(null);
   const watched = useRef(new WeakSet<Element>());
+  const mutations = useRef<MutationObserver | null>(null);
   useLayoutEffect(() => {
     observer.current ??= new ResizeObserver((entries) => {
       setFit((prev) => {
@@ -148,15 +152,36 @@ export default function HomeTab({
         return next;
       });
     });
+    const watch = () => {
+      for (const el of slots.current.values()) {
+        const body = el.querySelector(":scope > .card, :scope > .edit-body");
+        if (body && !watched.current.has(body)) {
+          watched.current.add(body);
+          observer.current!.observe(body);
+        }
+      }
+    };
+    watch();
+    // A card can show up later on its own (Now playing, once something plays) without this
+    // component re-rendering, so also watch each slot for its card appearing.
+    mutations.current ??= new MutationObserver(watch);
     for (const el of slots.current.values()) {
-      const body = el.querySelector(":scope > .card, :scope > .edit-body");
-      if (body && !watched.current.has(body)) {
-        watched.current.add(body);
-        observer.current.observe(body);
+      if (!watched.current.has(el)) {
+        watched.current.add(el);
+        mutations.current.observe(el, { childList: true });
       }
     }
   });
-  useEffect(() => () => observer.current?.disconnect(), []);
+  useEffect(
+    () => () => {
+      // Start over cleanly if mounted again (React does this once in development).
+      observer.current?.disconnect();
+      mutations.current?.disconnect();
+      observer.current = mutations.current = null;
+      watched.current = new WeakSet();
+    },
+    [],
+  );
 
   // Cards glide to their new places (FLIP): measure where each was, then animate from there.
   const prevPos = useRef(new Map<CardId, { x: number; y: number }>());

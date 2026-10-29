@@ -15,6 +15,8 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
   No Minecraft server? Leave `NAS_MC_PORT` / `PI_MC_PORT` unset and the Minecraft tab never shows.
 - **Home tab**: clock, weather (home or where you are), calendar (.ics links), countdowns,
   sports with live scores (ESPN), stocks, and news from any RSS feed.
+- **Now playing**: the song and its cover, with play/pause and skip, from the Music app or
+  Spotify on a Mac, any player on Linux, or anything that scrobbles to Last.fm.
 - **Customizable**: drag cards around right on the page, show or hide them, and pick teams,
   stocks and feeds in Settings.
 - **Themes**: Glass (with accent colors), Blocks, Inferno, Handheld, Ancient, Drop Zone,
@@ -126,6 +128,20 @@ isn't checked unless you set `PROXMOX_VERIFY_SSL=true`.
 
 Weather and local time on a card: `NAS_LAT`/`NAS_LON`/`NAS_TZ` for this machine, the extra
 `AGENTS` fields for agents, and `PROXMOX_LAT`/`PROXMOX_LON`/`PROXMOX_TZ` for Proxmox.
+
+## Now playing
+
+The card shows up while something is playing, and hides when nothing is.
+
+- **On a Mac or Linux computer (with buttons):** run the agent there with `NOW_PLAYING=1`, then
+  add it to `MUSIC`: `MUSIC="Mac|http://mac.local:9100|token"`. On a Mac it works with the Music
+  app and Spotify; the first time, macOS asks to let it control them. On Linux it uses `playerctl`.
+  A Mac that's only sharing music doesn't need `psutil`.
+- **Anywhere else, like a phone (shown only):** set `LASTFM_USER` and `LASTFM_API_KEY`
+  ([get a key](https://www.last.fm/api/account/create)). Your player needs to scrobble to Last.fm;
+  on an iPhone, Apple Music needs a scrobbling app for that.
+
+Covers come from the player itself, Last.fm, or Apple's public search, always fetched by the server.
 
 ## Updating
 

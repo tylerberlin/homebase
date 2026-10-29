@@ -60,5 +60,11 @@ services:
       PI_MC_LABEL: "Survival World"
       PI_MC_ADDRESS: ""
 
+      # Optional: the Now playing card. Computers running the agent with NOW_PLAYING=1 get buttons;
+      # Last.fm shows what you play anywhere else.
+      # MUSIC: "Mac|http://CHANGE_ME_mac_tailscale_ip:9100|CHANGE_ME_agent_token"
+      # LASTFM_USER: ""
+      # LASTFM_API_KEY: ""
+
       # Public endpoints to check: "Name|URL,Name|URL"
       LINKS: "Cloud|https://cloud.example.com"
