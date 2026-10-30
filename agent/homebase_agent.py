@@ -16,6 +16,8 @@ Settings come from environment variables:
   AGENT_BIND    the address to listen on (default all); e.g. this machine's Tailscale address
   DISK_PATH     which disk to report (default: the system disk)
   MC_PORT       a local Minecraft server's port, to report its players (MC_HOST defaults to 127.0.0.1)
+  MC_SERVICE    the systemd service that runs it (e.g. minecraft), so the dashboard can start, stop
+                and restart it; the agent's user needs passwordless sudo for systemctl
   DOCKER_SOCKET default /var/run/docker.sock; containers are listed when it's readable, and can be
                 started, stopped and restarted from the dashboard when it's writable
   NOW_PLAYING   1 to share what's playing for the Now Playing card, with play/pause and skip:
@@ -45,6 +47,7 @@ PORT = int(os.environ.get("AGENT_PORT") or os.environ.get("PI_AGENT_PORT") or 91
 BIND = os.environ.get("AGENT_BIND", "0.0.0.0")
 MC_HOST = os.environ.get("MC_HOST", "127.0.0.1")
 MC_PORT = int(os.environ.get("MC_PORT", "0") or 0)  # 0 = no Minecraft server here
+MC_SERVICE = os.environ.get("MC_SERVICE", "").strip()
 DOCKER_SOCKET = os.environ.get("DOCKER_SOCKET", "/var/run/docker.sock")
 PUSH_URL = os.environ.get("BACKUP_PUSH_URL", "").rstrip("/")
 PUSH_TOKEN = os.environ.get("BACKUP_PUSH_TOKEN", "")
@@ -636,6 +639,19 @@ def container_action(op, cid):
         return False
 
 
+def service_action(op):
+    """start / stop / restart the Minecraft service named by MC_SERVICE (only that one)."""
+    if not MC_SERVICE or op not in ("start", "stop", "restart") or not re.fullmatch(r"[A-Za-z0-9_.@-]+", MC_SERVICE):
+        return False
+    cmd = ["systemctl", op, MC_SERVICE]
+    if os.geteuid() != 0:
+        cmd = ["sudo", "-n", *cmd]
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=90).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
 def control(action, value=None, app=None):
     """play/pause, next, previous, or volume (0-100) on the player that's showing."""
     if not NOW_PLAYING:
@@ -677,6 +693,8 @@ def report():
         body["containers"] = found
     if MC_PORT:
         body["minecraft"] = minecraft_status(MC_HOST, MC_PORT)
+        if MC_SERVICE:
+            body["mc_service"] = MC_SERVICE
     return body
 
 
@@ -742,6 +760,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, {"error": "bad request"})
         if body.get("action") == "container":
             ok = container_action(str(body.get("op", "")), str(body.get("id", "")))
+        elif body.get("action") == "service":
+            ok = service_action(str(body.get("op", "")))
         else:
             ok = control(str(body.get("action", "")), body.get("value"), body.get("app"))
         self._send(200 if ok else 409, {"ok": ok})

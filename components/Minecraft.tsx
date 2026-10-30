@@ -1,5 +1,6 @@
 "use client";
 
+import AppControls from "./AppControls";
 import { useState } from "react";
 import { CheckIcon, CopyIcon } from "./icons";
 import { AnimatedNumber } from "@/lib/useAnimatedNumber";
@@ -66,7 +67,7 @@ export function GrassBlock() {
   );
 }
 
-export default function MinecraftBlock({ mc }: { mc: Minecraft | null }) {
+export default function MinecraftBlock({ mc, server }: { mc: Minecraft | null; server?: string }) {
   if (!mc) return null;
   const on = mc.online;
   return (
@@ -113,6 +114,7 @@ export default function MinecraftBlock({ mc }: { mc: Minecraft | null }) {
         </div>
       )}
       {on && mc.motd && mc.motd.trim().toLowerCase() !== mc.label.trim().toLowerCase() && <div className="motd">{mc.motd}</div>}
+      {server && mc.control && <AppControls server={server} app={mc.control} running={on} name={mc.label} />}
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { agentStats, checkUrl, piStats } from "./remote";
 import { hostSpecs, nasSpecs } from "./specs";
 import { truenasStats } from "./truenas";
 import { weather } from "./weather";
-import type { Server, Status } from "./types";
+import type { App, Server, Status } from "./types";
 
 // Background collector: every REFRESH seconds, gather everything into one snapshot that
 // /api/status serves. Kept on globalThis so instrumentation, route handlers and dev reloads
@@ -101,13 +101,19 @@ async function collect(c: Collector) {
     return s;
   };
 
+  // What runs the NAS's Minecraft: the TrueNAS app named NAS_MC_APP, or a Docker container of that name.
+  const mcControl = (): App | undefined => {
+    if (truenas) return { name: nasCfg.mcApp, kind: "App" };
+    const ctr = containers?.find((x) => x.name === nasCfg.mcApp);
+    return ctr ? { name: ctr.name, id: ctr.id, kind: "Docker" } : undefined;
+  };
   const nasCard = (): Server => {
     const common = {
       id: nasCfg.id, name: nasCfg.name, location: nasCfg.location, tz: nasCfg.tz, weather: nasWx, reachable: true,
       cpu_history: track(c, nasCfg.id, host.cpu_percent),
       web_url: nasCfg.webUrl || undefined,
       minecraft: nasMc
-        ? { label: nasCfg.mcLabel, address: nasCfg.mcAddress, ...nasMc, favicon: iconUrl(c, nasCfg.id, nasMc.favicon), mods: nasMods }
+        ? { label: nasCfg.mcLabel, address: nasCfg.mcAddress, ...nasMc, favicon: iconUrl(c, nasCfg.id, nasMc.favicon), mods: nasMods, control: mcControl() }
         : null,
     };
     if (truenas) return { ...common, kind: "truenas", platform: nasCfg.platform, stats: host, truenas: nas, specs: nasSpecs(nas.hardware, hostHardware(), nas.version) };

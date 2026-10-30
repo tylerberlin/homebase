@@ -3102,3 +3102,6 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
 .app-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .app-confirm { font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { .team-detail { animation: none; } .team-chev { transition: none; } }
+
+.mc-controls, .section > .app-controls { margin-top: 12px; }
+.app-controls { display: grid; gap: 6px; }

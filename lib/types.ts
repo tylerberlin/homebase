@@ -80,7 +80,8 @@ export type Mod = {
 };
 export type ModList = { loader?: string; mods: Mod[]; error?: string };
 
-export type Minecraft = MinecraftStatus & { label: string; address: string; mods?: ModList | null };
+/** control: the app or service that runs it, so the Minecraft section can start / stop / restart it. */
+export type Minecraft = MinecraftStatus & { label: string; address: string; mods?: ModList | null; control?: App };
 
 export type Weather = { temp: number; code: number; is_day: boolean; high?: number; low?: number; unit: "F" | "C" };
 

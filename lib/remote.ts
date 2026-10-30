@@ -3,7 +3,7 @@ import type { AgentPlatform, App, HostStats, MinecraftStatus, PiHardware } from 
 
 /** A report from agent/homebase_agent.py (older Pi agents send the same minus platform and containers). */
 export type AgentResult =
-  | ({ reachable: true; minecraft?: MinecraftStatus; hardware?: PiHardware; platform?: AgentPlatform; containers?: App[]; tz?: string } & HostStats)
+  | ({ reachable: true; minecraft?: MinecraftStatus; mc_service?: string; hardware?: PiHardware; platform?: AgentPlatform; containers?: App[]; tz?: string } & HostStats)
   | { reachable: false; error: string };
 export type PiResult = AgentResult;
 

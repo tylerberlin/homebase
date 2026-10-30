@@ -58,7 +58,7 @@ function healthy(): Status {
           { board_vendor: "Gigabyte Technology Co., Ltd.", board_name: "B550M DS3H", kernel: "6.12.105-production+truenas" },
           "25.04.2",
         ),
-        minecraft: { label: "Modded · Create", address: "mc.example.com", online: true, players_online: 2, players_max: 20, players: ["Marty", "Doc"], version: "NeoForge 1.21.1", motd: "Create + Steam \x27n\x27 Rails", ping_ms: 3,
+        minecraft: { label: "Modded · Create", control: { name: "minecraft", kind: "App" }, address: "mc.example.com", online: true, players_online: 2, players_max: 20, players: ["Marty", "Doc"], version: "NeoForge 1.21.1", motd: "Create + Steam \x27n\x27 Rails", ping_ms: 3,
           mods: {
             loader: "NeoForge 1.21.1",
             mods: [

@@ -14,7 +14,9 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
   Tap any app, VM or container for its details: CPU, memory, uptime, image or version, and
   problems like "unhealthy" or "update available". Start, stop and restart from there too
   (TrueNAS apps, Docker containers, Proxmox VMs and containers; `APP_CONTROLS=off` to hide it).
-- **Minecraft (optional)**: players online, version and the installed mods (with update checks).
+- **Minecraft (optional)**: players online, version and the installed mods (with update checks),
+  and Start / Stop / Restart right in the Minecraft section (`NAS_MC_APP` names the TrueNAS app or
+  container that runs it; on a Pi or other machine, set `MC_SERVICE` on the agent).
   No Minecraft server? Leave `NAS_MC_PORT` / `PI_MC_PORT` unset and the Minecraft tab never shows.
 - **Home tab**: clock, weather (home or where you are), calendar (.ics links), countdowns,
   sports with live scores (ESPN; tap a team for the box score, what's next and recent results),

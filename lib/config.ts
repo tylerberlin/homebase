@@ -31,6 +31,7 @@ export const config = {
     name: E("NAS_NAME", "NAS"),
     location: E("NAS_LOCATION", "Home"),
     mcLabel: E("NAS_MC_LABEL", "Modded · Create"),
+    mcApp: E("NAS_MC_APP", "minecraft"), // the TrueNAS app (or Docker container) that runs it, for start / stop / restart
     mcHost: E("NAS_MC_HOST", "127.0.0.1"),
     mcPort: Number(E("NAS_MC_PORT", "0") || 0),
     mcAddress: E("NAS_MC_ADDRESS", "mc.example.com"),

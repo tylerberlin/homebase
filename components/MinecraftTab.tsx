@@ -14,7 +14,7 @@ export default function MinecraftTab({ data }: { data: Status }) {
           <div className="mc-card-host">
             Runs on <a href={`#${s.id}`}>{s.name}</a> · {s.location}
           </div>
-          <MinecraftBlock mc={s.minecraft} />
+          <MinecraftBlock mc={s.minecraft} server={s.id} />
           {s.minecraft?.mods && <ModsList list={s.minecraft.mods} />}
         </article>
       ))}

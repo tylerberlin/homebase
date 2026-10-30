@@ -30,7 +30,7 @@ export function buildAgentServer(card: AgentCard, r: AgentResult, opts: Opts): S
       minecraft: card.mcPort ? { ...mcMeta, online: false, error: `${card.name} unreachable` } : null,
     };
   }
-  const { minecraft, hardware, platform: _p, containers, tz, reachable: _, ...stats } = r;
+  const { minecraft, mc_service, hardware, platform: _p, containers, tz, reachable: _, ...stats } = r;
   const platform = platformOf(r);
   return {
     id: card.id, name: card.name, location: card.location,
@@ -44,7 +44,7 @@ export function buildAgentServer(card: AgentCard, r: AgentResult, opts: Opts): S
     specs: hardware ? piSpecs(hardware) : opts.specs,
     apps: containers?.length ? containers : undefined,
     appsLabel: containers?.length ? "Containers" : undefined,
-    minecraft: minecraft ? { ...mcMeta, ...minecraft, favicon: opts.iconUrl?.(minecraft.favicon) } : null,
+    minecraft: minecraft ? { ...mcMeta, ...minecraft, favicon: opts.iconUrl?.(minecraft.favicon), control: mc_service ? { name: "minecraft", kind: "Service", id: mc_service } : undefined } : null,
   };
 }
 

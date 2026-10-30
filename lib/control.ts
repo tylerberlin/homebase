@@ -15,11 +15,11 @@ async function viaAgent(base: string, token: string, app: App, action: ControlAc
   const r = await fetch(`${base.replace(/\/stats$/, "")}/control`, {
     method: "POST",
     headers: { "X-Token": token, "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "container", op: action, id: app.id }),
+    body: JSON.stringify(app.kind === "Service" ? { action: "service", op: action } : { action: "container", op: action, id: app.id }),
     cache: "no-store",
     signal: AbortSignal.timeout(35_000),
   });
-  if (r.status === 409) throw new Error("that machine couldn't do it (is its Docker socket writable?)");
+  if (r.status === 409) throw new Error(app.kind === "Service" ? "that machine couldn't restart the service (check MC_SERVICE and sudo on the agent)" : "that machine couldn't do it (is its Docker socket writable?)");
   if (!r.ok) throw new Error(`the agent said ${r.status}`);
 }
 
