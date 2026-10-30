@@ -3003,3 +3003,61 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   :root:not([data-theme="dark"], [data-skin]) .cal-soon { color: color-mix(in oklab, var(--accent) 55%, var(--ink)); }
   :root:not([data-theme="dark"], [data-skin]) .cal-soon.now { color: color-mix(in oklab, var(--ok) 48%, var(--ink)); }
 }
+
+
+/* ==========================================================================================
+   Stars & Stripes, redone as a vintage Fourth of July poster: deep navy canvas, cream ink, a
+   quiet star field in the top corner like a flag's union, card titles on small red ribbons.
+   No bunting, no candy stripes.
+   ========================================================================================== */
+:root[data-skin="stripes"] {
+  --bg: #0d183a;
+  --panel: rgba(18, 31, 74, .94); --sheen: linear-gradient(180deg, rgba(245, 239, 224, .05), transparent 40%); --chip: rgba(245, 239, 224, .07);
+  --ink: #f5efe0; --muted: #bdb9aa; --faint: rgba(245, 239, 224, .09);
+  --line: rgba(245, 239, 224, .18); --edge: rgba(245, 239, 224, .45);
+  --accent: #c9303f; --spark: #8fb3ff; --track: rgba(245, 239, 224, .12); --gauge: #8fb3ff;
+  --stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath fill='%23f5efe0' d='M30 21l2.6 5.5 6 .7-4.4 4.1 1.1 5.9L30 34.4l-5.3 2.8 1.1-5.9-4.4-4.1 6-.7z'/%3E%3C/svg%3E");
+}
+:root[data-skin="stripes"] .wrap::before { display: none; }
+/* the canvas is painted on the root (it sits under everything); the stars float over it, fading
+   away from the corner like a flag's union */
+:root[data-skin="stripes"] { background: repeating-linear-gradient(0deg, rgba(245, 239, 224, .018) 0 1px, transparent 1px 3px), radial-gradient(70vmax 50vmax at 50% 110%, rgba(201, 48, 63, .14), transparent 70%), linear-gradient(#12204d, #0b1430) fixed; }
+:root[data-skin="stripes"] body::before {
+  inset: 0; opacity: .28; animation: none;
+  background: var(--stars) 0 0 / 60px 60px, var(--stars) 30px 30px / 60px 60px;
+  -webkit-mask: radial-gradient(70vmax 50vmax at 0 0, #000 15%, rgba(0, 0, 0, .4) 40%, rgba(0, 0, 0, .1) 65%, transparent 80%);
+  mask: radial-gradient(70vmax 50vmax at 0 0, #000 15%, rgba(0, 0, 0, .4) 40%, rgba(0, 0, 0, .1) 65%, transparent 80%);
+}
+:root[data-skin="stripes"] body::after { display: none; }
+:root[data-skin="stripes"] :is(.card, .issues) { border-radius: 6px; border: 1px solid var(--line); }
+:root[data-skin="stripes"] .card::before { display: none; }
+:root[data-skin="stripes"] .card { background: var(--grain), var(--sheen), var(--panel); box-shadow: inset 0 0 0 1px rgba(245, 239, 224, .05), inset 0 1px 0 rgba(245, 239, 224, .1), var(--shadow); }
+:root[data-skin="stripes"] :is(.brand, .login-card) h1 { color: var(--ink); text-shadow: none; letter-spacing: .06em; }
+:root[data-skin="stripes"] .brand h1::after { content: ""; display: block; width: 44px; height: 3px; margin-top: 4px; background: linear-gradient(90deg, var(--accent) 50%, var(--spark) 50%); }
+/* card titles on a swallowtail ribbon */
+:root[data-skin="stripes"] :is(.home-card h3, .card-title-row h3, .section h3, #calendar > h3) {
+  display: inline-block; color: #f5efe0; background: var(--accent); padding: 4px 14px 4px 10px; font-size: 12px; letter-spacing: .1em;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 50%, 100% 100%, 0 100%);
+}
+:root[data-skin="stripes"] #sports { box-shadow: inset 0 0 0 3px #f5efe0, inset 0 0 0 5px #0b2e1b, var(--shadow); }
+:root[data-skin="stripes"] :is(.chip, .quick-link, .tab, .btn, .theme-btn, .tabs, .srv-summary, .overall .pill) { border-radius: 4px; }
+:root[data-skin="stripes"] :is(.tab.on, .chip.on) { background: var(--accent); color: #f5efe0; }
+:root[data-skin="stripes"] .quick-icon { border-radius: 3px; background: var(--accent); color: #f5efe0; box-shadow: inset 0 0 0 1px rgba(245, 239, 224, .35); }
+:root[data-skin="stripes"] .np-art-blank { background: var(--stars) 0 0 / 30px 30px, var(--stars) 15px 15px / 30px 30px, #1b2a66; color: #f5efe0; }
+:root[data-skin="stripes"] .bar > i { background: linear-gradient(90deg, #5a85e6, var(--spark)); }
+/* by day: cream poster stock with navy ink */
+:root[data-skin="stripes"][data-mode="light"] {
+  --bg: #f3ecdc;
+  --panel: rgba(252, 248, 239, .92); --sheen: linear-gradient(180deg, rgba(255, 255, 255, .6), transparent 40%); --chip: rgba(29, 42, 90, .07);
+  --ink: #1d2a5a; --muted: #5a6287; --faint: rgba(29, 42, 90, .1);
+  --line: rgba(29, 42, 90, .2); --edge: rgba(29, 42, 90, .4);
+  --accent: #b22234; --spark: #2d4ea8; --track: rgba(29, 42, 90, .12); --gauge: #2d4ea8; --gauge-from: #b9c7ef;
+  --stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath fill='%231d2a5a' d='M30 21l2.6 5.5 6 .7-4.4 4.1 1.1 5.9L30 34.4l-5.3 2.8 1.1-5.9-4.4-4.1 6-.7z'/%3E%3C/svg%3E");
+}
+:root[data-skin="stripes"][data-mode="light"] { background: repeating-linear-gradient(0deg, rgba(29, 42, 90, .02) 0 1px, transparent 1px 3px), linear-gradient(#f7f1e4, #ebe2cd) fixed; }
+:root[data-skin="stripes"][data-mode="light"] body::before { opacity: .16; }
+/* the ribbons keep their cream lettering by day (the light-mode heading rule above has id weight) */
+:root[data-skin="stripes"][data-mode="light"]:is([data-skin]) :is(.home-card h3, .card-title-row h3, .section h3, #calendar > h3) { color: #f5efe0; }
+:root[data-skin="stripes"][data-mode="light"] .card { box-shadow: inset 0 0 0 1px rgba(29, 42, 90, .06), var(--shadow); }
+:root[data-skin="stripes"][data-mode="light"] :is(.brand, .login-card) h1 { color: var(--ink); }
+:root[data-skin="stripes"][data-mode="light"] .np-art-blank { background: var(--stars) 0 0 / 30px 30px, var(--stars) 15px 15px / 30px 30px, #dfe4f3; color: var(--ink); }
