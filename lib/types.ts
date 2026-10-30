@@ -19,7 +19,20 @@ export type Pool = {
   allocated?: number;
 };
 
-export type App = { name: string; state?: string };
+/** An app, VM or container on a server. Only name and state are required; the rest shows in its details. */
+export type App = {
+  name: string;
+  state?: string;
+  kind?: string; // "VM", "CT", "Docker", "App"
+  id?: string | number;
+  cpu_percent?: number;
+  mem_used?: number;
+  mem_total?: number;
+  uptime_seconds?: number;
+  image?: string; // Docker image, or an app's version
+  note?: string; // something worth knowing: "update available", "unhealthy", "paused"
+  tags?: string; // labels from Proxmox, e.g. "media, prod"
+};
 
 /** Raw hardware facts; lib/specs.ts turns them into display rows. */
 export type Drive = { name: string; model?: string; size?: number; type?: string; role?: string; pool_layout?: string };

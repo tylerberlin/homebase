@@ -39,7 +39,12 @@ function healthy(): Status {
         truenas: {
           version: "25.04.2",
           pools: [{ name: "tank", status: "ONLINE", healthy: true, size: 3.63 * TiB, allocated: 0.74 * TiB }],
-          apps: ["homebase", "cloudflared", "minecraft", "nextcloud"].map((name) => ({ name, state: "RUNNING" })),
+          apps: [
+            { name: "homebase", state: "RUNNING", kind: "App", image: "1.0.0" },
+            { name: "cloudflared", state: "RUNNING", kind: "App", image: "2025.9.1_1.0.12", note: "update available" },
+            { name: "minecraft", state: "RUNNING", kind: "App", image: "1.21.8" },
+            { name: "nextcloud", state: "RUNNING", kind: "App", image: "30.0.2" },
+          ],
           alerts: [{ level: "INFO", text: "Scrub of pool tank finished." }],
         },
         specs: nasSpecs(
@@ -89,7 +94,13 @@ function more(): Status["servers"] {
         { name: "local-lvm", status: "ONLINE", healthy: true, size: 0.85 * TiB, allocated: 0.41 * TiB },
         { name: "backups", status: "ONLINE", healthy: true, size: 3.6 * TiB, allocated: 1.2 * TiB },
       ],
-      apps: ["home-assistant", "jellyfin", "pihole", "ubuntu-dev", "win11"].map((name, i) => ({ name, state: i === 4 ? "STOPPED" : "RUNNING" })),
+      apps: [
+        { name: "home-assistant", state: "RUNNING", kind: "CT", id: 101, cpu_percent: 2.1, mem_used: 0.9 * GiB, mem_total: 2 * GiB, uptime_seconds: 2591000 },
+        { name: "jellyfin", state: "RUNNING", kind: "VM", id: 102, cpu_percent: 14.7, mem_used: 3.2 * GiB, mem_total: 8 * GiB, uptime_seconds: 1296000, tags: "media" },
+        { name: "pihole", state: "RUNNING", kind: "CT", id: 103, cpu_percent: 0.4, mem_used: 180 * 1048576, mem_total: 512 * 1048576, uptime_seconds: 2591000 },
+        { name: "ubuntu-dev", state: "RUNNING", kind: "VM", id: 104, cpu_percent: 41.3, mem_used: 11.5 * GiB, mem_total: 16 * GiB, uptime_seconds: 86400 * 3 },
+        { name: "win11", state: "STOPPED", kind: "VM", id: 105, mem_total: 16 * GiB },
+      ],
       appsLabel: "VMs & containers",
       specs: proxmoxSpecs({ cpuinfo: { model: "Intel(R) Core(TM) i7-12700 CPU", cpus: 20, cores: 12, sockets: 1 }, memory: { total: 64 * GiB }, pveversion: "pve-manager/8.2.4/faa83925c9641325", kversion: "Linux 6.8.12-1-pve #1 SMP" }),
       minecraft: null,
@@ -98,7 +109,12 @@ function more(): Status["servers"] {
       id: "minipc", name: "minipc", location: "Office", kind: "agent", platform: "Ubuntu 24.04", reachable: true, tz: "America/New_York",
       stats: { cpu_percent: 12.4, cores: 8, temp_c: 47, mem_used: 9.8 * GiB, mem_total: 16 * GiB, disk_used: 312 * GiB, disk_total: 476 * GiB, uptime_seconds: 864000, load: [0.6, 0.7, 0.8] },
       cpu_history: hist(12, 6),
-      apps: ["immich", "nginx-proxy", "uptime-kuma", "vaultwarden"].map((name) => ({ name, state: "RUNNING" })),
+      apps: [
+        { name: "immich", state: "RUNNING", kind: "Docker", id: "3f9a1c2b7d0e", image: "ghcr.io/immich-app/immich-server:v1.118.2", uptime_seconds: 864000 },
+        { name: "nginx-proxy", state: "RUNNING", kind: "Docker", id: "a81b2c3d4e5f", image: "nginxproxy/nginx-proxy:1.6", uptime_seconds: 864000 },
+        { name: "uptime-kuma", state: "RUNNING", kind: "Docker", id: "c0ffee123456", image: "louislam/uptime-kuma:1", uptime_seconds: 3600 * 5, note: "unhealthy" },
+        { name: "vaultwarden", state: "RUNNING", kind: "Docker", id: "deadbeef0001", image: "vaultwarden/server:1.32.0", uptime_seconds: 864000 },
+      ],
       appsLabel: "Containers",
       specs: piSpecs({ model: "Beelink SER5", cpu: "AMD Ryzen 7 5800H", cores: 8, cpu_max_mhz: 4400, mem_total: 15.5 * GiB, disk_size: 512110190592, disk_type: "NVMe SSD", os: "Ubuntu 24.04.1 LTS", kernel: "6.8.0-45-generic" }),
       minecraft: null,

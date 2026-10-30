@@ -320,6 +320,28 @@ TZ = time_zone()
 DOCKER_STATE = {"running": "RUNNING", "restarting": "DEPLOYING", "dead": "CRASHED"}
 
 
+_UNIT = {"second": 1, "minute": 60, "hour": 3600, "day": 86400, "week": 604800, "month": 2592000, "year": 31536000}
+
+
+def _docker_uptime(status):
+    """Seconds from Docker's status text, e.g. "Up 3 days (healthy)"."""
+    m = re.match(r"^Up (?:About an? |Less than an? )?(\d+)?\s*(second|minute|hour|day|week|month|year)", status)
+    return (int(m.group(1)) if m.group(1) else 1) * _UNIT[m.group(2)] if m else None
+
+
+def _docker_note(status):
+    if "(unhealthy)" in status:
+        return "unhealthy"
+    if "(health: starting)" in status:
+        return "starting"
+    m = re.match(r"^Exited \((\d+)\)", status)
+    if m and m.group(1) != "0":
+        return f"exited with code {m.group(1)}"
+    if status.startswith("Restarting"):
+        return "restarting"
+    return None
+
+
 def containers():
     """Containers from the Docker socket, when there is one and we're allowed to read it."""
     if SYSTEM == "windows" or not os.path.exists(DOCKER_SOCKET):
@@ -338,7 +360,23 @@ def containers():
         head, _, body = raw.partition(b"\r\n\r\n")
         if b" 200 " not in head.split(b"\r\n", 1)[0]:
             return None
-        out = [{"name": (c.get("Names") or ["?"])[0].lstrip("/"), "state": DOCKER_STATE.get(c.get("State"), "STOPPED")} for c in json.loads(body)]
+        out = []
+        for c in json.loads(body):
+            status = c.get("Status") or ""
+            item = {
+                "name": (c.get("Names") or ["?"])[0].lstrip("/"),
+                "state": DOCKER_STATE.get(c.get("State"), "STOPPED"),
+                "kind": "Docker",
+                "id": (c.get("Id") or "")[:12],
+                "image": c.get("Image"),
+            }
+            up = _docker_uptime(status)
+            if up is not None:
+                item["uptime_seconds"] = up
+            note = _docker_note(status)
+            if note:
+                item["note"] = note
+            out.append(item)
         return sorted(out, key=lambda c: c["name"])
     except (OSError, ValueError):
         return None

@@ -1,6 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import { bytes, dur, level, pct, tempLevel, type Level } from "@/lib/format";
 import { healthOf, isInfoAlert, tempMax } from "@/lib/health";
-import type { Server, Spec } from "@/lib/types";
+import type { App, Server, Spec } from "@/lib/types";
 import { ExternalIcon } from "./icons";
 import MinecraftBlock from "./Minecraft";
 import Gauge from "./Gauge";
@@ -47,11 +50,46 @@ const appDot = (state?: string) =>
 
 const HEALTH_LABEL = { ok: "healthy", warn: "warning", bad: "problem" } as const;
 
+const STATE_LABEL: Record<string, string> = { RUNNING: "running", STOPPED: "stopped", DEPLOYING: "starting", STOPPING: "stopping", CRASHED: "crashed" };
+
+/** The tapped app's details: what the server knows about it, nothing more. */
+function AppDetail({ a }: { a: App }) {
+  const memP = pct(a.mem_used, a.mem_total);
+  const hasMem = a.mem_used != null || a.mem_total != null;
+  const who = [a.kind, a.id != null ? `${a.kind === "VM" || a.kind === "CT" ? "ID " : ""}${a.id}` : null].filter(Boolean).join(" · ");
+  return (
+    <div className="app-detail" role="region" aria-label={`${a.name} details`}>
+      <div className="app-detail-head">
+        <span className={`dot ${appDot(a.state)}`} />
+        <strong>{a.name}</strong>
+        <span className="app-state">{STATE_LABEL[a.state ?? ""] ?? (a.state ?? "unknown").toLowerCase()}</span>
+        {a.tags && <span className="app-tags">{a.tags}</span>}
+        {who && <span className="app-who">{who}</span>}
+      </div>
+      {a.note && <p className={`app-note ${/update/.test(a.note) ? "" : appDot(a.state) === "ok" ? "warn" : ""}`}>{a.note}</p>}
+      {(a.cpu_percent != null || hasMem || a.uptime_seconds != null) && (
+        <div className="metrics app-metrics">
+          {a.cpu_percent != null && <Metric label="CPU" val={`${a.cpu_percent}%`} bar={a.cpu_percent} lvl={level(a.cpu_percent)} />}
+          {hasMem && <Metric label="Memory" val={a.mem_used != null ? `${bytes(a.mem_used)}${a.mem_total ? ` / ${bytes(a.mem_total)}` : ""}` : `${bytes(a.mem_total)} max`} bar={memP} lvl={level(memP)} />}
+          {a.uptime_seconds != null && <Metric label="Uptime" val={dur(a.uptime_seconds)} />}
+        </div>
+      )}
+      {a.image && (
+        <p className="app-image mono" title={a.image}>
+          {a.image}
+        </p>
+      )}
+      {a.cpu_percent == null && !hasMem && a.uptime_seconds == null && !a.image && !a.note && !a.tags && <p className="app-note">This server only reports whether it&apos;s running.</p>}
+    </div>
+  );
+}
+
 export default function ServerCard({ s }: { s: Server }) {
   const st = s.stats ?? {};
   const tn = s.truenas ?? {};
   const tag = s.platform ?? (s.kind === "pi" ? "Raspberry Pi" : s.kind === "truenas" ? "TrueNAS" : "Server");
   const health = healthOf(s).level;
+  const [openApp, setOpenApp] = useState<string | null>(null);
 
   const memP = pct(st.mem_used, st.mem_total);
   const diskP = pct(st.disk_used, st.disk_total);
@@ -197,13 +235,15 @@ export default function ServerCard({ s }: { s: Server }) {
           </h3>
           <div className="apps">
             {apps.map((a) => (
-              <span className="app" key={a.name}>
+              <button type="button" className={`app ${openApp === a.name ? "on" : ""}`} key={a.name} aria-pressed={openApp === a.name} onClick={() => setOpenApp(openApp === a.name ? null : a.name)}>
                 <span className={`dot ${appDot(a.state)}`} />
                 {a.name}
-                <span className="sr-only"> ({(a.state ?? "unknown").toLowerCase()})</span>
-              </span>
+                {a.note && !/update/.test(a.note) && <span className="app-flag" aria-hidden="true">!</span>}
+                <span className="sr-only"> ({(a.state ?? "unknown").toLowerCase()}{a.note ? `, ${a.note}` : ""})</span>
+              </button>
             ))}
           </div>
+          {openApp && apps.some((a) => a.name === openApp) && <AppDetail a={apps.find((a) => a.name === openApp)!} />}
         </div>
       )}
       {(realAlerts.length > 0 || (!pools.length && infoAlerts.length > 0)) && (

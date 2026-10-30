@@ -182,6 +182,22 @@ header.top { display: flex; align-items: flex-end; justify-content: space-betwee
 .apps { display: flex; flex-wrap: wrap; gap: 6px; }
 .app { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 9px; border-radius: 7px; border: 1px solid var(--line); }
 .app .dot { width: 6px; height: 6px; box-shadow: none; }
+button.app { font: inherit; font-size: 12px; color: var(--ink); background: none; cursor: pointer; transition: background .15s, border-color .15s; }
+button.app:hover { background: var(--chip); }
+button.app.on { background: color-mix(in srgb, var(--accent) 18%, transparent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.app-flag { font-weight: 700; color: var(--warn); margin-left: -2px; }
+.app-detail { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--chip) 70%, transparent); border: 1px solid var(--faint); display: grid; gap: 10px; animation: app-in .18s ease-out; }
+@keyframes app-in { from { opacity: 0; transform: translateY(-4px); } }
+.app-detail-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.app-detail-head .dot { width: 7px; height: 7px; }
+.app-state { color: var(--muted); }
+.app-tags { font-size: 11px; color: var(--muted); padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); }
+.app-who { margin-left: auto; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.app-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.app-note { margin: 0; font-size: 12px; color: var(--muted); }
+.app-note.warn { color: var(--warn); }
+.app-image { margin: 0; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .app-detail { animation: none; } }
 
 .alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .alerts li { font-size: 13px; display: flex; gap: 8px; align-items: baseline; }

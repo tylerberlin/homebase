@@ -109,9 +109,16 @@ export async function truenasStats(): Promise<TrueNASInfo> {
     }
     out.hardware = hardwareCache?.hw;
     try {
-      const apps = (await call<Record<string, string>[]>("app.query")) ?? [];
+      type TnApp = { name: string; state: string; human_version?: string; version?: string; upgrade_available?: boolean; image_updates_available?: boolean; active_workloads?: { containers?: number } };
+      const apps = (await call<TnApp[]>("app.query")) ?? [];
       out.apps = apps
-        .map((a) => ({ name: a.name, state: a.state }))
+        .map((a) => ({
+          name: a.name,
+          state: a.state,
+          kind: "App",
+          image: a.human_version || a.version,
+          note: a.upgrade_available ? "update available" : a.image_updates_available ? "image update available" : undefined,
+        }))
         .sort((a, b) => (a.name ?? "").toLowerCase().localeCompare((b.name ?? "").toLowerCase()));
     } catch (e) {
       out.apps_error = (e as Error).message;

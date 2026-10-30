@@ -113,6 +113,23 @@ export function hostDisk(): Pick<HostStats, "disk_total" | "disk_used"> {
 
 const DOCKER_STATE: Record<string, string> = { running: "RUNNING", restarting: "DEPLOYING", dead: "CRASHED" };
 
+// Docker's Status text, e.g. "Up 3 days (healthy)" or "Exited (1) 2 hours ago".
+const UNIT: Record<string, number> = { second: 1, minute: 60, hour: 3600, day: 86400, week: 604800, month: 2592000, year: 31536000 };
+export function dockerUptime(status?: string) {
+  const m = status?.match(/^Up (?:About an? |Less than an? )?(\d+)?\s*(second|minute|hour|day|week|month|year)/);
+  if (!m) return undefined;
+  return (m[1] ? Number(m[1]) : 1) * UNIT[m[2]];
+}
+export function dockerNote(status?: string) {
+  if (!status) return undefined;
+  if (/\(unhealthy\)/.test(status)) return "unhealthy";
+  if (/\(health: starting\)/.test(status)) return "starting";
+  const exit = status.match(/^Exited \((\d+)\)/);
+  if (exit && exit[1] !== "0") return `exited with code ${exit[1]}`;
+  if (/^Restarting/.test(status)) return "restarting";
+  return undefined;
+}
+
 /** Docker containers on this machine, when /var/run/docker.sock is mounted (read-only is enough). */
 export function dockerContainers(): Promise<App[] | undefined> {
   const socketPath = process.env.DOCKER_SOCKET || "/var/run/docker.sock";
@@ -123,10 +140,18 @@ export function dockerContainers(): Promise<App[] | undefined> {
       res.on("data", (d) => (body += d));
       res.on("end", () => {
         try {
-          const list = JSON.parse(body) as { Names?: string[]; State?: string }[];
+          const list = JSON.parse(body) as { Id?: string; Names?: string[]; State?: string; Status?: string; Image?: string }[];
           resolve(
             list
-              .map((c) => ({ name: (c.Names?.[0] ?? "?").replace(/^\//, ""), state: DOCKER_STATE[c.State ?? ""] ?? "STOPPED" }))
+              .map((c) => ({
+                name: (c.Names?.[0] ?? "?").replace(/^\//, ""),
+                state: DOCKER_STATE[c.State ?? ""] ?? "STOPPED",
+                kind: "Docker",
+                id: c.Id?.slice(0, 12),
+                image: c.Image,
+                uptime_seconds: dockerUptime(c.Status),
+                note: dockerNote(c.Status),
+              }))
               .sort((a, b) => a.name.localeCompare(b.name)),
           );
         } catch {

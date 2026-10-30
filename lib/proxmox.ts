@@ -9,7 +9,7 @@ import type { App, Pool, Server, Weather } from "./types";
 
 type Node = { node: string; status?: string; cpu?: number; maxcpu?: number; mem?: number; maxmem?: number; uptime?: number };
 type NodeStatus = Parameters<typeof proxmoxSpecs>[0] & { loadavg?: string[]; rootfs?: { total?: number; used?: number } };
-type Guest = { vmid: number; name?: string; status?: string; template?: number };
+type Guest = { vmid: number; name?: string; status?: string; template?: number; cpu?: number; cpus?: number; mem?: number; maxmem?: number; uptime?: number; tags?: string };
 type Storage = { storage: string; total?: number; used?: number; active?: number; enabled?: number };
 
 function pve<T>(path: string): Promise<T> {
@@ -36,7 +36,24 @@ function pve<T>(path: string): Promise<T> {
 
 const STATE: Record<string, string> = { running: "RUNNING", paused: "STOPPED", stopped: "STOPPED" };
 const guests = (list: Guest[] | null, kind: string): App[] =>
-  (list ?? []).filter((g) => !g.template).map((g) => ({ name: g.name || `${kind} ${g.vmid}`, state: STATE[g.status ?? ""] ?? "STOPPED" }));
+  (list ?? [])
+    .filter((g) => !g.template)
+    .map((g) => {
+      const running = g.status === "running";
+      return {
+        name: g.name || `${kind} ${g.vmid}`,
+        state: STATE[g.status ?? ""] ?? "STOPPED",
+        kind,
+        id: g.vmid,
+        // Proxmox reports CPU as a fraction of the guest's own cores.
+        cpu_percent: running && g.cpu != null ? Math.round(g.cpu * 1000) / 10 : undefined,
+        mem_used: running ? g.mem : undefined,
+        mem_total: g.maxmem,
+        uptime_seconds: running ? g.uptime : undefined,
+        note: g.status === "paused" ? "paused" : undefined,
+        tags: g.tags ? g.tags.split(";").join(", ") : undefined,
+      };
+    });
 
 /** One card per Proxmox node. `track` adds a CPU sample to that node's history and returns it. */
 export async function proxmoxServers(track: (id: string, cpu?: number) => number[], weather?: Weather): Promise<Server[]> {
