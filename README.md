@@ -69,6 +69,20 @@ a Linux mini PC and a Mac.
 
 ## Run it for real
 
+**Easiest: Docker.** Download `compose.yaml`, fill in the `CHANGE_ME` values, and:
+
+```sh
+docker compose up -d
+```
+
+It pulls `ghcr.io/tylerberlin/homebase` (built for Intel and Arm, so it runs on a NAS, a mini PC
+or a Raspberry Pi) and keeps its settings in `./data`. On TrueNAS: Apps → Discover Apps → ⋮ →
+Install via YAML, paste the same file. Update later with `docker compose pull && docker compose up -d`,
+or turn on auto-updates in your Docker tool.
+
+**Without Docker:** build a standalone bundle with `pnpm bundle`, then run `node server.js` from it
+(it needs Node 22).
+
 **No server? No problem.** Homebase works as an everyday home dashboard on its own: clock, weather,
 calendar, countdowns, sports, stocks and news. The server parts (the Servers tab, status pill and
 server strip) only appear once you add a server (see below) or endpoints to check (`LINKS`). Preview it with `?demo=noservers`.
@@ -87,8 +101,6 @@ Settings come from environment variables; see `lib/config.ts` for the full list 
 | `CALENDARS` | `Name|https://….ics`, comma-separated. Fetched server-side only. |
 | `PUBLIC_HOST` | The address you reach it on, for passkeys (e.g. `dash.example.com`). |
 | `HOME_LAT`, `HOME_LON`, `HOME_LOCATION` | Where "Home" is for weather (defaults to the NAS location). |
-
-Build a standalone bundle with `pnpm bundle`, then run `node server.js` from it.
 
 Keep secrets in environment variables, never in the code.
 
@@ -160,6 +172,7 @@ bring your own, and `VAPID_SUBJECT` (a `mailto:` or https address) if the push s
 When a new version comes out, a dot appears on the Settings button and Settings says what's new.
 
 - **Forked on GitHub:** click **Sync fork** on your fork. If Vercel builds it, it redeploys by itself.
+- **Docker:** `docker compose pull && docker compose up -d`.
 - **Downloaded it:** `git pull`, `pnpm install`, `pnpm bundle`, then restart.
 
 Your settings, countdowns and login aren't touched. The check only asks GitHub for the latest

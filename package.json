@@ -2,6 +2,7 @@
   "name": "homebase",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@12.6.0",
   "scripts": {
     "dev": "next dev -p 8090",
     "build": "next build",

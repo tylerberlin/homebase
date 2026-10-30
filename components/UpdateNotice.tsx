@@ -49,6 +49,9 @@ export default function UpdateNotice({ info }: { info: UpdateInfo }) {
             <b>Forked on GitHub:</b> open your fork and click <b>Sync fork</b>. If Vercel builds it, that&apos;s all; it redeploys by itself.
           </li>
           <li>
+            <b>Docker:</b> <code>docker compose pull && docker compose up -d</code>.
+          </li>
+          <li>
             <b>Downloaded it:</b> run <code>git pull</code>, then <code>pnpm install</code> and <code>pnpm bundle</code>, and restart.
           </li>
         </ul>

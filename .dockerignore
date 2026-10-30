@@ -1,0 +1,12 @@
+node_modules
+.next
+.next.nosync
+deploy
+data
+docs
+agent
+.git
+.github
+.vercel
+*.tgz
+*.md

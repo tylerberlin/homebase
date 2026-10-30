@@ -3,24 +3,20 @@
 # everything server-related is optional (see "Servers" in the README).
 services:
   homebase:
-    image: node:22-alpine
+    image: ghcr.io/tylerberlin/homebase:latest   # built from this repo on every release (or: build: .)
     container_name: homebase
     restart: unless-stopped
-    network_mode: host            # lets it read host stats, reach the TrueNAS API on localhost, and reach the Pi over Tailscale
-    user: "950:950"               # truenas_admin, so the files it writes stay updatable over SSH
-    working_dir: /app
-    command: node server.js       # the Next.js standalone server from homebase.tgz
+    network_mode: host            # lets it read host stats, reach the TrueNAS API on localhost, and reach other machines over Tailscale
     volumes:
-      - /mnt/tank/apps/homebase:/app
-      - /mnt/tank/apps/minecraft/mods:/mc-mods:ro   # lists the Minecraft server's mods (read-only)
-      - ./data:/app/data            # settings, countdowns and logins when Upstash isn't connected
+      - ./data:/data              # settings, countdowns, logins and alert subscriptions when Upstash isn't connected
+      # - /mnt/tank/apps/minecraft/mods:/mc-mods:ro      # lists a Minecraft server's mods (read-only)
       # - /var/run/docker.sock:/var/run/docker.sock:ro   # without TrueNAS: list this machine's containers
       # - /etc/os-release:/host/etc/os-release:ro        # without TrueNAS: name the host's OS on its card
     environment:
-      NODE_ENV: "production"
-      HOSTNAME: "0.0.0.0"         # Next binds to $HOSTNAME; Docker would otherwise set it to the machine name
-      PORT: "8090"
+      PORT: "8090"                # the port it listens on (host network, so this is the real port)
       REFRESH: "10"
+      SESSION_SECRET: "CHANGE_ME_a_long_random_string"
+      PUBLIC_HOST: "dash.example.com"   # the address you reach it on, for passkeys
 
       # TrueNAS API (Settings → API Keys on your user, or the top-right user menu → My API Keys)
       TRUENAS_HOST: "127.0.0.1"
@@ -39,7 +35,7 @@ services:
       NAS_MC_HOST: "127.0.0.1"
       NAS_MC_PORT: "25565"
       NAS_MC_ADDRESS: "mc.example.com"
-      NAS_MC_MODS: "/mc-mods"     # the mods folder mounted above; leave out to hide the mods list
+      # NAS_MC_MODS: "/mc-mods"   # the mods folder mounted above; leave out to hide the mods list
       NAS_MC_LABEL: "Modded · Create"
 
       # Without TrueNAS: show this machine as a plain server card instead (and drop TRUENAS_API_KEY)
