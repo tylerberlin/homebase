@@ -31,6 +31,9 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
 - **Room display**: a full-screen mode with a big clock, a live scoreboard and rotating cards.
 - **Own login**: a password plus Face ID / Touch ID passkeys, signed session cookies, and
   sign-out after 15 minutes idle.
+- **Alerts on your phone**: a push notification when a server or endpoint goes down (and comes
+  back), and when your teams' games start and finish. Turn it on per device in Settings → Alerts;
+  nothing else to set up.
 - Works on phones and can be added to the home screen.
 
 ## Screenshots
@@ -144,6 +147,13 @@ The card shows up while something is playing, and hides when nothing is.
   on an iPhone, Apple Music needs a scrobbling app for that.
 
 Covers come from the player itself, Last.fm, or Apple's public search, always fetched by the server.
+
+## Alerts
+
+Settings → Alerts → **Turn on alerts for this device**. Each device subscribes on its own; on an
+iPhone or iPad, add the dashboard to the Home Screen first and turn alerts on from there. The signing
+keys are made the first time and kept in the store; set `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` to
+bring your own, and `VAPID_SUBJECT` (a `mailto:` or https address) if the push services ask for one.
 
 ## Updating
 

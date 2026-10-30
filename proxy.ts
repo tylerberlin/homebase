@@ -5,7 +5,7 @@ import { COOKIE, verifySession } from "./lib/auth/session";
 // and its API, the servers' report endpoint (it has its own token), the health check, and the
 // app icons/manifest (needed to draw the login page and the home-screen icon).
 
-const OPEN = [/^\/login$/, /^\/api\/auth\//, /^\/api\/push$/, /^\/healthz$/, /^\/brand\//, /^\/manifest\.webmanifest$/, /^\/favicon\.ico$/];
+const OPEN = [/^\/login$/, /^\/api\/auth\//, /^\/api\/push$/, /^\/healthz$/, /^\/brand\//, /^\/manifest\.webmanifest$/, /^\/favicon\.ico$/, /^\/sw\.js$/];
 
 const PUBLIC_HOST = process.env.PUBLIC_HOST || "dash.example.com";
 

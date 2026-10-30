@@ -66,5 +66,9 @@ services:
       # LASTFM_USER: ""
       # LASTFM_API_KEY: ""
 
+      # Optional: pin the push-alert signing keys (otherwise made once and kept in the store)
+      # VAPID_PUBLIC_KEY: ""
+      # VAPID_PRIVATE_KEY: ""
+
       # Public endpoints to check: "Name|URL,Name|URL"
       LINKS: "Cloud|https://cloud.example.com"

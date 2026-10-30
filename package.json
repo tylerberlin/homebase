@@ -19,12 +19,14 @@
     "next": "16.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "web-push": "^3.6.7",
     "ws": "^8.22.0"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "@types/ws": "^8.18.2",
     "typescript": "^5"
   }

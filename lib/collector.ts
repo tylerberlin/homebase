@@ -1,3 +1,4 @@
+import { watchGames, watchServers } from "./alerts";
 import { createHash } from "node:crypto";
 import os from "node:os";
 import { config } from "./config";
@@ -179,6 +180,8 @@ export function ensureCollector(): Collector {
     try {
       await collect(c);
       void pushBackup(c);
+      void watchServers(c.state).catch((e) => console.error("alerts:", (e as Error).message));
+      void watchGames().catch((e) => console.error("alerts:", (e as Error).message));
     } catch (e) {
       console.error("collect error:", e);
     }

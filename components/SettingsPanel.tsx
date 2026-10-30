@@ -27,6 +27,7 @@ import Switch from "./Switch";
 import { EDIT_LAYOUT_EVENT } from "@/lib/useCardDrag";
 import { ArrowDownIcon, ArrowUpIcon, CloseIcon, PlusIcon } from "./icons";
 import UpdateNotice from "./UpdateNotice";
+import AlertsSection from "./AlertsSection";
 import type { UpdateInfo } from "@/lib/updates";
 
 // Settings: what the Home tab shows, your teams, stocks and news, the look, and the room display.
@@ -39,6 +40,7 @@ const SECTIONS = [
   ["news", "News"],
   ["look", "Look"],
   ["display", "Room display"],
+  ["alerts", "Alerts"],
 ] as const;
 type Section = (typeof SECTIONS)[number][0];
 
@@ -582,6 +584,7 @@ export default function SettingsPanel({ open, onClose, release }: { open: boolea
             {section === "news" && <News s={settings} set={update} />}
             {section === "look" && <LookSection s={settings} set={update} />}
             {section === "display" && <DisplaySection s={settings} set={update} />}
+            {section === "alerts" && <AlertsSection demo={!!demo} />}
           </section>
         </div>
       </div>
