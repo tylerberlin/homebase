@@ -12,11 +12,13 @@ Built with Next.js 16, React 19 and plain CSS. No database is needed for the mai
 - **Servers**: CPU, memory, temperature (ring gauges and sparklines), storage pools, apps
   and alerts from TrueNAS, hardware specs, and a Raspberry Pi through a small stats agent.
   Tap any app, VM or container for its details: CPU, memory, uptime, image or version, and
-  problems like "unhealthy" or "update available".
+  problems like "unhealthy" or "update available". Start, stop and restart from there too
+  (TrueNAS apps, Docker containers, Proxmox VMs and containers; `APP_CONTROLS=off` to hide it).
 - **Minecraft (optional)**: players online, version and the installed mods (with update checks).
   No Minecraft server? Leave `NAS_MC_PORT` / `PI_MC_PORT` unset and the Minecraft tab never shows.
 - **Home tab**: clock, weather (home or where you are), calendar (.ics links), countdowns,
-  sports with live scores (ESPN), stocks, and news from any RSS feed.
+  sports with live scores (ESPN; tap a team for the box score, what's next and recent results),
+  stocks, and news from any RSS feed.
 - **Now playing**: the song and its cover, with play/pause and skip, from the Music app or
   Spotify on a Mac, any player on Linux, or anything that scrobbles to Last.fm.
 - **Customizable**: drag cards around right on the page, show or hide them, and pick teams,
@@ -136,7 +138,11 @@ time zone are optional:
 AGENTS="Mini PC|http://192.168.1.30:9100/stats|token,Mac|http://mac.local:9100/stats|token|Office|40.71|-74.01|America/New_York"
 ```
 
-Keep the agent's port on your home network or Tailscale rather than the open internet.
+Keep the agent's port on your home network or Tailscale rather than the open internet. Mount the
+Docker socket read-write (the compose file does) if you want to start and stop containers from
+the dashboard; read-only still lists them.
+
+**Proxmox:** starting and stopping VMs needs a token with `VM.PowerMgmt` as well as `PVEAuditor`.
 
 **Proxmox:** create an API token (Datacenter → Permissions → API Tokens) with the `PVEAuditor`
 role, then set `PROXMOX_URL=https://your-proxmox:8006` and

@@ -42,6 +42,45 @@ async function hardware(call: Call, info: Record<string, unknown>, pools: Record
   };
 }
 
+/** One call on a fresh connection, for actions (app.start, app.stop, app.redeploy). */
+export async function truenasCall<T>(method: string, params: unknown[] = []): Promise<T> {
+  const { host, apiKey, verifySsl } = config.truenas;
+  if (!apiKey) throw new Error("TRUENAS_API_KEY not set");
+  const ws = await new Promise<WebSocket>((resolve, reject) => {
+    const s = new WebSocket(`wss://${host}/api/current`, { rejectUnauthorized: verifySsl, handshakeTimeout: 8000 });
+    s.once("open", () => resolve(s));
+    s.once("error", reject);
+  });
+  let seq = 0;
+  const pending = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
+  ws.on("message", (raw) => {
+    let msg: RpcMsg;
+    try {
+      msg = JSON.parse(raw.toString());
+    } catch {
+      return;
+    }
+    const p = msg.id != null ? pending.get(msg.id) : undefined;
+    if (!p) return;
+    pending.delete(msg.id!);
+    if (msg.error) p.reject(new Error(msg.error.data?.reason || msg.error.message || JSON.stringify(msg.error)));
+    else p.resolve(msg.result);
+  });
+  const call = <R>(m: string, ps: unknown[] = []) =>
+    new Promise<R>((resolve, reject) => {
+      const id = ++seq;
+      const timer = setTimeout(() => (pending.delete(id), reject(new Error(`${m} timed out`))), 15000);
+      pending.set(id, { resolve: (v) => (clearTimeout(timer), resolve(v as R)), reject: (e) => (clearTimeout(timer), reject(e)) });
+      ws.send(JSON.stringify({ jsonrpc: "2.0", id, method: m, params: ps }));
+    });
+  try {
+    if (!(await call<boolean>("auth.login_with_api_key", [apiKey]))) throw new Error("TrueNAS rejected the API key");
+    return await call<T>(method, params);
+  } finally {
+    ws.close();
+  }
+}
+
 export async function truenasStats(): Promise<TrueNASInfo> {
   const { host, apiKey, verifySsl } = config.truenas;
   if (!apiKey) return { error: "TRUENAS_API_KEY not set" };

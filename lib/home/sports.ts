@@ -18,7 +18,7 @@ export type Game = {
   them?: number;
   won?: boolean;
 };
-export type TeamInfo = { id: string; league: string; name: string; short: string; logo?: string; color?: string; record?: string; live?: Game; next?: Game; last?: Game };
+export type TeamInfo = { id: string; league: string; name: string; short: string; logo?: string; color?: string; record?: string; live?: Game; next?: Game; last?: Game; recent?: Game[]; upcoming?: Game[] };
 
 type Competitor = { homeAway: string; winner?: boolean; score?: { displayValue?: string } | string; team: { abbreviation: string; logos?: { href: string }[]; logo?: string } };
 type Event = { id: string; date: string; competitions: { competitors: Competitor[]; status: { type: { state: "pre" | "in" | "post"; shortDetail: string } } }[] };
@@ -76,8 +76,10 @@ function pick({ games, ...t }: Schedule, today: Event[]): TeamInfo {
   const strip = ({ id: _, ...g }: Game & { id: string }): Game => g;
   const live = list.find((g) => g.state === "in");
   const next = list.filter((g) => g.state === "pre" && new Date(g.date).getTime() > Date.now() - 6 * 3600e3).sort((a, b) => a.date.localeCompare(b.date))[0];
-  const last = list.filter((g) => g.state === "post").sort((a, b) => b.date.localeCompare(a.date))[0];
-  return { ...t, live: live && strip(live), next: next && strip(next), last: last && strip(last) };
+  const played = list.filter((g) => g.state === "post").sort((a, b) => b.date.localeCompare(a.date));
+  const ahead = list.filter((g) => g.state === "pre" && new Date(g.date).getTime() > Date.now() - 6 * 3600e3).sort((a, b) => a.date.localeCompare(b.date));
+  const last = played[0];
+  return { ...t, live: live && strip(live), next: next && strip(next), last: last && strip(last), recent: played.slice(0, 5).map(strip), upcoming: ahead.slice(0, 4).map(strip) };
 }
 
 export async function sports(list: TeamPref[]): Promise<TeamInfo[]> {

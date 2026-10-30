@@ -36,7 +36,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ action: 
       .map(({ team: t }) => ({ team: t.abbreviation.toLowerCase(), abbr: t.abbreviation, name: t.displayName, logo: t.logos?.[0]?.href }))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
-  return teams ? json({ teams }) : json({ error: "ESPN didn't answer; try again" }, 502);
+  return teams ? json({ teams }) : json({ error: "ESPN didn't answer; try again" }, 500);
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ action: string }> }) {

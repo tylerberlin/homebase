@@ -20,6 +20,6 @@ export async function PUT(req: Request) {
   try {
     return json({ settings: await saveSettings(body), saved: true });
   } catch (e) {
-    return json({ error: `Couldn't save (${(e as Error).message})` }, 502);
+    return json({ error: `Couldn't save (${(e as Error).message})` }, 500);
   }
 }

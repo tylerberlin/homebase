@@ -130,6 +130,23 @@ export function dockerNote(status?: string) {
   return undefined;
 }
 
+/** Start, stop or restart a container over the Docker socket (needs the socket mounted read-write). */
+export function dockerAction(id: string, action: "start" | "stop" | "restart"): Promise<void> {
+  const socketPath = process.env.DOCKER_SOCKET || "/var/run/docker.sock";
+  if (!/^[0-9a-f]{12,64}$/i.test(id)) return Promise.reject(new Error("bad container id"));
+  return new Promise((resolve, reject) => {
+    const req = http.request({ socketPath, method: "POST", path: `/containers/${id}/${action}${action === "stop" ? "?t=15" : ""}`, timeout: 30000 }, (res) => {
+      res.resume();
+      if (res.statusCode === 204 || res.statusCode === 304) resolve();
+      else if (res.statusCode === 403) reject(new Error("the Docker socket is mounted read-only"));
+      else reject(new Error(`Docker said ${res.statusCode}`));
+    });
+    req.on("timeout", () => req.destroy(new Error("Docker timed out")));
+    req.on("error", (e) => reject(/EACCES|EPERM/.test(e.message) ? new Error("no permission on the Docker socket") : e));
+    req.end();
+  });
+}
+
 /** Docker containers on this machine, when /var/run/docker.sock is mounted (read-only is enough). */
 export function dockerContainers(): Promise<App[] | undefined> {
   const socketPath = process.env.DOCKER_SOCKET || "/var/run/docker.sock";

@@ -16,7 +16,8 @@ Settings come from environment variables:
   AGENT_BIND    the address to listen on (default all); e.g. this machine's Tailscale address
   DISK_PATH     which disk to report (default: the system disk)
   MC_PORT       a local Minecraft server's port, to report its players (MC_HOST defaults to 127.0.0.1)
-  DOCKER_SOCKET default /var/run/docker.sock; containers are listed when it's readable
+  DOCKER_SOCKET default /var/run/docker.sock; containers are listed when it's readable, and can be
+                started, stopped and restarted from the dashboard when it's writable
   NOW_PLAYING   1 to share what's playing for the Now Playing card, with play/pause and skip:
                 the Music app or Spotify on macOS (macOS asks once to let it control them), or any
                 player that works with playerctl on Linux
@@ -613,6 +614,28 @@ def now_playing_art():
         return data
 
 
+def _docker_post(path):
+    """POST to the Docker socket; True on 204/304."""
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+        s.settimeout(30)
+        s.connect(DOCKER_SOCKET)
+        s.sendall(f"POST {path} HTTP/1.0\r\nHost: docker\r\nContent-Length: 0\r\n\r\n".encode())
+        head = s.recv(4096).split(b"\r\n", 1)[0]
+    return b" 204 " in head or b" 304 " in head
+
+
+def container_action(op, cid):
+    """start / stop / restart one container, by id."""
+    if op not in ("start", "stop", "restart") or not re.fullmatch(r"[0-9a-f]{12,64}", str(cid)):
+        return False
+    if SYSTEM == "windows" or not os.path.exists(DOCKER_SOCKET):
+        return False
+    try:
+        return _docker_post(f"/containers/{cid}/{op}" + ("?t=15" if op == "stop" else ""))
+    except OSError:
+        return False
+
+
 def control(action, value=None, app=None):
     """play/pause, next, previous, or volume (0-100) on the player that's showing."""
     if not NOW_PLAYING:
@@ -717,7 +740,10 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(size) or b"{}")
         except ValueError:
             return self._send(400, {"error": "bad request"})
-        ok = control(str(body.get("action", "")), body.get("value"), body.get("app"))
+        if body.get("action") == "container":
+            ok = container_action(str(body.get("op", "")), str(body.get("id", "")))
+        else:
+            ok = control(str(body.get("action", "")), body.get("value"), body.get("app"))
         self._send(200 if ok else 409, {"ok": ok})
 
     def _send(self, code, obj):

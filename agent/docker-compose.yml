@@ -15,5 +15,5 @@ services:
     volumes:
       - ./homebase_agent.py:/agent/homebase_agent.py:ro
       - /etc/os-release:/host/etc/os-release:ro   # so the card names the host's OS, not the container's
-      - /var/run/docker.sock:/var/run/docker.sock:ro   # lists the containers; remove to hide them
+      - /var/run/docker.sock:/var/run/docker.sock      # lists the containers and lets the dashboard start/stop them (add :ro for list-only; remove to hide)
       - /:/host-disk:ro               # on Unraid use /mnt/user:/host-disk:ro for the array

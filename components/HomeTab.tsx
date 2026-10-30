@@ -89,7 +89,7 @@ export default function HomeTab({
       case "countdowns":
         return now != null ? <CountdownsCard now={now} demo={demo} /> : null;
       case "sports":
-        return now != null && home ? <SportsCard teams={home.teams} now={now} /> : null;
+        return now != null && home ? <SportsCard teams={home.teams} now={now} demo={!!demo} /> : null;
       case "markets":
         return home ? <MarketsCard quotes={home.quotes} /> : null;
     }

@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const b = (await req.json().catch(() => null)) as { device?: unknown; action?: unknown; value?: unknown } | null;
   if (!b || typeof b.device !== "string" || typeof b.action !== "string") return json({ error: "bad request" }, 400);
   const ok = await control(b.device, b.action, typeof b.value === "number" ? b.value : undefined);
-  if (!ok) return json({ error: "That player didn't respond" }, 502);
+  if (!ok) return json({ error: "That player didn't respond" }, 500);
   // Give the player a moment to change track before reporting back.
   await new Promise((r) => setTimeout(r, 350));
   return json(await getNowPlaying());

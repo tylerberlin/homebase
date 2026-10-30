@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { bytes, dur, level, pct, tempLevel, type Level } from "@/lib/format";
 import { healthOf, isInfoAlert, tempMax } from "@/lib/health";
 import type { App, Server, Spec } from "@/lib/types";
@@ -52,9 +52,41 @@ const HEALTH_LABEL = { ok: "healthy", warn: "warning", bad: "problem" } as const
 
 const STATE_LABEL: Record<string, string> = { RUNNING: "running", STOPPED: "stopped", DEPLOYING: "starting", STOPPING: "stopping", CRASHED: "crashed" };
 
-/** The tapped app's details: what the server knows about it, nothing more. */
-function AppDetail({ a }: { a: App }) {
+type Action = "start" | "stop" | "restart";
+let controlsKnown: boolean | null = null; // asked once per page: does this copy allow controls?
+
+/** The tapped app's details, and start / stop / restart when the server can do it. */
+function AppDetail({ a, server }: { a: App; server: Server }) {
   const memP = pct(a.mem_used, a.mem_total);
+  const [controls, setControls] = useState(controlsKnown);
+  const [confirm, setConfirm] = useState<Action | null>(null);
+  const [busy, setBusy] = useState<Action | null>(null);
+  const [said, setSaid] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => {
+    if (controlsKnown != null) return;
+    fetch("/api/apps", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d: { enabled?: boolean }) => setControls((controlsKnown = !!d.enabled)))
+      .catch(() => setControls((controlsKnown = false)));
+  }, []);
+  const canControl = controls && (server.kind === "proxmox" ? a.kind === "VM" || a.kind === "CT" : a.kind === "App" || (a.kind === "Docker" && !!a.id));
+  const running = a.state === "RUNNING";
+  const run = async (action: Action) => {
+    setConfirm(null);
+    setSaid(null);
+    if (new URLSearchParams(window.location.search).has("demo")) return setSaid({ ok: true, text: `Demo: ${a.name} would ${action} now.` });
+    setBusy(action);
+    try {
+      const r = await fetch("/api/apps", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ server: server.id, app: { name: a.name, id: a.id, kind: a.kind }, action }) });
+      const d = (await r.json().catch(() => ({}))) as { error?: string };
+      if (!r.ok) setSaid({ ok: false, text: d.error ?? `HTTP ${r.status}` });
+      else setSaid({ ok: true, text: `${action === "stop" ? "Stopping" : action === "start" ? "Starting" : "Restarting"} ${a.name}. The card updates on the next check.` });
+    } catch {
+      setSaid({ ok: false, text: "Couldn't reach the dashboard." });
+    } finally {
+      setBusy(null);
+    }
+  };
   const hasMem = a.mem_used != null || a.mem_total != null;
   const who = [a.kind, a.id != null ? `${a.kind === "VM" || a.kind === "CT" ? "ID " : ""}${a.id}` : null].filter(Boolean).join(" · ");
   return (
@@ -80,6 +112,39 @@ function AppDetail({ a }: { a: App }) {
         </p>
       )}
       {a.cpu_percent == null && !hasMem && a.uptime_seconds == null && !a.image && !a.note && !a.tags && <p className="app-note">This server only reports whether it&apos;s running.</p>}
+      {canControl && (
+        <div className="app-actions">
+          {confirm ? (
+            <>
+              <span className="app-confirm">{confirm === "stop" ? "Stop" : "Restart"} {a.name}?</span>
+              <button type="button" className="chip on" onClick={() => run(confirm)}>
+                Yes, {confirm}
+              </button>
+              <button type="button" className="chip" onClick={() => setConfirm(null)}>
+                Cancel
+              </button>
+            </>
+          ) : running ? (
+            <>
+              <button type="button" className="chip" disabled={!!busy} onClick={() => setConfirm("restart")}>
+                {busy === "restart" ? "Restarting…" : "Restart"}
+              </button>
+              <button type="button" className="chip" disabled={!!busy} onClick={() => setConfirm("stop")}>
+                {busy === "stop" ? "Stopping…" : "Stop"}
+              </button>
+            </>
+          ) : (
+            <button type="button" className="chip on" disabled={!!busy} onClick={() => run("start")}>
+              {busy === "start" ? "Starting…" : "Start"}
+            </button>
+          )}
+        </div>
+      )}
+      {said && (
+        <p className={`app-note ${said.ok ? "" : "warn"}`} role="status">
+          {said.text}
+        </p>
+      )}
     </div>
   );
 }
@@ -243,7 +308,7 @@ export default function ServerCard({ s }: { s: Server }) {
               </button>
             ))}
           </div>
-          {openApp && apps.some((a) => a.name === openApp) && <AppDetail a={apps.find((a) => a.name === openApp)!} />}
+          {openApp && apps.some((a) => a.name === openApp) && <AppDetail a={apps.find((a) => a.name === openApp)!} server={s} />}
         </div>
       )}
       {(realAlerts.length > 0 || (!pools.length && infoAlerts.length > 0)) && (

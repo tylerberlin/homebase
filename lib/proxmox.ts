@@ -12,16 +12,16 @@ type NodeStatus = Parameters<typeof proxmoxSpecs>[0] & { loadavg?: string[]; roo
 type Guest = { vmid: number; name?: string; status?: string; template?: number; cpu?: number; cpus?: number; mem?: number; maxmem?: number; uptime?: number; tags?: string };
 type Storage = { storage: string; total?: number; used?: number; active?: number; enabled?: number };
 
-function pve<T>(path: string): Promise<T> {
+function pve<T>(path: string, method: "GET" | "POST" = "GET"): Promise<T> {
   const { url, token, verifySsl } = config.proxmox;
   const u = new URL(`${url}/api2/json${path}`);
   const lib = u.protocol === "http:" ? http : https;
   return new Promise((resolve, reject) => {
-    const req = lib.get(u, { headers: { Authorization: `PVEAPIToken=${token}` }, rejectUnauthorized: verifySsl, timeout: 8000 }, (res) => {
+    const req = lib.request(u, { method, headers: { Authorization: `PVEAPIToken=${token}`, "Content-Length": "0" }, rejectUnauthorized: verifySsl, timeout: 8000 }, (res) => {
       let body = "";
       res.on("data", (d) => (body += d));
       res.on("end", () => {
-        if (res.statusCode !== 200) return reject(new Error(`Proxmox returned ${res.statusCode}${res.statusCode === 401 ? " (check PROXMOX_TOKEN)" : ""}`));
+        if (res.statusCode !== 200) return reject(new Error(`Proxmox returned ${res.statusCode}${res.statusCode === 401 ? " (check PROXMOX_TOKEN)" : res.statusCode === 403 ? " (the token needs VM.PowerMgmt)" : ""}`));
         try {
           resolve((JSON.parse(body) as { data: T }).data);
         } catch (e) {
@@ -31,7 +31,16 @@ function pve<T>(path: string): Promise<T> {
     });
     req.on("timeout", () => req.destroy(new Error("timed out")));
     req.on("error", reject);
+    req.end();
   });
+}
+
+/** Start, shut down or reboot a VM ("VM") or container ("CT") on a node. */
+export function proxmoxAction(node: string, kind: string, vmid: string | number, action: "start" | "stop" | "restart") {
+  const type = kind === "CT" ? "lxc" : "qemu";
+  const op = action === "start" ? "start" : action === "stop" ? "shutdown" : "reboot";
+  if (!/^\d+$/.test(String(vmid))) return Promise.reject(new Error("bad VM id"));
+  return pve<string>(`/nodes/${encodeURIComponent(node)}/${type}/${vmid}/status/${op}`, "POST");
 }
 
 const STATE: Record<string, string> = { running: "RUNNING", paused: "STOPPED", stopped: "STOPPED" };
@@ -55,6 +64,9 @@ const guests = (list: Guest[] | null, kind: string): App[] =>
       };
     });
 
+/** card id -> Proxmox node name, for actions */
+export const nodeOf = new Map<string, string>();
+
 /** One card per Proxmox node. `track` adds a CPU sample to that node's history and returns it. */
 export async function proxmoxServers(track: (id: string, cpu?: number) => number[], weather?: Weather): Promise<Server[]> {
   const p = config.proxmox;
@@ -70,6 +82,7 @@ export async function proxmoxServers(track: (id: string, cpu?: number) => number
       .sort((a, b) => a.node.localeCompare(b.node))
       .map(async (n): Promise<Server> => {
         const id = `pve-${slug(n.node)}`;
+        nodeOf.set(id, n.node);
         if (n.status !== "online") return { ...base, id, name: n.node, reachable: false, error: `node is ${n.status ?? "offline"}`, stats: {}, cpu_history: track(id) };
         const enc = encodeURIComponent(n.node);
         const [st, vms, cts, storage] = await Promise.all([
