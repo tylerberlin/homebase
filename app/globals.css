@@ -2867,3 +2867,139 @@ dialog.settings[open] { animation: settings-in .22s cubic-bezier(.2, .8, .3, 1);
   .np.is-playing .np-eq i { animation: none; height: 8px; }
   .np-bar span, .np-art img { transition: none; }
 }
+
+
+/* ==========================================================================================
+   Materials: the themes that were all "dark glass with a tint" each get a surface of their own,
+   plus chrome (chips, shortcuts, avatars) in the same material. The pixel, neon, steel and
+   lobby themes already had theirs and are left alone.
+   ========================================================================================== */
+:root[data-skin] { --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+:root[data-skin][data-mode="light"] { --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* Space: instrument glass. A faint readout grid inside every panel; square chrome with bracket corners;
+   the server strip reads like a status line. */
+:root[data-skin="space"] .card {
+  background: linear-gradient(rgba(90, 216, 255, .045) 1px, transparent 1px) 0 0 / 100% 28px, var(--sheen), var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(90, 216, 255, .08), inset 0 1px 0 rgba(255, 255, 255, .08), var(--shadow);
+}
+:root[data-skin="space"] :is(.chip, .quick-link, .tab, .theme-btn, .overall .pill, .tabs, .srv-summary, .btn) { border-radius: 2px; }
+:root[data-skin="space"] .quick-link {
+  background:
+    linear-gradient(var(--edge) 0 0) top left / 8px 1px no-repeat, linear-gradient(var(--edge) 0 0) top left / 1px 8px no-repeat,
+    linear-gradient(var(--edge) 0 0) bottom right / 8px 1px no-repeat, linear-gradient(var(--edge) 0 0) bottom right / 1px 8px no-repeat,
+    var(--chip);
+}
+:root[data-skin="space"] .quick-icon { border-radius: 1px; background: #02050d; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+:root[data-skin="space"] .srv-summary { font-family: var(--font-mono), monospace; font-size: 12.5px; letter-spacing: .03em; }
+:root[data-skin="space"] .np-art-blank { background: radial-gradient(circle at 50% 50%, #0b2c5e, #02050d 72%); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+
+/* Deep Water: wet glass. Light from the surface dances across each panel (desktop only), chrome
+   has the rounded top-light of a bubble, and the shortcut avatars are portholes. */
+:root[data-skin="deepwater"] .card {
+  background:
+    radial-gradient(130px 70px at 20% 30%, rgba(190, 240, 255, .07), transparent 70%) 0 0 / 300px 200px,
+    radial-gradient(100px 55px at 70% 70%, rgba(190, 240, 255, .055), transparent 70%) 60px 40px / 260px 180px,
+    var(--sheen), var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -24px 40px -34px rgba(0, 0, 0, .7), var(--shadow);
+}
+@media (min-width: 821px) and (prefers-reduced-motion: no-preference) {
+  :root[data-skin="deepwater"] .card { animation: dw-caustics 18s linear infinite; }
+}
+@keyframes dw-caustics { to { background-position: 300px 100px, -200px 220px, 0 0, 0 0; } }
+:root[data-skin="deepwater"] :is(.chip, .quick-link, .tab, .overall .pill) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), inset 0 -1px 0 rgba(0, 0, 0, .25); }
+:root[data-skin="deepwater"] .quick-icon { border-radius: 50%; background: radial-gradient(circle at 40% 35%, #1b8fd1, #04304a 80%); color: #eaf8ff; box-shadow: 0 0 0 2px #06283c, 0 0 0 3px rgba(170, 235, 255, .55); }
+:root[data-skin="deepwater"] .np-art-blank { border-radius: 50%; background: radial-gradient(circle at 40% 35%, #1b8fd1, #04304a 80%); box-shadow: 0 0 0 4px #06283c, 0 0 0 6px rgba(170, 235, 255, .55); }
+:root[data-skin="deepwater"][data-mode="light"] .quick-icon { background: radial-gradient(circle at 40% 35%, #5cc6da, #008cb4 80%); box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0, 140, 170, .5); }
+
+/* Ancient: carved stone. Grain on every panel with a dark cut edge, chips are small tablets, and
+   the avatars are gem diamonds. The rune ring stays inside its card. */
+:root[data-skin="ancient"] .card {
+  background: var(--grain), var(--sheen), var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .07), inset 0 0 30px rgba(56, 214, 255, .06), var(--shadow);
+}
+:root[data-skin="ancient"] .home-slot > .clock-card.card { overflow: hidden; }
+:root[data-skin="ancient"] :is(.chip, .quick-link, .tab, .theme-btn, .btn) { border-radius: 4px; }
+:root[data-skin="ancient"] :is(.chip, .quick-link, .tab):not(.on) { background: var(--grain), var(--chip); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -1px 0 rgba(0, 0, 0, .5); }
+:root[data-skin="ancient"] .quick-icon { width: 24px; height: 24px; border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); background: linear-gradient(135deg, #9ff0ff, var(--accent) 55%, #0a6a85); color: #06262e; }
+:root[data-skin="ancient"][data-mode="light"] .card { box-shadow: inset 0 0 0 1px rgba(60, 50, 20, .25), inset 0 1px 0 #fff, var(--shadow); }
+
+/* Hyperspace: matte black with chamfered chrome and a gold hairline inside each panel. */
+:root[data-skin="hyperspace"] .card { background: var(--grain), var(--sheen), var(--panel); box-shadow: inset 0 0 0 1px rgba(255, 232, 31, .07), var(--shadow); }
+:root[data-skin="hyperspace"] :is(.chip, .quick-link, .tab, .btn) { border-radius: 0; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); }
+:root[data-skin="hyperspace"] :is(.chip, .quick-link, .tab) { box-shadow: inset 0 0 0 1px rgba(255, 232, 31, .25); border-color: transparent; }
+:root[data-skin="hyperspace"] .quick-icon { border-radius: 0; clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px)); background: #000; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+:root[data-skin="hyperspace"] .np-art-blank { background: #000; box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+
+/* Expedition: field canvas. A woven weave under the grain, sign-style chips in caps, and hex badges. */
+:root[data-skin="expedition"] .card { background: var(--grain), repeating-linear-gradient(45deg, rgba(255, 255, 255, .014) 0 2px, transparent 2px 4px), var(--sheen), var(--panel); }
+:root[data-skin="expedition"] :is(.chip, .quick-link, .tab, .btn) { border-radius: 3px; }
+:root[data-skin="expedition"] :is(.chip, .quick-link) { text-transform: uppercase; letter-spacing: .06em; font-size: 11.5px; border-color: rgba(255, 180, 0, .35); }
+:root[data-skin="expedition"] .quick-icon { width: 24px; height: 24px; border-radius: 0; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: var(--accent); color: #1a1205; }
+:root[data-skin="expedition"] .np-art-blank { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: var(--accent); color: #1a1205; }
+
+/* Spooky: fog creeping up inside each panel, a hard black outline, lantern-glow chrome. */
+:root[data-skin="spooky"] .card {
+  background: radial-gradient(120% 60% at 50% 112%, rgba(255, 255, 255, .055), transparent 60%), var(--grain), var(--sheen), var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 0, .08), 0 0 0 1px #000, var(--shadow);
+}
+:root[data-skin="spooky"] :is(.chip, .quick-link, .tab) { border-color: rgba(255, 138, 31, .32); }
+:root[data-skin="spooky"] :is(.chip, .quick-link):hover { box-shadow: 0 0 14px -4px var(--accent); }
+:root[data-skin="spooky"] .quick-icon { border-radius: 50%; background: #2a1206; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent), 0 0 10px -2px var(--accent); }
+:root[data-skin="spooky"] .np-art-blank { background: radial-gradient(circle at 50% 40%, #ff8a1f, #7a2e00 75%); color: #140a02; }
+
+/* Harvest: warm linen with stitched tags. */
+:root[data-skin="harvest"] .card {
+  background: var(--grain), repeating-linear-gradient(0deg, rgba(255, 255, 255, .016) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(255, 255, 255, .016) 0 1px, transparent 1px 3px), var(--sheen), var(--panel);
+}
+:root[data-skin="harvest"] :is(.chip, .quick-link, .tab) { outline: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: -4px; }
+:root[data-skin="harvest"] .quick-icon { border-radius: 50%; background: #c2541a; color: #fff6e8; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); }
+:root[data-skin="harvest"] .np-art-blank { background: radial-gradient(circle at 40% 35%, #ffb060, #c2541a 70%); color: #2a1404; }
+
+/* Snowfall: frosted glass. Frost gathers in the corners, chrome has a snowy top edge, and the
+   avatars are white. */
+:root[data-skin="snowfall"] .card {
+  background: radial-gradient(60% 40% at 0 0, rgba(255, 255, 255, .14), transparent 60%), radial-gradient(50% 35% at 100% 100%, rgba(255, 255, 255, .08), transparent 60%), var(--grain), var(--sheen), var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), var(--shadow);
+}
+:root[data-skin="snowfall"] :is(.chip, .quick-link, .tab, .overall .pill):not(.on) { background: linear-gradient(rgba(255, 255, 255, .2), transparent 55%), var(--chip); }
+:root[data-skin="snowfall"] .quick-icon { border-radius: 50%; background: #fff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0, 30, 60, .45); }
+:root[data-skin="snowfall"] .np-art-blank { background: radial-gradient(circle at 40% 35%, #fff, #b9d9f5 75%); color: #1d4ed8; }
+
+/* New Year: black lacquer with a double gold hairline and gilt avatars. */
+:root[data-skin="newyear"] .card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, .06), transparent 40%), var(--sheen), var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(230, 176, 64, .28), inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(230, 176, 64, .18), var(--shadow);
+}
+:root[data-skin="newyear"] :is(.chip, .quick-link, .tab) { border-color: rgba(230, 176, 64, .4); }
+:root[data-skin="newyear"] .quick-icon { border-radius: 50%; background: linear-gradient(#ffe39a, #e6b040); color: #1a1205; box-shadow: 0 0 0 1px rgba(0, 0, 0, .4); }
+:root[data-skin="newyear"] .np-art-blank { background: linear-gradient(135deg, #ffe39a, #e6b040 60%, #b8892a); color: #1a1205; }
+
+/* Sweetheart: satin. A soft diagonal sheen, pill chrome with a top light, pink avatars. */
+:root[data-skin="sweetheart"] .card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .1), transparent 35%, rgba(255, 255, 255, .04) 60%, transparent), var(--sheen), var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), var(--shadow);
+}
+:root[data-skin="sweetheart"] :is(.chip, .quick-link, .tab) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); }
+:root[data-skin="sweetheart"] .quick-icon { border-radius: 50%; background: linear-gradient(135deg, #ff8fb0, var(--accent)); color: #fff; }
+:root[data-skin="sweetheart"] .np-art-blank { border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ff8fb0, var(--accent) 75%); color: #fff; }
+
+/* Stars & Stripes: navy felt, squared chrome, red pennant avatars. */
+:root[data-skin="stripes"] .card { background: var(--grain), var(--sheen), var(--panel); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06), var(--shadow); }
+:root[data-skin="stripes"] :is(.chip, .quick-link, .tab, .btn, .theme-btn) { border-radius: 4px; }
+:root[data-skin="stripes"] .quick-icon { border-radius: 3px; background: #d01f38; color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .55); }
+:root[data-skin="stripes"] .np-art-blank { background: repeating-linear-gradient(180deg, #d01f38 0 12px, #fff 12px 24px); color: #1f4fd6; }
+
+@media (prefers-reduced-motion: reduce) { :root[data-skin="deepwater"] .card { animation: none; } }
+
+/* small colored labels, deep enough to read in every theme: the live-game tag and "now" */
+.team-live { color: color-mix(in oklab, var(--bad) 72%, var(--ink)); }
+.cal-soon.now { color: color-mix(in oklab, var(--ok) 72%, var(--ink)); }
+:root:is([data-theme="light"], [data-mode="light"]:is([data-skin])) .team-live { color: color-mix(in oklab, var(--bad) 60%, var(--ink)); }
+:root:is([data-theme="light"], [data-mode="light"]:is([data-skin])) .cal-soon { color: color-mix(in oklab, var(--accent) 55%, var(--ink)); }
+:root:is([data-theme="light"], [data-mode="light"]:is([data-skin])) .cal-soon.now { color: color-mix(in oklab, var(--ok) 48%, var(--ink)); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"], [data-skin]) .team-live { color: color-mix(in oklab, var(--bad) 60%, var(--ink)); }
+  :root:not([data-theme="dark"], [data-skin]) .cal-soon { color: color-mix(in oklab, var(--accent) 55%, var(--ink)); }
+  :root:not([data-theme="dark"], [data-skin]) .cal-soon.now { color: color-mix(in oklab, var(--ok) 48%, var(--ink)); }
+}
